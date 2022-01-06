@@ -4,18 +4,28 @@
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `weeks` (
   `fid` int NOT NULL,
   `date` date NOT NULL,
-  `cash` decimal(7,2) DEFAULT '0.00',
   `lasttime` datetime NOT NULL,
   UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `fid` (`fid`)
+  KEY `fid` (`fid`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `money` (
+  `fid` int NOT NULL,
+  `date` date NOT NULL,
+  `money` decimal(7,0) DEFAULT '0',
+  `lasttime` datetime NOT NULL,
+  UNIQUE KEY `fiddate` (`fid`,`date`),
+  KEY `date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 */
 
@@ -36,56 +46,27 @@ EOF;
 
 $S = new $_site->className($_site);
 
-function add($week, $id, $cash) {
-  global $S;
-  try {
-    $S->query("insert into weeks (fid, date, cash, lasttime) values($id, '$week', '$cash', now())");
-  } catch(Exception $e) {
-    if($e->getCode() == 1062) { // duplicate key
-      return false;
-    }
-    throw(new SqlException("editweek.php: " . $e->getCode()));
-  }
-  return true;   
-}
+if($_GET) {
+  $week = $_GET['week'];
+  $id = $_GET['id'];
+  $page = $_GET['page'];
 
-function delete($week, $id) {
-  global $S;
-  $S->query("delete from weeks where fid=$id and date='$week'");
-}
+  $S->query("select name from bridge where id=$id");
+  $name = $S->fetchrow('num')[0];
 
-function edit($week, $id, $cash) {
-  global $S;
-  $S->query("update weeks set cash='$cash', lasttime=now() where fid=$id and date='$week'");
-}
-
-if($_POST) {
-  $week = $_POST['week'];
-  $id = $_POST['id'];
-  $cash = $_POST['cash'];
-  $page = $_POST['page'];
-
-  $cash = empty($cash) ? 0 : $cash;
-
-  $S->query("select fname, lname from bridge where id=$id");
-  [$fname, $lname] = $S->fetchrow('num');
-
-  $msg = "The record for $fname $lname for week date $week has been {$page}ed.";
+  $date = date("m-d-Y", strtotime($week));
+  $msg = "The record for $name for week $date has been {$page}ed.";
   
   switch($page) {
     case 'delete':
-      delete($week, $id);
-      break;
-    case 'edit':
-      edit($week, $id, $cash);
+      $S->query("delete from weeks where fid=$id and date='$week'");
       break;
     case 'add':
-      if(add($week, $id, $cash) === false) {
-        $msg = "Duplicate Entrey for $fname $lname. Use Edit instead of Add.";
-      }
+      $S->query("insert ignore into weeks (fid, date, lasttime) values($id, '$week', now())");
       break;
     default:
-      throw(new Exception("editweek.php: $page"));
+      echo "<h1>Go Away</h1>";
+      exit();
   }
 
   $page = ucfirst($page);
@@ -93,86 +74,24 @@ if($_POST) {
   $h->title = "Bridge $page";
   $h->desc = $page;
   $h->banner = "<h1>Bridge Recored $page</h1>";
+  $b->script =<<<EOF
+<script>
+$(".goback").on("click", function() {
+//window.history.go(-2);
+  location.replace("spreadsheet.php");
+});
+</script>
+EOF;
+  
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom($h, $b);
   
   echo <<<EOF
 $top
 <h2>$msg</h2>
-<a href="/bridge">Return to Home Page</a>
+<!--<a href="/bridge">Return to Home Page</a>-->
+<button class="goback">Go Back to Bridge Attendance Spread Sheet</button>
 $footer
 EOF;
   exit();
 }
-
-if($_GET['page'] == 'id') {
-  $h->title = "Bridge Edit Week";
-  $h->banner = "<h1>Bridge Edit</h1>";
-  $h->css =<<<EOF
-  <style>
-    input { width: 50px; text-align: right; }
-  </style>
-  EOF;
-
-  [$top, $footer] = $S->getPageTopBottom($h);
-
-  $id = $_GET['id'];
-  $week = $_GET['week'];
-  
-  $S->query("select fname, lname from bridge where id=$id");
-  [$fname, $lname] = $S->fetchrow('num');
-  $S->query("select cash from weeks where fid=$id and date='$week'");
-  $cash = $S->fetchrow('num')[0];
-  $line = "$fname $lname <input type='text' name='cash' value='$cash'>";
-
-  echo <<<EOF
-$top
-<h2>For week $week.</h2>
-<form method="post">
-$line
-<input type="hidden" name="id" value="$id">
-<input type="hidden" name="week" value="$week">
-<button type='submit' name="page" value="edit">Submit</button>
-</form>
-<form method="post">
-<button type="submit" name="page" value="delete">Delete Entry</button>
-<input type="hidden" name="id" value="$id">
-<input type="hidden" name="week" value="$week">
-</form>
-$footer
-EOF;
-  exit();
-}
-
-if($_GET['page'] == 'week') {
-  $h->title = "Bridge Add Week";
-  $h->banner = "<h1>Bridge Add</h1>";
-  $h->css =<<<EOF
-  <style>
-    input { width: 50px; text-align: right; }
-  </style>
-  EOF;
-
-  [$top, $footer] = $S->getPageTopBottom($h);
-
-  $week = $_GET['week'];
-  $id = $_GET['id'];
-  $S->query("select fname, lname from bridge where id=$id");
-  [$fname, $lname] = $S->fetchrow('num');
-  
-  echo <<<EOF
-$top
-<h2>For week $week</h2>
-<p>Add entry for $fname $lname.</p>
-<form method='post'>
-Add a Donation? <input type='text' name='cash'>
-<button type='submit' name='page' value='add'>Add New Record</button>
-<input type="hidden" name="id" value="$id">
-<input type="hidden" name="week" value="$week">
-</form>
-$footer
-EOF;
-  exit();
-}
-
-echo "<h1>Go Away</h1>";

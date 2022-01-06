@@ -1,20 +1,30 @@
 <?php
-// Add information for Bridge members for current Wed.
+// Add pressent to weeks table for Wed. games
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `weeks` (
   `fid` int NOT NULL,
   `date` date NOT NULL,
-  `cash` decimal(7,2) DEFAULT '0.00',
   `lasttime` datetime NOT NULL,
   UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `fid` (`fid`)
+  KEY `fid` (`fid`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `money` (
+  `fid` int NOT NULL,
+  `date` date NOT NULL,
+  `money` decimal(7,0) DEFAULT '0',
+  `lasttime` datetime NOT NULL,
+  UNIQUE KEY `fiddate` (`fid`,`date`),
+  KEY `date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 */
 
@@ -38,8 +48,8 @@ EOF;
 define(WEEK, 604800);
 define(STARTWED, 1641358800);
 
-//$unixToday = strtotime("today");
-$unixToday = strtotime('2022-02-15');
+$unixToday = date("U");
+//$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 
 $unixWed = strtotime("Wednesday", $unixToday);
@@ -74,73 +84,52 @@ EOF;
 
   [$top, $footer] = $S->getPageTopBottom($h);
   
-  $ids = $_POST['id'];
-  $cash = $_POST['cash'];
+  $ids = $_POST['id']; // id is an array of checked on elements
 
   // First insert the id and date.
   
   foreach($ids as $k=>$v) {
-    $S->query("select fname, lname from bridge where id=$k");
-    [$fname, $lname] = $S->fetchrow('num');
-    $names["$fname $lname"] = 1;
+    $S->query("select name from bridge where id=$k");
+    $name = $S->fetchrow('num')[0];
+    $names .= "$name, ";
     
     try {
       $sql = "insert into weeks (fid, date, lasttime) values('$k', '$wed', now())";
       $S->query($sql);
     } catch(Exception $e) {
       if($e->getCode() == 1062) { // 1062 is dup key error
-        $err .= "This date has already been entered for $fname $lname.<br>";
+        $err .= "This date has already been entered for $name.<br>";
       } else {
         throw($e);
       }
     }
   }
 
-  // Now insert or update the cash. I do not care about overwriting the cash value.
-  // IF YOU GIVE a donation you are HERE!
-  
-  foreach($cash as $k=>$v) {
-    if(!$v) continue;
-    $v = preg_replace("~,~", "", $v);
-
-    $S->query("select fname, lname from bridge where id=$k");
-    [$fname, $lname] = $S->fetchrow('num');
-    $names["$fname $lname"] = 1;
-
-    $sql = "insert into weeks (fid, date, cash, lasttime) values('$k', '$wed', '$v', now()) ".
-           "on duplicate key update cash='$v', lasttime=now()";
-    $S->query($sql);
-  }
-  
-  $sql = "select id, fname, lname from bridge";
+  $sql = "select id, name from bridge";
   $S->query($sql);
   $r = $S->getResult();
-  while([$id, $fname, $lname] = $S->fetchrow($r, 'num')) {
-    $sql = "select count(*), sum(cash) from weeks where fid=$id and date <= '$wed'";
+  while([$id, $name] = $S->fetchrow($r, 'num')) {
+    $sql = "select count(*) from weeks where fid=$id and date <= '$wed'";
     $S->query($sql);
-    [$cnt, $money] = $S->fetchrow('num');
-    $money = "$" . number_format(($money ?? 0));
-    $list .= "<tr><td>$fname $lname</td><td>$cnt</td><td>$money</td></tr>";
+    $cnt = $S->fetchrow('num')[0];
+    $list .= "<tr><td>$name</td><td>$cnt</td></tr>";
   }
 
   // POSTED page with totals
 
-  foreach($names as $k=>$v) {
-    $nameList .= "$k, ";
-  }
-  $nameList = "<span class='posted'>For: </span> " . rtrim($nameList, ', ') . "<br>";
+  $name = "<span class='posted'>For: </span> " . rtrim($names, ', ') . "<br>";
 
   $err = $err ? "<br>$err" : null;
   
   echo <<<EOF
 $top
 <h1>Data Posted $today</h1>
-$nameList
+$name
 $err
 <h1>Totals as of $fullDate</h1>
-<table>
+<table id="week-posted">
 <thead>
-<tr><th></th><th>Count</th><th>Cash</th></tr>
+<tr><th></th><th>Count</th></tr>
 </thead>
 <tbody>
 $list
@@ -166,73 +155,19 @@ table tbody td:nth-of-type(3) input { text-align: right; width: 100px; }
 </style>
 EOF;
 
-$b->script = <<<EOF
-<script>
-var savedthis;
-$("input[data-type='currency']").on({
-    keyup: function() {
-      savedthis = this;
-      formatCurrency($(this));
-    },
-    blur: function() { 
-      formatCurrency($(this), "blur");
-    }
-});
-
-
-function formatNumber(n) {
-  // format number 1000000 to 1,234,567
-  return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-}
-
-function formatCurrency(input, blur) {
-  // appends $ to value, validates decimal side
-  // and puts cursor back in right position.
-  
-  // get input value
-  var input_val = input.val();
-  
-  // don't validate empty input
-  if (input_val === "") { return; }
-  
-  // original length
-  var original_len = input_val.length;
-
-  // initial caret position 
-  var caret_pos = input.prop("selectionStart");
-
-  // BLP 2022-01-03 -- Removed Check for decimal see section at end of file
-  // If we add the section back in we need to remove the section below
-
-  /* Start of section to remove */
-  // no decimal entered
-  // add commas to number
-  // remove all non-digits
-  input_val = formatNumber(input_val);
-  /* End of section to remove */
-  
-  // send updated string to input
-  input.val(input_val);
-
-  // put caret back in the right position
-  var updated_len = input_val.length;
-  caret_pos = updated_len - original_len + caret_pos;
-  input[0].setSelectionRange(caret_pos, caret_pos);
-  if(blur) {
-    $(savedthis).closest('tr').find("td:nth-of-type(2) input").prop('checked', true);
-  }
-}
-</script>
+$h->css =<<<EOF
+<style>
+  button { border-radius: 5px; padding: 5px; color: white; background: green; }
+</style>
 EOF;
+  
+[$top, $footer] = $S->getPageTopBottom($h);
 
-[$top, $footer] = $S->getPageTopBottom($h,$b);
-
-$S->query("select id, fname, lname from bridge");
-while([$id, $nfname, $nlname] = $S->fetchrow('num')) {
+$S->query("select id, name from bridge order by lname");
+while([$id, $name] = $S->fetchrow('num')) {
   $names .= <<<EOF
-<tr><td>$nfname $nlname</td>
+<tr><td>$name</td>
 <td><input type='checkbox' name='id[$id]'></td>
-<td><input type='text' name='cash[$id]' data-type='currency'></td></tr>
 EOF;
 }
 
@@ -241,9 +176,9 @@ $top
 <h1>$fullDate</h1>
 <p>Today is $today</p>
 <form method="post">
-<table>
+<table id="week">
 <thead>
-<tr><th></th><th>Select</th><th>Cash</th><tr>
+<tr><th></th><th>Present</th><tr>
 </thead>
 <tbody>
 $names
@@ -251,51 +186,7 @@ $names
 </table>
 <button name="submit">Submit</button>
 </form>
+<br>
 <a href="/bridge">Return to Home Page</a>
 $footer;
 EOF;
-
-/* This is the check for a decimal value section */
-/*
-  // check for decimal
-  if(input_val.indexOf(".") >= 0) {
-
-    // get position of first decimal
-    // this prevents multiple decimals from
-    // being entered
-    var decimal_pos = input_val.indexOf(".");
-
-    // split number by decimal point
-    var left_side = input_val.substring(0, decimal_pos);
-    var right_side = input_val.substring(decimal_pos);
-
-    // add commas to left side of number
-    left_side = formatNumber(left_side);
-
-    // validate right side
-    right_side = formatNumber(right_side);
-    
-    // On blur make sure 2 numbers after decimal
-    if (blur === "blur") {
-      right_side += "00";
-    }
-    
-    // Limit decimal to only 2 digits
-    right_side = right_side.substring(0, 2);
-
-    // join number by .
-    //input_val = "$" + left_side + "." + right_side;
-    input_val = left_side + "." + right_side;
-    } else {
-      // no decimal entered
-      // add commas to number
-      // remove all non-digits
-      input_val = formatNumber(input_val);
-      //input_val = "$" + input_val;
-      input_val = input_val;
-      // final formatting
-      if (blur === "blur") {
-        input_val += ".00";
-      }
-    }
-*/

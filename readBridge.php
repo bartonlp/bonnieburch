@@ -2,6 +2,7 @@
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -16,12 +17,12 @@ $S->query("select id, fname, lname from bridge");
 $r = $S->getResult();
 
 echo "<h1>This is just RAW output</h1>";
-while([$id, $nfname, $nlname] = $S->fetchrow($r, 'num')) {
-  echo "<h4>$id, $nfname, $nlname</h4>";
-  if($S->query("select date, cash, lasttime from weeks where fid=$id order by date")) {
+while([$id, $name] = $S->fetchrow($r, 'num')) {
+  echo "<h4>$id, $name</h4>";
+  if($S->query("select date, lasttime from weeks where fid=$id order by date")) {
     echo "<ul>";
-    while([$date, $cash, $lasttime] = $S->fetchrow('num')) {
-      echo "<li>$date, $cash, $lasttime</li>";
+    while([$date, $lasttime] = $S->fetchrow('num')) {
+      echo "<li>$date, $lasttime</li>";
     }
     echo "</ul><br>";
   }
