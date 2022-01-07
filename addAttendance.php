@@ -137,7 +137,7 @@ $err
 $list
 </tbody>
 </table>
-<a href="/bridge">Return to Home Page</a>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
@@ -182,6 +182,7 @@ echo <<<EOF
 $top
 <h1>$fullDate</h1>
 <p>Today is $today</p>
+<p>To correct previous Wednesday's attendance go to <a href="spreadAttendance.php">Attendance Spread Sheet</a>.</p>
 <form method="post">
 <table id="week">
 <thead>
@@ -195,6 +196,6 @@ $names
 <button name="submit">Submit</button>
 </form>
 <br>
-<a href="/bridge">Return to Home Page</a>
+<a href="index.php">Return to Home Page</a>
 $footer;
 EOF;

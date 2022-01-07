@@ -1,9 +1,10 @@
-// JavaScript for addmoney.php
+// JavaScript for addDonation.php
 
 'use strict';
 
-// When we click on a 'name' in the table we do an add via a GET.
-// in addmoney.php
+// When we click on a 'name' in the table we do an add via a GET which
+// lets us add a specific date and amount.
+// in addDonation.php
 
 $("#donate-tbl td:first-of-type").on("click", function() {
   let id = $(this).attr('data-id');

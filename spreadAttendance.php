@@ -138,6 +138,6 @@ $rows
 </tfoot>
 </table>
 <br>              
-<a href="/bridge">Return to Home Page</a>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;

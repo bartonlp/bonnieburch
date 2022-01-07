@@ -21,8 +21,8 @@ if($_POST['page'] == 'post') {
   echo <<<EOF
 $top
 <h2>$name's record for week $week has been updated to $money</h2>
-<!--<a href="/bridge">Return to Home Page</a>-->
-<button><a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a></button>
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
@@ -44,8 +44,8 @@ if($_POST['page'] == 'delete') {
   echo <<<EOF
 $top
 <h2>$name's record for week $week for $money has been deleted</h2>
-<!--<a href="/bridge">Return to Home Page</a>-->
-<button><a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a></button>
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
@@ -101,7 +101,8 @@ $top
 <button id="deleteButton" type="submit" name="page" value="delete">Delete Item</button>
 </form>
 <hr>
-<button><a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a></button>
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();

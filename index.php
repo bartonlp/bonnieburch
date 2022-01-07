@@ -31,6 +31,13 @@ $h->title = "Bonnie Bridge";
 $h->desc = "Lot of bridge playing here";
 $h->banner = "<h1>Bonnie's Bridge Home Page</h1>";
 
+$h->css =<<<EOF
+<style>
+button { border-radius: 10px; background: green; }
+button a { text-decoration: none; color: white; }
+</style>
+EOF;
+
 [$top, $footer] = $S->getPageTopBottom($h);
 
 echo <<<EOF
@@ -43,6 +50,7 @@ $top
 <a href="spreadAttendance.php">Attendance Spread Sheet</a><br>
 <a href="spreadDonation.php">Donation Spread Sheet</a><br>
 <a href="editBridgeNames.php">Edit Bridge Names</a><br>
+<button><a href="help.php">Get Help</a></button>
 <hr>
 $footer
 EOF;
