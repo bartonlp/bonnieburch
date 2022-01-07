@@ -1,5 +1,6 @@
 <?php
 // This is the Home page for Bonnie Bridge
+// BLP 2022-01-07 -- updated from bridgetest
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 $S = new $_site->className($_site);
