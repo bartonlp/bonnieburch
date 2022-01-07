@@ -1,0 +1,38 @@
+/*
+ * SPECIAL json for use by siteload.php. Normal json will not allow
+ * comments.
+ * BLP 2021-10-28 -- Removed 'password' from Database. Now we get the
+ * password from a secure location at
+ * /var/www/bartonphillipsnet/PASSWORDS/database-password
+ * BLP 2022-01-07 -- 
+*/
+{
+    "siteDomain": "bartonphillips.com",
+    "siteName": "Bartonphillips",
+    "mainTitle": "<h1>Bonnie's Bridge Club</h1>",
+    "path": "/var/www/bartonphillips.com/bridgetest",
+    "className": "SiteClass",
+    //"defaultCss": false,
+    "copyright": "Barton L. Phillips",
+    "author": "Barton L. Phillips, mailto:bartonphillips@gmail.com",
+    "address": "New Bern, North Carolina",
+    "favicon": "https://bartonphillips.net/images/favicon.ico",
+    "masterdb": "barton",
+    "dbinfo": {
+      "host": "localhost",
+      "user": "barton",
+      "database": "bridgetest", // we have a seperate database from barton.
+      "engine": "mysqli"
+    },
+    "memberTable": "bridge", 
+    "headFile": "/var/www/bartonphillips.com/includes/head.i.php",
+    "bannerFile": "/var/www/bartonphillips.com/includes/banner.i.php",
+    "footerFile": "/var/www/bartonphillips.com/includes/footer.i.php",
+    "count": true,
+    "countMe": true,
+    "ctrmsg": "Counter Reset: Jan. 1, 2022",
+    "trackerImg1": "https://bartonphillips.com/bridge/bonnie3.jpg", // Picture of Bonnie
+    "EMAILADDRESS": "bartonphillips@gmail.com",
+    "EMAILRETURN": "bartonphillips@gmail.com",
+    "EMAILFROM": "webmaster@bartonphillips.com"
+}
