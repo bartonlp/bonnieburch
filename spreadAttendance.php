@@ -91,7 +91,7 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
   $rows .= $row;
 }
 
-$h->title = "Bridge Spread Present";
+$h->title = "Bridge Attendance Spread";
 $h->desc = "A spread sheet of bridge attendance";
 $h->banner = "<h1>Bridge Attendance Spread Sheet</h1>";
 
@@ -111,10 +111,10 @@ $b->script =<<<EOF
     let week = $(this).attr('data-week');
     
     if(id) {
-      location.replace("editweek.php?page=delete&id="+id+"&week="+week);
+      location.replace("editAttendance.php?page=delete&id="+id+"&week="+week);
     } else {
       id = $(this).closest("tr").find("td:first-child").attr('data-name');
-      location.replace("editweek.php?page=add&id="+id+"&week="+week);
+      location.replace("editAttendance.php?page=add&id="+id+"&week="+week);
     }
   });
 </script>
@@ -125,6 +125,7 @@ EOF;
 echo <<<EOF
 $top
 <h2>Today is $today</h2>
+<p>To add attendance or delete attendance click on the <b>H</b> or <b>blank</b> cell under the date.</p>
 <table id="spread-attendance" border='1'>
 <thead>
 $hdr

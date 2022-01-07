@@ -1,5 +1,5 @@
 <?php
-// Add pressent to weeks table for Wed. games
+// Add Attendance info into weeks table for Wed. games
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -159,7 +159,12 @@ EOF;
 
 $h->css =<<<EOF
 <style>
-  button { border-radius: 5px; padding: 5px; color: white; background: green; }
+  button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color: white; background: green; }
+  input[type='checkbox'] { width: 30px; height: 30px; }
+  #week tbody td:last-of-type { text-align: center; }
+  #week { border-collapse: collapse; }
+  #week tbody tr { border: 1px solid black; }
+  #week tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; }
 </style>
 EOF;
   
@@ -169,7 +174,7 @@ $S->query("select id, name from bridge order by lname");
 while([$id, $name] = $S->fetchrow('num')) {
   $names .= <<<EOF
 <tr><td>$name</td>
-<td><input type='checkbox' name='id[$id]'></td>
+<td><input type='checkbox' name='id[$id]'></td></tr>
 EOF;
 }
 
@@ -186,6 +191,7 @@ $top
 $names
 </tbody>
 </table>
+<br>
 <button name="submit">Submit</button>
 </form>
 <br>

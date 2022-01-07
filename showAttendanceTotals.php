@@ -112,4 +112,3 @@ $list
 <a href="/bridge">Return to Home Page</a>
 $footer
 EOF;
-

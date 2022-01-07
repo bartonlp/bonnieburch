@@ -108,7 +108,7 @@ $h->css = <<<EOF
 EOF;
 
 $b->script = <<<EOF
-<script src="addmoney.js"></script>
+<script src="addDonation.js"></script>
 EOF;
 
 // This is via JavaScript. When someone click on the 'name' field in
@@ -156,9 +156,18 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
 
 $h->css .=<<<EOF
 <style>
+input[data-type='currency'] { font-size: var(--blpFontSize); width: 150px; border: 0; padding-right: 5px;}
+  button {
+    font-size: var(--blpFontSize);
+    border-radius: 10px;
+    padding: 5px;
+    color: white;
+    background: green;
+  }
   #donate-tbl { border: 1px solid black; }
-  #donate-tbl td:first-of-type { border: 1px solid black; }
-  #donate-tbl td, #donate-tbl th { border-bottom: 1px solid black; }
+  #donate-tbl { border-collapse: collapse; }
+  #donate-tbl tbody tr { border: 1px solid black; }
+  #donate-tbl tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; } 
   .tfoot { border: 1px solid black; background: yellow; }
   .total { text-align: right; padding-right: 5px; }
 </style>
@@ -185,8 +194,10 @@ $top
 $lines
 </tbody>
 </table>
+<br>
 <button type="submit" name="page" value="postit">Submit</button>
 </form>
+<br>
 <a href="/bridge">Return to Home Page</a>
 $footer
 EOF;
