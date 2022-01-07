@@ -3,9 +3,11 @@
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(254) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `lasttime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -43,7 +45,7 @@ EOF;
 }
 // End of Check if user is Authorized
 
-$unixToday = date("U");
+$unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 
@@ -82,6 +84,7 @@ $r = $S->getResult();
 while([$id, $name] = $S->fetchrow($r, 'num')) {
   $sql = "select fid from weeks where fid=$id and date <= '$wed'";
   $cnt = $S->query($sql);
+  if(!$cnt) continue;
   $total += $cnt;
   
   //$cnt= $S->fetchrow('num')[0];
@@ -93,7 +96,8 @@ $total = number_format($total);
 echo <<<EOF
 $top
 <h1>Totals as of $fullDate</h1>
-<p>Today is $today</p>
+<p>Today is $today.<br>
+Showing only people who have attended at least once.</p>
 <table id="show-totals">
 <thead>
 <tr><th></th><th>Count</th></tr>

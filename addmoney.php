@@ -25,7 +25,7 @@ EOF;
 }
 // End of Check if user is Authorized
 
-$unixToday = date("U");
+$unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 
@@ -113,7 +113,7 @@ EOF;
 
 // This is via JavaScript. When someone click on the 'name' field in
 // the table it triggers a GET call via
-//location.href='/bridge/addmoney.php?page=add&id="+id;
+// location.replace('addmoney.php?page=add&id="+id);
 
 if($_GET['page'] == 'add') {
   [$top, $footer] = $S->getPageTopBottom($h, $b);

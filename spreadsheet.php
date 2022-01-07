@@ -1,32 +1,34 @@
 <?php
 // A spread sheet of the bridge club
 // It shows the name and then each wed from 1/5 to the current time.
-   /*
-   CREATE TABLE `bridge` (
-   `id` int NOT NULL AUTO_INCREMENT,
-   `name` varchar(255) DEFAULT NULL,
-   `fname` varchar(255) DEFAULT NULL,
-   `lname` varchar(255) DEFAULT NULL,
-   PRIMARY KEY (`id`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*
+CREATE TABLE `bridge` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(254) DEFAULT NULL,
+  `fname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `lasttime` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci,
 
-   CREATE TABLE `weeks` (
-   `fid` int NOT NULL,
-   `date` date NOT NULL,
-   `lasttime` datetime NOT NULL,
-   UNIQUE KEY `fiddate` (`fid`,`date`),
-   KEY `fid` (`fid`),
-   KEY `date` (`date`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+ CREATE TABLE `weeks` (
+ `fid` int NOT NULL,
+ `date` date NOT NULL,
+ `lasttime` datetime NOT NULL,
+ UNIQUE KEY `fiddate` (`fid`,`date`),
+ KEY `fid` (`fid`),
+ KEY `date` (`date`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-   CREATE TABLE `money` (
-   `fid` int NOT NULL,
-   `date` date NOT NULL,
-   `money` decimal(7,0) DEFAULT '0',
-   `lasttime` datetime NOT NULL,
-   UNIQUE KEY `fiddate` (`fid`,`date`),
-   KEY `date` (`date`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+ CREATE TABLE `money` (
+ `fid` int NOT NULL,
+ `date` date NOT NULL,
+ `money` decimal(7,0) DEFAULT '0',
+ `lasttime` datetime NOT NULL,
+ UNIQUE KEY `fiddate` (`fid`,`date`),
+ KEY `date` (`date`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 */
 
 $_site = require_once(getenv("SITELOADNAME"));
@@ -49,7 +51,7 @@ $S = new $_site->className($_site);
 define(WEEK, 604800);
 define(STARTWED, 1641358800);
 
-$unixToday = date("U");
+$unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 
@@ -109,10 +111,10 @@ $b->script =<<<EOF
     let week = $(this).attr('data-week');
     
     if(id) {
-      location.href = "editweek.php?page=delete&id="+id+"&week="+week;;
+      location.replace("editweek.php?page=delete&id="+id+"&week="+week);
     } else {
       id = $(this).closest("tr").find("td:first-child").attr('data-name');
-      location.href = "editweek.php?page=add&id="+id+"&week="+week;
+      location.replace("editweek.php?page=add&id="+id+"&week="+week);
     }
   });
 </script>

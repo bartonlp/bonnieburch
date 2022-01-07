@@ -3,9 +3,11 @@
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(254) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `lasttime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -48,7 +50,7 @@ EOF;
 define(WEEK, 604800);
 define(STARTWED, 1641358800);
 
-$unixToday = date("U");
+$unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 
@@ -107,7 +109,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
     continue;
   }
 
-  $fill = "<th colspan='".count($datear)."'></th>";
+  $fill = "<th colspan='" . count($datear) . "'></th>";
   
   $S->query("select sum(money) from money where fid=$id");
   $total = "$". number_format($S->fetchrow('num')[0]);
@@ -124,7 +126,7 @@ $h->css =<<<EOF
   td, th { padding: 0 5px; }
   .tfoot { background: yellow; }
   .total { text-align: right }
-</style>";
+</style>
 EOF;
 
 $b->script =<<<EOF
@@ -133,7 +135,7 @@ $b->script =<<<EOF
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
     
-    location.href = "editmoney.php?page=edit&id="+id+"&week="+week;;
+    location.replace("editmoney.php?page=edit&id="+id+"&week="+week);
   });
 </script>
 EOF;

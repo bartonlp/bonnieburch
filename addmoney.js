@@ -7,7 +7,7 @@
 
 $("#donate-tbl td:first-of-type").on("click", function() {
   let id = $(this).attr('data-id');
-  location.href = "/bridge/addmoney.php?page=add&id="+id;
+  location.("addmoney.php?page=add&id="+id);
 });
 
 // This looks for the data-type 'currency' and then does its magic.

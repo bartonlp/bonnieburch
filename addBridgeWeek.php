@@ -3,9 +3,11 @@
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
+  `name` varchar(254) DEFAULT NULL,
   `fname` varchar(255) DEFAULT NULL,
   `lname` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `lasttime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -48,7 +50,7 @@ EOF;
 define(WEEK, 604800);
 define(STARTWED, 1641358800);
 
-$unixToday = date("U");
+$unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');
 $today = date("l F j, Y", $unixToday);
 

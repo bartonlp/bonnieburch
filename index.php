@@ -1,9 +1,10 @@
 <?php
+// This is the Home page for Bonnie Bridge
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 $S = new $_site->className($_site);
 
-$h->title = "Bonnie Brideg";
+$h->title = "Bonnie Bridge";
 $h->desc = "Lot of bridge playing here";
 $h->banner = "<h1>Bonnie's Bridge Home Page</h1>";
 
