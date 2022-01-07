@@ -1,5 +1,0 @@
-# This is for the bridgetest database and directory.
-# I don't want either mysitemap.json or .gitignore to be saved to the 'origin'.
-# mysitemap.json has the dbinfo->database set to bridgetest and I don't want his .gitignore to go to the 'origin' either!
-mysitemap.json
-.gitignore
