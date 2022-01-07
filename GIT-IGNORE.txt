@@ -1,0 +1,2 @@
+I do not have a .gitignore in this, the live, directory.
+The .gitignore in bridgetest is set to ignore .gitignore and mysitemap.json.

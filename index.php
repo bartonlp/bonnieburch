@@ -1,6 +1,8 @@
 <?php
 // This is the Home page for Bonnie Bridge
-// BLP 2022-01-07 -- updated from bridgetest
+// BLP 2022-01-07 -- I should ALWAYS WORK in the bridgetest directory.
+// It has a .gitignore that is NOT pushed to 'origin' and a mysitemap.json that is NOT pushed to 'origin'.
+// If I NEVER edit anything in the bridge directory everything will work OK.
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 $S = new $_site->className($_site);
