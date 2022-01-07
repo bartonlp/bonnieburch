@@ -21,7 +21,6 @@ if($_POST['page'] == 'post') {
   echo <<<EOF
 $top
 <h2>$name's record for week $week has been updated to $money</h2>
-<!--<a href="index.php">Return to Home Page</a>-->
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
 <a href="index.php">Return to Home Page</a>
 $footer
