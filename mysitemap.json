@@ -4,12 +4,13 @@
  * BLP 2021-10-28 -- Removed 'password' from Database. Now we get the
  * password from a secure location at
  * /var/www/bartonphillipsnet/PASSWORDS/database-password
- */
+ * BLP 2022-01-07 -- 
+*/
 {
     "siteDomain": "bartonphillips.com",
     "siteName": "Bartonphillips",
     "mainTitle": "<h1>Bonnie's Bridge Club</h1>",
-    "path": "/var/www/bartonphillips.com/bridgetest",
+    "path": "/var/www/bartonphillips.com/bridge",
     "className": "SiteClass",
     //"defaultCss": false,
     "copyright": "Barton L. Phillips",
@@ -20,7 +21,7 @@
     "dbinfo": {
       "host": "localhost",
       "user": "barton",
-      "database": "bridgetest", // we have a seperate database from barton.
+      "database": "bridge", // we have a seperate database from barton.
       "engine": "mysqli"
     },
     "memberTable": "bridge", 
