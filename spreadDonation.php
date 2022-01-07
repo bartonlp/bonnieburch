@@ -117,8 +117,8 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   $rows .= "<tr><td class='no'>$name</td><td>$total</td>$line</tr>";
 }
 
-$h->title = "Bridge Money Spread Sheet";
-$h->banner = "<h1>Bridge Money Spread Sheet</h1>";
+$h->title = "Bridge Donation Spread Sheet";
+$h->banner = "<h1>Bridge Donation Spread Sheet</h1>";
 $h->css =<<<EOF
 <style>
   td { text-align: right; }
@@ -135,7 +135,7 @@ $b->script =<<<EOF
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
     
-    location.replace("editmoney.php?page=edit&id="+id+"&week="+week);
+    location.replace("editDonation.php?page=edit&id="+id+"&week="+week);
   });
 </script>
 EOF;
@@ -146,6 +146,8 @@ $finaltotal = "$". number_format($finaltotal);
 
 echo <<<EOF
 $top
+<p>To edit a donation for a player for a date click on the dollar amount show.<br>
+To add an amount for a player not shown go to <a href="addDonation.php">Add Donation Info</a>.</p>
 <table id="money" border="1">
 <thead>
 <tr><th>name</th><th>total</th>$dates</tr>
@@ -158,8 +160,6 @@ $rows
 </tfoot>
 </table>
 <br>
-<a href="/bridge">Return to Home Page</a>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
-
-

@@ -3,19 +3,11 @@ $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 
 $S = new $_site->className($_site);
-$b->script =<<<EOF
-<script>
-$(".goback").on("click", function() {
-//window.history.go(-2);
-  location.replace("spreadmoney.php");
-});
-</script>
-EOF;
   
 if($_POST['page'] == 'post') {
-  $h->title = "Editmoney Post";
-  $h->banner = "<h1>Edit Money Post</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  $h->title = "Edit Donation Post";
+  $h->banner = "<h1>Edit Donation Post</h1>";
+  [$top, $footer] = $S->getPageTopBottom($h);
               
   $money = preg_replace("~,~", "", $_POST['money']);
   $id = $_POST['id'];
@@ -29,16 +21,17 @@ if($_POST['page'] == 'post') {
   echo <<<EOF
 $top
 <h2>$name's record for week $week has been updated to $money</h2>
-<!--<a href="/bridge">Return to Home Page</a>-->
-<button class="goback">Go Back to Bridge Money Spread Sheet</button>
+<!--<a href="index.php">Return to Home Page</a>-->
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
 }
 
 if($_POST['page'] == 'delete') {
-  $h->title = "Editmoney Delete";
-  $h->banner = "<h1>Edit Money Delete</h1>";
+  $h->title = "Edit Donation Delete";
+  $h->banner = "<h1>Edit Donation Delete</h1>";
   [$top, $footer] = $S->getPageTopBottom($h);
                  
   $id = $_POST['id'];
@@ -52,16 +45,16 @@ if($_POST['page'] == 'delete') {
   echo <<<EOF
 $top
 <h2>$name's record for week $week for $money has been deleted</h2>
-<!--<a href="/bridge">Return to Home Page</a>-->
-<button class="goback">Go Back to Bridge Money Spread Sheet</button>
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
 }
   
 if($_GET['page'] == 'edit') {
-  $h->title = "Editmoney";
-  $h->banner = "<h1>Edit/Delete Money</h1>";
+  $h->title = "Edit Donation";
+  $h->banner = "<h1>Edit/Delete Donation</h1>";
   $h->css =<<<EOF
 <style>
   input { text-align: right; }
@@ -72,7 +65,7 @@ if($_GET['page'] == 'edit') {
 </style>
 EOF;
 
-  $b->script .= "<script src='addmoney.js'></script>";
+  $b->script .= "<script src='addAttendance.js'></script>";
   
   [$top, $footer] = $S->getPageTopBottom($h, $b);
                  
@@ -88,7 +81,9 @@ EOF;
   
   echo <<<EOF
 $top
-<h2>Edit $name's record for week $date with a donation of $m</h2>
+<h2>$name's record for week $date with a donation of $m</h2>
+<hr>
+<h2>Edit Record</h2>
 <form method='post'>
 <input type="text" data-type="currency" name="money" value="$money"><br>
 <input type="hidden" name="name" value="$name">
@@ -96,6 +91,7 @@ $top
 <input type="hidden" name="week" value="$week">
 <button id="editButton" type="submit" name="page" value="post">Submit</button>
 </form>
+<hr>
 <form method="post">
 <input type="hidden" name="money" value="$money">
 <input type="hidden" name="name" value="$name">
@@ -105,8 +101,9 @@ $top
 <h2>Delete Record</h2>
 <button id="deleteButton" type="submit" name="page" value="delete">Delete Item</button>
 </form>
-<!--<a href="/bridge">Return to Home Page</a>-->
-<button class="goback">Go Back to Bridge Money Spread Sheet</button>
+<hr>
+<a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();

@@ -78,7 +78,7 @@ if($which = $_POST['page']) {
 $top
 $msg
 <br>
-<a href="spreadsheet.php">Return to Attendance Spread Sheet</a>
+<a href="spreadAttendance.php">Return to Attendance Spread Sheet</a>
 $footer
 EOF;
   exit();
@@ -124,7 +124,7 @@ $top
 <input type="hidden" name="id" value="$id">
 <input type="hidden" name="name" value="$name">
 <input type="hidden" name="week" value="$week">
-<button><a href="spreadsheet.php">NO, Go Back to Bridge Attendance Spread Sheet</a></button>
+<button><a href="spreadAttendance.php">NO, Go Back to Bridge Attendance Spread Sheet</a></button>
 </form>
 $footer
 EOF;

@@ -30,7 +30,8 @@ if($_POST['page'] == "post") {
   echo <<<EOF
 $top
 <h2>Posted edited name as "$fname $lname"</h2>
-<a href="/bridge/editnames.php">Return to Edit Names</a>
+<a href="editBridgeNames.php">Return to Edit Names</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   
@@ -44,8 +45,9 @@ if($_GET['page'] == 'edit') {
 
   $h->title = "Edit Name";
   $h->banner = "<h1>Edit Bridge Name</h1>";
-  
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  $h->css = "<style>button { background: green; color: white; border-radius: 10px; }</style>";
+
+  [$top, $footer] = $S->getPageTopBottom($h);
 
   echo <<<EOF
 $top
@@ -55,6 +57,9 @@ Selected Name <input type="text" name="fname" value="$fname"><input type="text" 
 <input type="hidden" name="id" value="$id">
 <button type="submit" name="page" value="post">Submit</button>
 </form>
+<br>
+<a href="editBridgeName.php">Return to Edit Bridge Names</a><br>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
   exit();
@@ -83,7 +88,7 @@ $b->script =<<<EOF
 
     //console.log("name: "+name+", fname: "+fname+", lname: "+lname);
 
-    location.replace("editnames.php?page=edit&id="+id+"&fname="+fname+"&lname="+lname);
+    location.replace("editBridgeNames.php?page=edit&id="+id+"&fname="+fname+"&lname="+lname);
   });             
 </script>
 EOF;
@@ -102,6 +107,6 @@ $lines
 </tbody>
 </table>
 <br>
-<a href="/bridge">Return to Home Page</a>
+<a href="index.php">Return to Home Page</a>
 $footer
 EOF;
