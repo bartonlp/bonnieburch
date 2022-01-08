@@ -2,6 +2,12 @@
 // startup.i.php is used by all of the bridge apps except index.php
 // This is one place for the table comments, the finger test and the date logic.
 // Some apps don't need all of the date logic but it does not hurt to have it.
+
+//***************************************
+// FOR testing put a date in $todayDateIs
+//$todayDateIs = "2022-01-14";
+//***************************************
+
 /*
 CREATE TABLE `bridge` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -54,10 +60,6 @@ $startWed = strtotime("2022-01-05");
 define(WEEK, 604800);
 define(STARTWED, $startWed);
 
-//***************************************
-// FOR testing put a date in $todayDateIs
-$todayDateIs = "2022-01-14";
-//***************************************
 $unixToday = strtotime($todayDateIs ?? "today");
 //echo "$unixToday, " . strtotime("today") . "<br>";
 

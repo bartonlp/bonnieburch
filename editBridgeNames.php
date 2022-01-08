@@ -91,7 +91,7 @@ echo <<<EOF
 $top
 <hr>
 <p>Click on the name you want to edit.</p>
-<table id="names">
+<table border="1" id="names">
 <thead>
 <tr><th>Name</th><th class="dontshow">fname</th><th class="dontshow">lname</th></tr>
 </thead>
