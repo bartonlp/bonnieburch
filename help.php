@@ -3,6 +3,8 @@
 
 require("startup.i.php");
 
+$S = new $_site->className($_site);
+
 $h->title = "Bridge App Help";
 $h->banner = "<h1>$h->title</h1>";
 $h->css =<<<EOF
