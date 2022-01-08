@@ -1,50 +1,10 @@
 <?php
 // A spread sheet of the bridge club
 // It shows the name and then each wed from 1/5 to the current time.
-/*
-CREATE TABLE `bridge` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(254) DEFAULT NULL,
-  `fname` varchar(255) DEFAULT NULL,
-  `lname` varchar(255) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `lasttime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+// This file is called by spreadAttendance.php. It should NEVER be run on its own (see 'Go Away' as
+// default).
 
-CREATE TABLE `weeks` (
-  `fid` int NOT NULL,
-  `date` date NOT NULL,
-  `lasttime` datetime NOT NULL,
-  UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `fid` (`fid`),
-  KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `money` (
-  `fid` int NOT NULL,
-  `date` date NOT NULL,
-  `money` decimal(7,0) DEFAULT '0',
-  `lasttime` datetime NOT NULL,
-  UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
-
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
-
-// Check if user is Authorized
-$finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("/var/www/bartonphillipsnet/bonnieFinger.php");
-
-if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-  echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-  exit();
-}
-// End of Check if user is Authorized
+require("startup.i.php");
 
 $S = new $_site->className($_site);
 
@@ -70,15 +30,16 @@ if($which = $_POST['page']) {
   }
 
   $week = date("l F j, Y", strtotime($week));
-  $msg = "The record for $name for week $week has been {$which}ed.";
 
   [$top, $footer] = $S->getPageTopBottom($h);
 
   echo <<<EOF
 $top
-$msg
-<br>
-<a href="spreadAttendance.php">Return to Attendance Spread Sheet</a>
+<hr>
+<p>The record for $name for week $week has been {$which}ed.</p>
+<a href="spreadAttendance.php">Return to Attendance Spread Sheet</a><br>
+<a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -111,6 +72,27 @@ if($_GET) {
   $h->title = "Are You Sure";
   $h->desc = $page;
   $h->banner = "<h1>Are You Sure?</h1>";
+  $h->css =<<<EOF
+<style>
+form button {
+  background: red;
+  color: white;
+  font-size: var(--blpFontSize);
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 2px solid black;
+}
+form a {
+  font-size: var(--blpFontSize);
+  text-decoration: none;
+  padding: 1px 10px;
+  border: 2px solid black;
+  border-radius: 10px;
+  color: white;
+  background: green;
+}
+</style>
+EOF;
 
   [$top, $footer] = $S->getPageTopBottom($h);
 
@@ -118,14 +100,18 @@ if($_GET) {
   
   echo <<<EOF
 $top
+<hr>
 <h2>$msg</h2>
 <form method="post">
-<button type="submit" name="page" value="$page">Yes $page</button>
+<button type="submit" name="page" value="$page">Yes $page</button>&nbsp;
+<a href="spreadAttendance.php">NO, Go Back to Bridge Attendance Spread Sheet</a>
 <input type="hidden" name="id" value="$id">
 <input type="hidden" name="name" value="$name">
 <input type="hidden" name="week" value="$week">
-<button><a href="spreadAttendance.php">NO, Go Back to Bridge Attendance Spread Sheet</a></button>
 </form>
+<br>
+<a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();

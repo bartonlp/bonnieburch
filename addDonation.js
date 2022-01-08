@@ -1,4 +1,5 @@
 // JavaScript for addDonation.php
+// BLP 2022-01-08 -- added blur logic to total inputs.
 
 'use strict';
 
@@ -34,6 +35,17 @@ function formatCurrency(input, blur) {
   // get input value
   var input_val = input.val();
 
+  // BLP 2022-01-08 -- added. This does a total of the inputs and sets
+  // it in the tfoot as total.
+  if(blur) {
+    let total = 0;
+    $("input[data-type='currency']").each(function() {
+      total += parseFloat(((total = $(this).val()) == '') ? 0 : total);
+    });
+    $("#donate-tbl tfoot th:last-of-type").text(total);
+  }
+  // BLP 2022-01-08 -- end add
+  
   // don't validate empty input
   if (input_val === "") { return; }
 

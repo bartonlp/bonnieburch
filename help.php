@@ -1,8 +1,7 @@
 <?php
 // Help for index.php
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
-$S = new $_site->className($_site);
+
+require("startup.i.php");
 
 $h->title = "Bridge App Help";
 $h->banner = "<h1>$h->title</h1>";
@@ -50,5 +49,6 @@ list of playes and the amount the donated. Click on <b>Return to Home Page</b>.<
 <h2>Edit Bridge Names</h2>
 <hr>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;

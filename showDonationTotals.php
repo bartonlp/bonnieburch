@@ -1,49 +1,7 @@
 <?php
 // Show the total donations
-/*
-CREATE TABLE `bridge` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(254) DEFAULT NULL,
-  `fname` varchar(255) DEFAULT NULL,
-  `lname` varchar(255) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `lasttime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
 
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
-
-// Check if user is Authorized
-$finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("/var/www/bartonphillipsnet/bonnieFinger.php");
-
-if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-  echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-  exit();
-}
-// End of Check if user is Authorized
-
-$unixToday = strtotime("today");
-//$unixToday = strtotime('2022-02-15');
-$today = date("l F j, Y", $unixToday);
-
-$unixWed = strtotime("Wednesday", $unixToday);
-$unixPrevWed = strtotime("previous Wednesday", $unixToday);
-$unixNextWed = strtotime("next Wednesday", $unixToday) + 604800;
-$nextWed = date('Y-m-d', $unixNextWed);
-
-if($unixToday >= $unixWed && $unixToday < $unixNextWed) {
-  $wed = date('Y-m-d', $unixWed);
-} else {
-  $wed = date("Y-m-d", $unixPrevWed);
-  $unixWed = $unixPrevWed;
-} 
-
-$fullDate = date("l F j, Y", $unixWed);
+require("startup.i.php");
 
 $S = new $_site->className($_site);
 
@@ -84,6 +42,7 @@ $total = "$". number_format($total);
 
 echo <<<EOF
 $top
+<hr>
 <h1>Totals as of $fullDate</h1>
 <p>Today is $today.<br>
 Showing only those who have donated.</p>
@@ -100,6 +59,7 @@ $list
 </table>
 <br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
 

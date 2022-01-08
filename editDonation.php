@@ -1,6 +1,8 @@
 <?php
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
+// Edit or delete a Donation entry.
+// Called from spreadDonation.php. This should never be run by itself (see 'Go Away' at the bottom).
+
+require("startup.i.php");
 
 $S = new $_site->className($_site);
   
@@ -20,9 +22,11 @@ if($_POST['page'] == 'post') {
   
   echo <<<EOF
 $top
+<hr>
 <h2>$name's record for week $week has been updated to $money</h2>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -43,9 +47,11 @@ if($_POST['page'] == 'delete') {
 
   echo <<<EOF
 $top
+<hr>
 <h2>$name's record for week $week for $money has been deleted</h2>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -80,6 +86,7 @@ EOF;
   
   echo <<<EOF
 $top
+<hr>
 <h2>$name's record for week $date with a donation of $m</h2>
 <hr>
 <h2>Edit Record</h2>
@@ -103,6 +110,7 @@ $top
 <hr>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();

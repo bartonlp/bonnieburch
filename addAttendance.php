@@ -1,72 +1,7 @@
 <?php
 // Add Attendance info into weeks table for Wed. games
-/*
-CREATE TABLE `bridge` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(254) DEFAULT NULL,
-  `fname` varchar(255) DEFAULT NULL,
-  `lname` varchar(255) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `lasttime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `weeks` (
-  `fid` int NOT NULL,
-  `date` date NOT NULL,
-  `lasttime` datetime NOT NULL,
-  UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `fid` (`fid`),
-  KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `money` (
-  `fid` int NOT NULL,
-  `date` date NOT NULL,
-  `money` decimal(7,0) DEFAULT '0',
-  `lasttime` datetime NOT NULL,
-  UNIQUE KEY `fiddate` (`fid`,`date`),
-  KEY `date` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
-
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
-
-// Check if user is Authorized
-$finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("/var/www/bartonphillipsnet/bonnieFinger.php");
-
-if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-  echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-  exit();
-}
-// End of Check if user is Authorized
-
-// Define a week and the first wed. we will use.
-
-define(WEEK, 604800);
-define(STARTWED, 1641358800);
-
-$unixToday = strtotime("today");
-//$unixToday = strtotime('2022-02-15');
-$today = date("l F j, Y", $unixToday);
-
-$unixWed = strtotime("Wednesday", $unixToday);
-$unixPrevWed = strtotime("previous Wednesday", $unixToday);
-$unixNextWed = strtotime("next Wednesday", $unixToday) + 604800;
-$nextWed = date('Y-m-d', $unixNextWed);
-
-if($unixToday >= $unixWed && $unixToday < $unixNextWed) {
-  $wed = date('Y-m-d', $unixWed);
-} else {
-  $wed = date("Y-m-d", $unixPrevWed);
-  $unixWed = $unixPrevWed;
-} 
-
-$fullDate = date("l F j, Y", $unixWed);
+require("startup.i.php");
 
 // Post the ADD
 
@@ -74,6 +9,8 @@ if($_POST) {
   $_site->footerFile = null;
   
   $S = new $_site->className($_site);
+  $h->title = "Attendance Posted";
+  $h->banner = "<h1>$h->title</h1>";
   
   $h->css =<<<EOF
 <style>
@@ -114,6 +51,7 @@ EOF;
     $sql = "select count(*) from weeks where fid=$id and date <= '$wed'";
     $S->query($sql);
     $cnt = $S->fetchrow('num')[0];
+    $total += $cnt;
     $list .= "<tr><td>$name</td><td>$cnt</td></tr>";
   }
 
@@ -125,19 +63,25 @@ EOF;
   
   echo <<<EOF
 $top
+<hr>
 <h1>Data Posted $today</h1>
 $name
 $err
 <h1>Totals as of $fullDate</h1>
-<table id="week-posted">
+<table id="week-posted" border="1">
 <thead>
 <tr><th></th><th>Count</th></tr>
 </thead>
 <tbody>
 $list
 </tbody>
+<tfoot>
+<tr style="background: yellow;"><th>Total</th><th>$total</th></tr>
+</tfoot>
 </table>
+<br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -147,7 +91,9 @@ EOF;
 
 $S = new $_site->className($_site);
 
-$h->title = "Bridge";
+$h->title = "Add Bridge Attendance";
+$h->banner = "<h1>$h->title</h1>";
+
 $h->desc = "Lot of bridge playing here";
 $h->css =<<<EOF
 <style>
@@ -180,6 +126,7 @@ EOF;
 
 echo <<<EOF
 $top
+<hr>
 <h1>$fullDate</h1>
 <p>Today is $today</p>
 <p>To correct previous Wednesday's attendance go to <a href="spreadAttendance.php">Attendance Spread Sheet</a>.</p>
@@ -197,5 +144,6 @@ $names
 </form>
 <br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer;
 EOF;

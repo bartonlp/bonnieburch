@@ -1,47 +1,7 @@
 <?php
 // Shows a spread sheet of donations
-/*
-CREATE TABLE `money` (
-  `fid` int NOT NULL,
-  `date` date NOT NULL,
-  `money` decimal(7,0) DEFAULT '0',
-  `lasttime` datetime NOT NULL,
-  UNIQUE KEY `fiddate` (`fid`,`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
 
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
-
-// Check if user is Authorized
-$finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("/var/www/bartonphillipsnet/bonnieFinger.php");
-
-if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-  echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-  exit();
-}
-// End of Check if user is Authorized
-
-$unixToday = strtotime("today");
-//$unixToday = strtotime('2022-02-15');
-$today = date("l F j, Y", $unixToday);
-
-$unixWed = strtotime("Wednesday", $unixToday);
-$unixPrevWed = strtotime("previous Wednesday", $unixToday);
-$unixNextWed = strtotime("next Wednesday", $unixToday) + 604800;
-$nextWed = date('Y-m-d', $unixNextWed);
-
-if($unixToday >= $unixWed && $unixToday < $unixNextWed) {
-  $wed = date('Y-m-d', $unixWed);
-} else {
-  $wed = date("Y-m-d", $unixPrevWed);
-  $unixWed = $unixPrevWed;
-} 
-
-$fullDate = date("l F j, Y", $unixWed);
+require("startup.i.php");
 
 $S = new $_site->className($_site);
 
@@ -68,9 +28,11 @@ if($_POST['page'] == 'postit') {
   $date = date("l F j, Y", $unixWed);
   echo <<<EOF
 $top
+<hr>
 <h2>Data Posted $date:<br>$name</h2>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -98,9 +60,11 @@ if($_POST['page'] == 'post') {
   $date = date("l M j, Y", strtotime($date));
   echo <<<EOF
 $top
-<h1>Data POSTED for $name on $date for $money</h1>
+<hr>
+<h2>Data POSTED for $name on $date for $money</h2>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer;
 EOF;
   exit();
@@ -135,6 +99,7 @@ if($_GET['page'] == 'add') {
   
   echo <<<EOF
 $top
+<hr>
 <h2>Donation from $name</h2>
 <p>Select the Date and amount.</p>
 <form method="post">
@@ -147,8 +112,10 @@ $top
 <input type="hidden" name="name" value="$name">
 <button type="submit" name="page" value="post">Submit</button>
 </form>
+<br>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -192,6 +159,7 @@ $total = number_format($total);
 
 echo <<<EOF
 $top
+<hr>
 <h2>$fullDate</h2>
 <p>Today is $today</p>
 <p>To add a date other than Wednsday's Bridge Date click the 'Name'.</p>
@@ -212,5 +180,6 @@ $lines
 </form>
 <br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;

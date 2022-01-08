@@ -1,19 +1,7 @@
 <?php
 // Edit the names in the bridge table
-/*
-CREATE TABLE `bridge` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(254) DEFAULT NULL,
-  `fname` varchar(255) DEFAULT NULL,
-  `lname` varchar(255) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `lasttime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
 
-$_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
+require("startup.i.php");
 
 $S = new $_site->className($_site);
 
@@ -29,9 +17,11 @@ if($_POST['page'] == "post") {
   $S->query("update bridge set name='$fname $lname', fname='$fname', lname='$lname', lasttime=now() where id=$id");
   echo <<<EOF
 $top
+<hr>
 <h2>Posted edited name as "$fname $lname"</h2>
 <a href="editBridgeNames.php">Return to Edit Names</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   
@@ -51,6 +41,7 @@ if($_GET['page'] == 'edit') {
 
   echo <<<EOF
 $top
+<hr>
 <h2>Edit the name and then 'Submit'</h2>
 <form method="post">
 Selected Name <input type="text" name="fname" value="$fname"><input type="text" name="lname" value="$lname"><br>
@@ -60,6 +51,7 @@ Selected Name <input type="text" name="fname" value="$fname"><input type="text" 
 <br>
 <a href="editBridgeName.php">Return to Edit Bridge Names</a><br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
   exit();
@@ -97,6 +89,7 @@ EOF;
 
 echo <<<EOF
 $top
+<hr>
 <p>Click on the name you want to edit.</p>
 <table id="names">
 <thead>
@@ -108,5 +101,6 @@ $lines
 </table>
 <br>
 <a href="index.php">Return to Home Page</a>
+<hr>
 $footer
 EOF;
