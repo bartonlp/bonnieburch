@@ -67,7 +67,7 @@ $today = date("l F j, Y", $unixToday);
 
 $unixWed = strtotime("Wednesday", $unixToday);
 $unixPrevWed = strtotime("previous Wednesday", $unixToday);
-$unixNextWed = strtotime("next Wednesday", $unixToday) + 604800;
+$unixNextWed = strtotime("next Wednesday", $unixToday) + WEEK;
 $nextWed = date('Y-m-d', $unixNextWed);
 
 if($unixToday >= $unixWed && $unixToday < $unixNextWed) {
