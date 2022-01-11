@@ -49,7 +49,7 @@ Selected Name <input type="text" name="fname" value="$fname"><input type="text" 
 <button type="submit" name="page" value="post">Submit</button>
 </form>
 <br>
-<a href="editBridgeName.php">Return to Edit Bridge Names</a><br>
+<a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
 <a href="index.php">Return to Home Page</a>
 <hr>
 $footer
