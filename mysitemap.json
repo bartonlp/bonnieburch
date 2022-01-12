@@ -4,14 +4,15 @@
  * BLP 2021-10-28 -- Removed 'password' from Database. Now we get the
  * password from a secure location at
  * /var/www/bartonphillipsnet/PASSWORDS/database-password
- * BLP 2022-01-07 -- this is for directory bridgetest the WORK database!
- * This file should NEVER be pushed because of .gitignore.
+ * BLP 2022-01-12 -- This file is the file for https://bonnieburch.com. It should always be PULLed from
+ * the repository and NEVER PUSHed. This url should NEVER be pushed. 
+ * The .gitignore has '.gitignore' and 'mysitemap.json'.
 */
 {
     "siteDomain": "bartonphillips.com",
     "siteName": "Bartonphillips",
     "mainTitle": "<h1>Bonnie's Bridge Club</h1>",
-    "path": "/var/www/bartonphillips.com/.bridge",
+    "path": "/var/www/bonnieburch.com,
     "className": "SiteClass",
     //"defaultCss": false,
     "copyright": "Barton L. Phillips",
@@ -32,7 +33,7 @@
     "count": true,
     "countMe": true,
     "ctrmsg": "Counter Reset: Jan. 1, 2022",
-    "trackerImg1": "https://bartonphillips.com/.bridge/bonnie3.jpg", // Picture of Bonnie
+    "trackerImg1": "/bonnie3.jpg", // Picture of Bonnie at https://bartonphillips.net/images
     "EMAILADDRESS": "bartonphillips@gmail.com",
     "EMAILRETURN": "bartonphillips@gmail.com",
     "EMAILFROM": "webmaster@bartonphillips.com"
