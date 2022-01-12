@@ -1,0 +1,71 @@
+# Apache2 2.4 uses Require
+Require all granted
+
+Options +Includes
+
+Header set Access-Control-Allow-Origin "*"
+
+SetEnv SITELOAD /var/www/vendor/bartonlp/site-class/includes
+SetEnv SITELOADNAME /var/www/vendor/bartonlp/site-class/includes/siteload.php
+
+RewriteEngine on
+# Don't allow these robots
+RewriteCond %{HTTP_USER_AGENT} "baiduspider" [NC]
+RewriteRule (.*) - [F,L]
+
+# direct robots.txt to robots.php
+RewriteRule ^robots\.txt$ robots.php [L,NC]
+RewriteRule ^Sitemap\.xml$ sitemap.php [L,NC]
+
+# rewrite the address of csstest.css to tracker.php?id=$1&csstest
+RewriteRule ^csstest-(.*)\.css$ https://bartonphillips.net/tracker.php?id=$1&csstest [L,QSA]
+
+# Keep others from looking at these files.
+RewriteRule ^(\.git|other|script)/.*$ - [F,L]
+RewriteRule ^(\.gitignore|mysitemap\.json|sitemap-new\.txt)$  - [F,L]
+
+FileETag All
+
+# BEGIN EXPIRES
+ExpiresActive On
+ExpiresDefault "access plus 10 day"
+ExpiresByType text/html A0
+ExpiresByType application/x-javascript A0
+ExpiresByType application/javascript A0
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType text/plain "access plus 1 month"
+ExpiresByType image/gif "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType application/x-icon "access plus 1 year"
+# END EXPIRES
+
+AddOutputFilterByType DEFLATE \
+  "application/atom+xml" \
+  "application/javascript" \
+  "application/x-javascript" \
+  "application/json" \
+  "application/ld+json" \
+  "application/manifest+json" \
+  "application/rdf+xml" \
+  "application/rss+xml" \
+  "application/schema+json" \
+  "application/vnd.geo+json" \
+  "application/vnd.ms-fontobject" \
+  "application/x-font-ttf" \
+  "application/x-font-woff" \
+  "application/x-web-app-manifest+json" \
+  "application/xhtml+xml" \
+  "application/xml" \
+  "font/opentype" \
+  "image/svg+xml" \
+  "image/x-icon" \
+  "text/cache-manifest" \
+  "text/css" \
+  "text/html" \
+  "text/javascript" \
+  "text/plain" \
+  "text/vtt" \
+  "text/x-component" \
+  "text/xml"
+ 
