@@ -9,10 +9,10 @@
  * The .gitignore has '.gitignore' and 'mysitemap.json'.
 */
 {
-    "siteDomain": "bartonphillips.com",
-    "siteName": "Bartonphillips",
+    "siteDomain": "bonnieburch.com",
+    "siteName": "Bonnieburch",
     "mainTitle": "<h1>Bonnie's Bridge Club</h1>",
-    "path": "/var/www/bonnieburch.com,
+    "path": "/var/www/bonnieburch.com",
     "className": "SiteClass",
     //"defaultCss": false,
     "copyright": "Barton L. Phillips",
@@ -33,7 +33,7 @@
     "count": true,
     "countMe": true,
     "ctrmsg": "Counter Reset: Jan. 1, 2022",
-    "trackerImg1": "/bonnie3.jpg", // Picture of Bonnie at https://bartonphillips.net/images
+    "trackerImg1": "/images/bonnie3.jpg", // Picture of Bonnie at https://bartonphillips.net/images
     "EMAILADDRESS": "bartonphillips@gmail.com",
     "EMAILRETURN": "bartonphillips@gmail.com",
     "EMAILFROM": "webmaster@bartonphillips.com"
