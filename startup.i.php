@@ -44,7 +44,7 @@ ErrorClass::setDevelopment(true);
 
 // Check if user is Authorized
 $finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("/var/www/bartonphillipsnet/bonnieFinger.php");
+$bonnieFingers = require("fingers/bonnieFinger.php");
 
 if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
   echo <<<EOF

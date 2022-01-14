@@ -27,9 +27,9 @@
       "engine": "mysqli"
     },
     "memberTable": "bridge", 
-    "headFile": "/var/www/bartonphillips.com/includes/head.i.php",
-    "bannerFile": "/var/www/bartonphillips.com/includes/banner.i.php",
-    "footerFile": "/var/www/bartonphillips.com/includes/footer.i.php",
+    "headFile": "includes/head.i.php",
+    "bannerFile": "includes/banner.i.php",
+    "footerFile": "includes/footer.i.php",
     "count": true,
     "countMe": true,
     "ctrmsg": "Counter Reset: Jan. 1, 2022",
