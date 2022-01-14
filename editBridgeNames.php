@@ -5,6 +5,69 @@ require("startup.i.php");
 
 $S = new $_site->className($_site);
 
+$h->css =<<<EOF
+<style>
+  .dontshow { display: none; }
+  button { font-size: var(--blpFontSize); border-radius: 10px; background: green; color: white; }
+  .delete { background: red; }
+  input { font-size: var(--blpFontSize); }
+</style>
+EOF;
+
+/*
+if($_POST['page'] == "delete") {
+  $h->title = "Delete Name";
+  $h->banner = "<h1>$h->title</h1>";
+  [$top, $footer] = $S->getPageTopBottom($h);
+  
+  $fname = $_POST['fname'];
+  $lname = $_POST['lname'];
+  
+  $S->query("delete from bridge where fname='$fname' and lname='$lname'");
+
+  echo <<<EOF
+$top
+<h2>The name $fname $lname has been deleted</h2>
+<a href="editBridgeNames.php">Return to Edit Names</a><br>
+<a href="index.php">Return to Home Page</a>
+<hr>
+$footer
+EOF;
+  exit();
+}
+*/
+
+if($_POST['page'] == "add") {
+  $h->title = "Add New Name";
+  $h->banner = "<h1>$h->title</h1>";
+  [$top, $footer] = $S->getPageTopBottom($h);
+  
+  $fname = $_POST['fname'];
+  $lname = $_POST['lname'];
+  $name = "$fname $lname";
+
+  $msg = "New Name Posted";
+  
+  try {
+    $S->query("insert into bridge (name, fname, lname, created, lasttime) values('$name', '$fname', '$lname', now(), now())");
+  } catch(Exception $e) {
+    if($e->getCode() == 1062) { // 1062 is dup key error
+      $msg = "The name $name has already been entered.";
+    } else {
+      throw($e);
+    }
+  }
+  echo <<<EOF
+$top
+<h1>$msg</h1>
+<a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
+<a href="index.php">Return to Home Page</a>
+$footer
+EOF;
+
+  exit();
+}
+
 if($_POST['page'] == "post") {
   $id = $_POST['id'];
   $fname = $_POST['fname'];
@@ -34,8 +97,7 @@ if($_GET['page'] == 'edit') {
   $lname = $_GET['lname'];
 
   $h->title = "Edit Name";
-  $h->banner = "<h1>Edit Bridge Name</h1>";
-  $h->css = "<style>button { background: green; color: white; border-radius: 10px; }</style>";
+  $h->banner = "<h1>$h->title</h1>";
 
   [$top, $footer] = $S->getPageTopBottom($h);
 
@@ -48,27 +110,31 @@ Selected Name <input type="text" name="fname" value="$fname"><input type="text" 
 <input type="hidden" name="id" value="$id">
 <button type="submit" name="page" value="post">Submit</button>
 </form>
-<br>
+<hr>
+<!--
+<h2>Delete $fname $lname</h2>
+<form method="post">
+<button class="delete" type="submit" name='page' value='delete'>Delete $fname $lname</button>
+<input type='hidden' name='fname' value='$fname'>
+<input type='hidden' name='lname' value='$lname'>
+</form>
+<hr>
 <a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
 <a href="index.php">Return to Home Page</a>
 <hr>
+-->
 $footer
 EOF;
   exit();
 }
 
-$S->query("select id, name, fname, lname from bridge");
+$S->query("select id, name, fname, lname from bridge order by lname");
 while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
   $lines .= "<tr><td class='name' data-id='$id'>$name</td><td class='dontshow fname'>$fname</td><td class='dontshow lname'>$lname</td></tr>";
 }
 
 $h->title = "Select Name";
 $h->banner = "<h1>Select Bridge Name To Edit</h1>";
-$h->css =<<<EOF
-<style>
-  .dontshow { display: none; }
-</style>
-EOF;
 
 $b->script =<<<EOF
 <script>
@@ -99,6 +165,11 @@ $top
 $lines
 </tbody>
 </table>
+<h2>Add a New Name</h2>
+<form method='post'>
+New First Name <input type='text' name='fname'>&nbsp;New Last Name <input type'text' name='lname'>
+<button type='submit' name='page' value='add'>Add New Name</button>
+</form>
 <br>
 <a href="index.php">Return to Home Page</a>
 <hr>

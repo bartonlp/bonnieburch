@@ -38,7 +38,7 @@ $h->banner = "<h1>Bonnie's Bridge Home Page</h1>";
 
 $h->css =<<<EOF
 <style>
-button { border-radius: 10px; background: green; }
+button { font-size: var(--blpFontSize); border-radius: 10px; background: green; }
 button a { text-decoration: none; color: white; }
 </style>
 EOF;
