@@ -1,6 +1,7 @@
 <?php
-// This file is used to set up bonnieburch.com with the corect fingerprint.
-// It is NOT saved to the github repo.
+// This file is used to set up bonnieburch.com with the correct fingerprint.
+// NOTE *** There are only two places where the myip table is inserted or updated to, that is here
+// and in bartonphillips.com/register.php.
 
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
@@ -87,6 +88,8 @@ input[type="submit"] {
 }
   </style>
 EOF;
+
+// BLP 2022-01-16 -- noGeo is a new flag that has been added to footer.i.php
 
 $b->noGeo = true; // Don't add geo.js
 $b->script = "<script src='https://bartonphillips.net/js/getFingerprint.js'></script>";
