@@ -8,11 +8,11 @@
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 $S = new $_site->className($_site);
-
+//vardump("S", $S);
 // Define a week and the first wed. we will use.
 
-define(WEEK, 604800);
-define(STARTWED, 1641358800);
+define("WEEK", 604800);
+define("STARTWED", 1641358800);
 
 $unixToday = strtotime("today");
 //$unixToday = strtotime('2022-02-15');

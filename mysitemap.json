@@ -11,7 +11,8 @@
 {
     "siteDomain": "bonnieburch.com",
     "siteName": "Bonnieburch",
-    "mainTitle": "<h1>Bonnie's Bridge Club</h1>",
+    //"mainTitle": "<h1>Bonnie's Bridge Club</h1>", // each page has
+    //its own banner.
     "path": "/var/www/bonnieburch.com",
     "className": "SiteClass",
     //"defaultCss": false,
@@ -26,6 +27,23 @@
       "database": "bridge", // we have a seperate database from barton.
       "engine": "mysqli"
     },
+    /*
+    "dbinfo": {
+      "host": "localhost",
+      "user": "barton",
+      "database": "bridgetest", // This is the test database
+      "engine": "mysqli"
+    },
+    */
+    "errorMode": {
+      "development": true, // development automatically sets email to true.
+                         // If development is true then noEmail will be
+                         // set to true unless noEmail is set to false!
+                         // Only false not null or just missing.
+      "noEmail": null,   // Set it to null will not affect the true above which sets it to true also.
+      "noHtml": false,
+      "noOutput": false
+    },
     "memberTable": "bridge", 
     "headFile": "includes/head.i.php",
     "bannerFile": "includes/banner.i.php",
@@ -36,5 +54,5 @@
     "trackerImg1": "/images/bonnie3.jpg", // Picture of Bonnie at https://bartonphillips.net/images
     "EMAILADDRESS": "bartonphillips@gmail.com",
     "EMAILRETURN": "bartonphillips@gmail.com",
-    "EMAILFROM": "webmaster@bartonphillips.com"
+    "EMAILFROM": "barton@bartonphillips.com"
 }

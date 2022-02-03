@@ -58,8 +58,8 @@ EOF;
 // Define a week and the first wed. we will use.
 
 $startWed = strtotime("2022-01-05");
-define(WEEK, 604800);
-define(STARTWED, $startWed);
+define("WEEK", 604800);
+define("STARTWED", $startWed);
 
 $unixToday = strtotime($todayDateIs ?? "today");
 //echo "$unixToday, " . strtotime("today") . "<br>";

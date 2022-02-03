@@ -12,19 +12,12 @@
 // Like wise in head.i.php the csstest is added by tracker.js. See comments in head.i.php
 // BLP 2021-03-26 -- add nodb logic
 
-if($this->nodb !== true && $this->noTrack !== true) {
-  $image2 = "<img src='https://bartonphillips.net/tracker.php?page=normal&id=$this->LAST_ID&image=$this->trackerImg2' alt='linux counter image.'>";
-  $image3 = "<img src='https://bartonphillips.net/tracker.php?page=noscript&id=$this->LAST_ID'>";
-}
-
-// $mainTitle is passed in from getPageBanner($mainTitle, $bodytab)
-
 return <<<EOF
 <!-- body tag is added by SiteClass::getPageBanner() -->
 <header>
   <a href="https://www.bartonphillips.com">
     <!-- The logo line is changes by tracker.js -->
-    <img id='logo' data-image="$this->trackerImg1" src="https://bartonphillips.net/images/blp-image.png"></a>
+$image1
 $image2
 $mainTitle
 <noscript>

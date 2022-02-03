@@ -6,10 +6,6 @@
 
 // getPageFooter($b) uses only the object $b.
 
-if($b->noGeo !== true) {
-  $geo = "<script src='https://bartonphillips.net/js/geo.js'></script>";
-}
-  
 return <<<EOF
 <footer>
 <h2><a target="_blank" href='aboutwebsite.php'>About This Site</a></h2>

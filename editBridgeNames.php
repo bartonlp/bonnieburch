@@ -14,7 +14,6 @@ $h->css =<<<EOF
 </style>
 EOF;
 
-/*
 if($_POST['page'] == "delete") {
   $h->title = "Delete Name";
   $h->banner = "<h1>$h->title</h1>";
@@ -22,12 +21,25 @@ if($_POST['page'] == "delete") {
   
   $fname = $_POST['fname'];
   $lname = $_POST['lname'];
+  $id = $_POST['id'];
+
+  $msg = '';
   
-  $S->query("delete from bridge where fname='$fname' and lname='$lname'");
+  if($S->query("select * from weeks where fid='$id'")) {
+    $msg = "<h2>Can't delete $fname $lname because there are Attendance Records</h2>";
+  }
+  if($S->query("select * from money where fid='$id'")) {
+    $msg = "<h2>Can't delete $fname $lname because there are Donation Records</h2>";
+  }
+  if($msg == '') {
+    $S->query("delete from bridge where id='$id'");
+    $msg = "<h2>The name $fname $lname has been deleted</h2><p>There were no Attendance or Donation Records</p>";
+  }
 
   echo <<<EOF
 $top
-<h2>The name $fname $lname has been deleted</h2>
+$msg
+<hr>
 <a href="editBridgeNames.php">Return to Edit Names</a><br>
 <a href="index.php">Return to Home Page</a>
 <hr>
@@ -35,7 +47,6 @@ $footer
 EOF;
   exit();
 }
-*/
 
 if($_POST['page'] == "add") {
   $h->title = "Add New Name";
@@ -46,7 +57,7 @@ if($_POST['page'] == "add") {
   $lname = $_POST['lname'];
   $name = "$fname $lname";
 
-  $msg = "New Name Posted";
+  $msg = "New Name $name Posted";
   
   try {
     $S->query("insert into bridge (name, fname, lname, created, lasttime) values('$name', '$fname', '$lname', now(), now())");
@@ -106,23 +117,22 @@ $top
 <hr>
 <h2>Edit the name and then 'Submit'</h2>
 <form method="post">
-Selected Name <input type="text" name="fname" value="$fname"><input type="text" name="lname" value="$lname"><br>
+Selected Name <input type="text" name="fname" value="$fname" required><input type="text" name="lname" value="$lname" required><br>
 <input type="hidden" name="id" value="$id">
 <button type="submit" name="page" value="post">Submit</button>
 </form>
 <hr>
-<!--
 <h2>Delete $fname $lname</h2>
 <form method="post">
 <button class="delete" type="submit" name='page' value='delete'>Delete $fname $lname</button>
 <input type='hidden' name='fname' value='$fname'>
 <input type='hidden' name='lname' value='$lname'>
+<input type="hidden" name="id" value="$id">
 </form>
 <hr>
 <a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
 <a href="index.php">Return to Home Page</a>
 <hr>
--->
 $footer
 EOF;
   exit();
@@ -134,7 +144,7 @@ while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
 }
 
 $h->title = "Select Name";
-$h->banner = "<h1>Select Bridge Name To Edit</h1>";
+$h->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
 
 $b->script =<<<EOF
 <script>
@@ -156,7 +166,7 @@ EOF;
 echo <<<EOF
 $top
 <hr>
-<p>Click on the name you want to edit.</p>
+<p>Click on the name you want to edit or delete. Go to the bottom of the page to add a new name.</p>
 <table border="1" id="names">
 <thead>
 <tr><th>Name</th><th class="dontshow">fname</th><th class="dontshow">lname</th></tr>
@@ -167,7 +177,7 @@ $lines
 </table>
 <h2>Add a New Name</h2>
 <form method='post'>
-New First Name <input type='text' name='fname'>&nbsp;New Last Name <input type'text' name='lname'>
+New First Name <input type='text' name='fname' required>&nbsp;New Last Name <input type'text' name='lname' required>
 <button type='submit' name='page' value='add'>Add New Name</button>
 </form>
 <br>
