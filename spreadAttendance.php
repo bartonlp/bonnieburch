@@ -9,13 +9,11 @@ $S = new $_site->className($_site);
 
 // This is the start date: Unix Time stamp for Wednesday 2022-01-05 is 1641358800
 
-for($i=STARTWED, $ii=0; $unixToday > $i; ++$ii, $i = $i + WEEK) {
+for($i=STARTWED; $unixToday > $i; $i = $i + WEEK) {
   $wed = date("m-d", $i);
   $hdr .= "<th>$wed</th>";
   $wedList[] = date("Y-m-d", $i);
 }
-
-$fill = "<th colspan='$ii'></th>";
 
 $hdr = "<tr><th>Name</th><th>Total</th>$hdr</tr>";
 
@@ -28,10 +26,10 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
   $row = '';
   for($i=0; $i < count($wedList); ++$i) {
     $n = $S->query("select `date` from weeks where fid=$fid and `date`='$wedList[$i]'");
-
     if($n) {
       [$date] = $S->fetchrow('num');
       ++$total;
+      ++$ar[$i];
       $row .= "<td class='h-a' data-id='$fid' data-week='$wedList[$i]'>H</td>";
     } else {
       $row .= "<td class='h-a' data-week='$wedList[$i]'></td>";
@@ -74,6 +72,12 @@ EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);
 
+$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th>";
+for($i=0; $i < count($wedList); ++$i) {
+  $foot .= "<th>$ar[$i]</th>";
+}
+$foot .= "</tr>";
+
 echo <<<EOF
 $top
 <hr>
@@ -87,7 +91,7 @@ $hdr
 $rows
 </tbody>
 <tfoot>
-<tr><th class="tfoot">Total</th><th class="tfoot total">$finaltotal</th>$fill</tr>
+$foot
 </tfoot>
 </table>
 <br>              

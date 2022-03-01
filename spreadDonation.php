@@ -22,6 +22,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
     $ii = 0;
     while([$date, $money] = $S->fetchrow('num')) {
       $finaltotal += $money;
+      $m = $money;
       $money = "$". number_format($money);
       for($i=$ii; $i< count($datear); ++$i) {
         if($datear[$i] != $date) {
@@ -31,6 +32,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
         } else {
           //echo "OK: $i, $id, $datear[$i], $date<br>";
           $line .= "<td class='money' data-id='$id' data-week='$date'>$money</td>";
+          $ar[$i] += $m;
           ++$ii;
           break;
         }
@@ -45,7 +47,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
     continue;
   }
 
-  $fill = "<th colspan='" . count($datear) . "'></th>";
+  //$fill = "<th colspan='" . count($datear) . "'></th>";
   
   $S->query("select sum(money) from money where fid=$id");
   $total = "$". number_format($S->fetchrow('num')[0]);
@@ -80,6 +82,13 @@ EOF;
 
 $finaltotal = "$". number_format($finaltotal);
 
+$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th>";
+
+for($i=0; $i < count($datear); ++$i) {
+  $mm = "$" . number_format($ar[$i]);
+  $foot .= "<th class='total'>$mm</th>";
+}
+$foot .= "</tr>";
 echo <<<EOF
 $top
 <hr>
@@ -93,7 +102,7 @@ To add an amount for a player not shown go to <a href="addDonation.php">Add Dona
 $rows
 </tbody>
 <tfoot>
-<tr><th class="tfoot">Total</th><th class="tfoot total">$finaltotal</th>$fill</tr>
+$foot
 </tfoot>
 </table>
 <br>

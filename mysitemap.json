@@ -11,7 +11,7 @@
 {
     "siteDomain": "bonnieburch.com",
     "siteName": "Bonnieburch",
-    //"mainTitle": "<h1>Bonnie's Bridge Club</h1>", // each page has
+    "mainTitle": "<h1>Bonnie's Home Page</h1>", // each of the bridge pages have
     //its own banner.
     "path": "/var/www/bonnieburch.com",
     "className": "SiteClass",
