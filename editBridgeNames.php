@@ -41,7 +41,7 @@ $top
 $msg
 <hr>
 <a href="editBridgeNames.php">Return to Edit Names</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -72,7 +72,7 @@ if($_POST['page'] == "add") {
 $top
 <h1>$msg</h1>
 <a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 $footer
 EOF;
 
@@ -94,7 +94,7 @@ $top
 <hr>
 <h2>Posted edited name as "$fname $lname"</h2>
 <a href="editBridgeNames.php">Return to Edit Names</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -131,7 +131,7 @@ Selected Name <input type="text" name="fname" value="$fname" required><input typ
 </form>
 <hr>
 <a href="editBridgeNames.php">Return to Edit Bridge Names</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -181,7 +181,7 @@ New First Name <input type='text' name='fname' required>&nbsp;New Last Name <inp
 <button type='submit' name='page' value='add'>Add New Name</button>
 </form>
 <br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;

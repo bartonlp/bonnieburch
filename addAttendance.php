@@ -80,7 +80,7 @@ $list
 </tfoot>
 </table>
 <br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -143,7 +143,7 @@ $names
 <button name="submit">Submit</button>
 </form>
 <br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer;
 EOF;

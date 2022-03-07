@@ -25,7 +25,7 @@ $top
 <hr>
 <h2>$name's record for week $week has been updated to $money</h2>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -50,7 +50,7 @@ $top
 <hr>
 <h2>$name's record for week $week for $money has been deleted</h2>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -109,7 +109,7 @@ $top
 </form>
 <hr>
 <a href="spreadDonation.php">Go Back to Bridge Donation Spread Sheet</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;

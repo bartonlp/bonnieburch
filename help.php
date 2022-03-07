@@ -50,7 +50,7 @@ list of playes and the amount the donated. Click on <b>Return to Home Page</b>.<
 <hr>
 <h2>Edit Bridge Names</h2>
 <hr>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;

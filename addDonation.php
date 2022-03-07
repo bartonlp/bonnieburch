@@ -31,7 +31,7 @@ $top
 <hr>
 <h2>Data Posted $date:<br>$name</h2>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -63,7 +63,7 @@ $top
 <hr>
 <h2>Data POSTED for $name on $date for $money</h2>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer;
 EOF;
@@ -114,7 +114,7 @@ $top
 </form>
 <br>
 <a href="addDonation.php">Return to Add Donation Page</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -179,7 +179,7 @@ $lines
 <button type="submit" name="page" value="postit">Submit</button>
 </form>
 <br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;

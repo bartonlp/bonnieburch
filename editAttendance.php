@@ -38,7 +38,7 @@ $top
 <hr>
 <p>The record for $name for week $week has been {$which}ed.</p>
 <a href="spreadAttendance.php">Return to Attendance Spread Sheet</a><br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
@@ -110,7 +110,7 @@ $top
 <input type="hidden" name="week" value="$week">
 </form>
 <br>
-<a href="index.php">Return to Home Page</a>
+<a href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
