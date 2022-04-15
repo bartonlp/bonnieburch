@@ -1,0 +1,1 @@
+../bartonphillipsnet/getcookie.php

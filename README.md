@@ -21,4 +21,5 @@ This project is made of of the following files which are in the **/var/www/bonni
     startup.i.php
 ```
 
-The LIVE location is <b>https://bonnieburch.com</b>. There is an <i>index.php</i> there.
+The *fingers* directory has the **bonnieFinger.php** which has the fingerprints of the users who are allowed to use this site.
+The file is <code>required</code> in **startup.php** and the valuses are an array of fingerprints.

@@ -1,12 +1,6 @@
 /*
  * SPECIAL json for use by siteload.php. Normal json will not allow
  * comments.
- * BLP 2021-10-28 -- Removed 'password' from Database. Now we get the
- * password from a secure location at
- * /var/www/bartonphillipsnet/PASSWORDS/database-password
- * BLP 2022-01-12 -- This file is the file for https://bonnieburch.com. It should always be PULLed from
- * the repository and NEVER PUSHed. This url should NEVER be pushed. 
- * The .gitignore has '.gitignore' and 'mysitemap.json'.
 */
 {
     "siteDomain": "bonnieburch.com",
@@ -15,7 +9,7 @@
     //its own banner.
     "path": "/var/www/bonnieburch.com",
     "className": "SiteClass",
-    //"defaultCss": false,
+    //"defaultCss": true, // If true then NO default css.
     "copyright": "Barton L. Phillips",
     "author": "Barton L. Phillips, mailto:bartonphillips@gmail.com",
     "address": "New Bern, North Carolina",
@@ -27,14 +21,6 @@
       "database": "bridge", // we have a seperate database from barton.
       "engine": "mysqli"
     },
-    /*
-    "dbinfo": {
-      "host": "localhost",
-      "user": "barton",
-      "database": "bridgetest", // This is the test database
-      "engine": "mysqli"
-    },
-    */
     "errorMode": {
       "development": true, // development automatically sets email to true.
                          // If development is true then noEmail will be

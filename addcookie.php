@@ -30,12 +30,16 @@ if($_POST) {
   $name = $S->escape($_POST['name']);
   $email = $S->escape($_POST['email']);
 
-  // error_log("bartonphillips: name: $name, email: $email");
-  
   if($email == "bonnieburch2015@gmail.com") {
     $name = "Bonnie Burch"; // Force name
-    //error_log("email: $email");
 
+    $S->query("select count(*) from information_schema.tables ".
+              "where (table_schema = '$S->masterdb') and (table_name = 'myip')");
+
+    if(!$S->fetchrow('num')[0]) {
+      throw new Exception(__LINE__ .": register.php, myip table does not exist");
+    }
+    
     // Update the myip tables.
     $sql = "insert into $S->masterdb.myip (myIp, createtime, lasttime) values('$S->ip', now(), now()) " .
            "on duplicate key update lasttime=now()";
