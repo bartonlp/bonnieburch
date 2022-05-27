@@ -1,1 +1,0 @@
-../bartonphillipsnet/geoAjax.php

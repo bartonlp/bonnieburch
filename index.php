@@ -4,6 +4,11 @@ $S = new SiteClass($_site);
 
 $h->title = "Bonnie's Home Page";
 
+$h->inlineScript = <<<EOF
+var thesite = '$S->siteName';
+var thisip = '$S->ip';
+EOF;
+
 [$top, $footer] = $S->getPageTopBottom($h);
 
 echo <<<EOF
