@@ -1,6 +1,6 @@
 <?php
 // This file is used to set up bonnieburch.com with the correct fingerprint.
-// NOTE *** There are only two places where the myip table is inserted or updated to, that is here
+// NOTE *** There are only two places where the myip table is inserted or updated, that is here
 // and in bartonphillips.com/register.php.
 
 $_site = require_once(getenv("SITELOADNAME"));
@@ -16,7 +16,7 @@ if($_POST['page'] == 'finger') {
   
   $visitor = $_POST['visitor'];
   if(file_put_contents("/tmp/visitorfingertemp", $visitor) === false) {
-    error_log("can't write");
+    error_log("addcookie: finger can't write to /tmp/visitorfingertemp");
   }
   echo "OK";
   exit();
@@ -31,25 +31,31 @@ if($_POST) {
   $email = $S->escape($_POST['email']);
 
   if($email == "bonnieburch2015@gmail.com") {
-    $name = "Bonnie Burch"; // Force name
-
-    $S->query("select count(*) from information_schema.tables ".
-              "where (table_schema = '$S->masterdb') and (table_name = 'myip')");
-
-    if(!$S->fetchrow('num')[0]) {
-      throw new Exception(__LINE__ .": register.php, myip table does not exist");
-    }
-    
     // Update the myip tables.
+
     $sql = "insert into $S->masterdb.myip (myIp, createtime, lasttime) values('$S->ip', now(), now()) " .
            "on duplicate key update lasttime=now()";
 
     $S->query($sql);
   }
 
-  // Always set the cookie. We use the sql id from the members table.
-  // BLP 2021-09-21 -- Add email with ip.
+  if(!$S->query("select TABLE_NAME from information_schema.tables ".
+            "where (table_schema = 'bartonphillips') and (table_name = 'members')")) {
+    throw new Exception(__LINE__ .": register.php, members table for database bartonphillips does not exist");
+  }
 
+  $visitorId = file_get_contents("/tmp/visitorfingertemp");
+  unlink("/tmp/visitorfingertemp");
+
+  error_log("visitorId: $visitorId");
+  
+  $S->query("insert into bartonphillips.members (name, email, finger, count, created, lasttime) ".
+                 "values('$name', '$email', '$visitorId', 1, now(), now()) ".
+                 "on duplicate key update count=count+1, lasttime=now()");
+    
+
+  // Always set the cookie. We use the sql id from the members table.
+  
   $options =  array(
                     'expires' => date('U') + 31536000,
                     'path' => '/',
@@ -59,21 +65,17 @@ if($_POST) {
                     'samesite' => 'Lax'    // None || Lax  || Strict // BLP 2021-12-20 -- changed to Lax
                    );
 
-  if(setcookie('SiteId', "$S->ip:$email", $options) === false) {
+  if(setcookie('SiteId', "$visitorId:$email", $options) === false) {
     echo "Can't set cookie SiteId in addcookie.php<br>";
     throw(new Exception("Can't set cookie SiteId in addcookie.php " . __LINE__));
   }
 
-  $visitorId = file_get_contents("/tmp/visitorfingertemp");
-  unlink("/tmp/visitorfingertemp");
-  //error_log("visitorId: $visitorId");
-  
   if(setcookie('BLP-Finger', $visitorId, $options) === false) {
     echo "Can't set cookie BLP-Finger in addcookie.php<br>";
     throw(new Exception("Can't set cookie BLP-Finger in addcookie.php " . __LINE__));
   }
 
-  header("Location: /");
+  header("Location: /bridgeclub.php");
   exit();
 }
 
@@ -104,7 +106,7 @@ list($top, $footer) = $S->getPageTopBottom($h, $b);
 
 echo <<<EOF
 $top
-<h1>Add Cookie</h1>
+<div id="container">
 <form method="post">
 <table>
 <tbody>
@@ -116,7 +118,8 @@ $top
 </tr>
 </tbody>
 </table>
-<input type="submit" value="Submit">
+<input type="submit" name="submit" value="Submit">
 </form>
+</div>
 $footer
 EOF;

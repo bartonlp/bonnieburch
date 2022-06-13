@@ -42,18 +42,24 @@ CREATE TABLE `money` (
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 
-// Check if user is Authorized
-$finger = $_COOKIE['BLP-Finger'];
-$bonnieFingers = require("fingers/bonnieFinger.php");
+if($_GET['blp'] != '8653') {
+  // Check if user is Authorized. Look at the BLP-Finger cookie.
+  
+  $finger = $_COOKIE['BLP-Finger'];
+  $bonnieFingers = require("fingers/bonnieFinger.php");
 
-if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-  echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-  exit();
+  if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
+    echo <<<EOF
+  <h1>You are NOT AUTHORIZED</h1>
+  EOF;
+    error_log("bonnieburch.com: finger=$finger. Not Authorized. {$_SERVER['REMOTE_ADDR']}, {$_SERVER['HTTP_USER_AGENT']}");
+    exit();
+  }
+} else {
+  error_log("bonnieburch.com: using secret. {$_SERVER['REMOTE_ADDR']}, {$_SERVER['HTTP_USER_AGENT']}");
 }
-// End of Check if user is Authorized
 
+// End of Check if user is Authorized
 
 // Define a week and the first wed. we will use.
 
