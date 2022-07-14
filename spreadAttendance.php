@@ -9,7 +9,7 @@ $S = new $_site->className($_site);
 
 // This is the start date: Unix Time stamp for Wednesday 2022-01-05 is 1641358800
 
-for($i=STARTWED; $unixToday > $i; $i = $i + WEEK) {
+for($i=STARTWED; $unixToday > ($i - WEEK); $i = $i + WEEK) {
   $wed = date("m-d", $i);
   $hdr .= "<th>$wed</th>";
   $wedList[] = date("Y-m-d", $i);

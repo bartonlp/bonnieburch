@@ -14,8 +14,8 @@ RewriteCond %{HTTP_USER_AGENT} "baiduspider" [NC]
 RewriteRule (.*) - [F,L]
 
 # direct robots.txt to robots.php
-#RewriteRule ^robots\.txt$ robots.php [L,NC]
-#RewriteRule ^Sitemap\.xml$ sitemap.php [L,NC]
+RewriteRule ^robots\.txt$ robots.php [L,NC]
+RewriteRule ^Sitemap\.xml$ sitemap.php [L,NC]
 
 # rewrite the address of csstest.css to tracker.php?id=$1&csstest
 RewriteRule ^csstest-(.*)\.css$ https://bartonphillips.net/tracker.php?id=$1&csstest [L,QSA]
