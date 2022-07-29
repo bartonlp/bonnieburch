@@ -44,7 +44,7 @@ EOF;
     }
   }
 
-  $sql = "select id, name from bridge";
+  $sql = "select id, name from bridge order by lname";
   $S->query($sql);
   $r = $S->getResult();
   while([$id, $name] = $S->fetchrow($r, 'num')) {

@@ -2,6 +2,16 @@
 // A spread sheet of the bridge club
 // It shows the name and then each wed from 1/5 to the current time.
 // This file uses editAttendance.php
+/*
+CREATE TABLE `weeks` (
+  `fid` int NOT NULL,
+  `date` date NOT NULL,
+  `lasttime` datetime NOT NULL,
+  UNIQUE KEY `fiddate` (`fid`,`date`),
+  KEY `fid` (`fid`),
+  KEY `date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Attendance';
+*/
 
 require("startup.i.php");
 
@@ -15,7 +25,7 @@ for($i=STARTWED; $unixToday > ($i - WEEK); $i = $i + WEEK) {
   $wedList[] = date("Y-m-d", $i);
 }
 
-$hdr = "<tr><th>Name</th><th>Total</th>$hdr</tr>";
+$hdr = "<tr><th>Name</th><th>Total</th><th>July<br>Total</td>$hdr</tr>";
 
 $n = $S->query("select id, name from bridge order by lname");
 
@@ -24,9 +34,9 @@ $r = $S->getResult();
 while([$fid, $name] = $S->fetchrow($r, 'num')) {
   $total = 0;
   $row = '';
+
   for($i=0; $i < count($wedList); ++$i) {
-    $n = $S->query("select `date` from weeks where fid=$fid and `date`='$wedList[$i]'");
-    if($n) {
+    if($S->query("select `date` from weeks where fid=$fid and `date`='$wedList[$i]'")) {
       [$date] = $S->fetchrow('num');
       ++$total;
       ++$ar[$i];
@@ -35,9 +45,16 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
       $row .= "<td class='h-a' data-week='$wedList[$i]'></td>";
     }
   }
+
+  $julyCnt = 0;
+  $S->query("select `date` from weeks where fid=$fid and `date` >='$julyOn'");
+  while($date = $S->fetchrow('num')[0]) {
+    ++$julyCnt;
+  }
+  $finalJuly += $julyCnt;
   $finaltotal += $total;
 
-  $row = "<tr><td data-name='$fid'>$name</td><td>$total</td>$row</tr>\n";
+  $row = "<tr><td data-name='$fid'>$name</td><td>$total</td><td>$julyCnt</td>$row</tr>\n";
   $rows .= $row;
 }
 
@@ -72,7 +89,7 @@ EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);
 
-$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th>";
+$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th><th>$finalJuly</th>";
 for($i=0; $i < count($wedList); ++$i) {
   $foot .= "<th>$ar[$i]</th>";
 }

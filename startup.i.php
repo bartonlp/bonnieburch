@@ -64,6 +64,7 @@ if($_GET['blp'] != '8653') {
 // Define a week and the first wed. we will use.
 
 $startWed = strtotime("2022-01-05");
+$julyOn = "2022-07-06"; // This is the start of the real counting towards the prize!
 define("WEEK", 604800);
 define("STARTWED", $startWed);
 

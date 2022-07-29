@@ -12,8 +12,8 @@ $h->css =<<<EOF
 <style>
   .tfoot { background: yellow; }
   .total { text-align: right; }
-  td:last-of-type { text-align: right }
-  td, th { padding: 0 5px; }
+  #show-totals td:last-of-type { text-align: right }
+  #show-totals td, th { padding: 0 5px; }
 </style>
 EOF;
 
