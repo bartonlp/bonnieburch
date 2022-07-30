@@ -8,9 +8,7 @@ $S = new $_site->className($_site);
 $h->title = "Bridge App Help";
 $h->banner = "<h1>$h->title</h1>";
 $h->css =<<<EOF
-<style>
 button { background: green; color: white; border-radius: 10px; }  
-</style>
 EOF;
 [$top, $footer] = $S->getPageTopBottom($h);
 

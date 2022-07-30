@@ -71,9 +71,8 @@ EOF;
 }
 
 $h->css = <<<EOF
-<style>
   input { text-align: right; }
-</style>
+
 EOF;
 
 $b->script = <<<EOF
@@ -87,7 +86,7 @@ EOF;
 if($_GET['page'] == 'add') {
   $h->title = "Donation for Week";
   $h->banner = "<h1>$h->title</h1>";
-  $h->css .= "<style>button { background: green; color: white; border-radius: 10px; }</style>";
+  $h->css .= "button { background: green; color: white; border-radius: 10px; }";
   
   [$top, $footer] = $S->getPageTopBottom($h, $b);
   
@@ -135,8 +134,7 @@ $h->title = "Add Donation";
 $h->banner = "<h1>$h->title</h1>";
 
 $h->css .=<<<EOF
-<style>
-input[data-type='currency'] { font-size: var(--blpFontSize); width: 150px; border: 0; padding-right: 5px;}
+  input[data-type='currency'] { font-size: var(--blpFontSize); width: 150px; border: 0; padding-right: 5px;}
   button {
     font-size: var(--blpFontSize);
     border-radius: 10px;
@@ -150,7 +148,6 @@ input[data-type='currency'] { font-size: var(--blpFontSize); width: 150px; borde
   #donate-tbl tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; } 
   .tfoot { border: 1px solid black; background: yellow; }
   .total { text-align: right; padding-right: 5px; }
-</style>
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);

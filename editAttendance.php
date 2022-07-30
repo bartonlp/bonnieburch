@@ -73,7 +73,6 @@ if($_GET) {
   $h->desc = $page;
   $h->banner = "<h1>Are You Sure?</h1>";
   $h->css =<<<EOF
-<style>
 form button {
   background: red;
   color: white;
@@ -91,7 +90,6 @@ form a {
   color: white;
   background: green;
 }
-</style>
 EOF;
 
   [$top, $footer] = $S->getPageTopBottom($h);

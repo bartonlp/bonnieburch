@@ -40,7 +40,7 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
       [$date] = $S->fetchrow('num');
       ++$total;
       ++$ar[$i];
-      $row .= "<td class='h-a' data-id='$fid' data-week='$wedList[$i]'>H</td>";
+      $row .= "<td class='h-a center' data-id='$fid' data-week='$wedList[$i]'>H</td>";
     } else {
       $row .= "<td class='h-a' data-week='$wedList[$i]'></td>";
     }
@@ -63,16 +63,15 @@ $h->desc = "A spread sheet of bridge attendance";
 $h->banner = "<h1>Bridge Attendance Spread Sheet</h1>";
 
 $h->css =<<<EOF
-<style>
   #spread-attendance tbody td { padding: 0 5px; }
   #spread-attendance tbody td:nth-of-type(2) { text-align: right }
+  #spread-attendance tbody td:nth-of-type(3) { text-align: right }
   .tfoot { background: yellow; }
-  .total { text-align: right; }
-</style>
+  .total { text-align: right; padding: 0 5px; }
+  .center { text-align: center; }
 EOF;
 
-$b->script =<<<EOF
-<script>
+$b->inlineScript =<<<EOF
   $("#spread-attendance td.h-a").on("click", function(e) {
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
@@ -84,12 +83,11 @@ $b->script =<<<EOF
       location.replace("editAttendance.php?page=add&id="+id+"&week="+week);
     }
   });
-</script>
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);
 
-$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th><th>$finalJuly</th>";
+$foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th><th class='tfoot total'>$finalJuly</th>";
 for($i=0; $i < count($wedList); ++$i) {
   $foot .= "<th>$ar[$i]</th>";
 }

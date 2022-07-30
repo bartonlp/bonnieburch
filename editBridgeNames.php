@@ -6,12 +6,10 @@ require("startup.i.php");
 $S = new $_site->className($_site);
 
 $h->css =<<<EOF
-<style>
   .dontshow { display: none; }
   button { font-size: var(--blpFontSize); border-radius: 10px; background: green; color: white; }
   .delete { background: red; }
   input { font-size: var(--blpFontSize); }
-</style>
 EOF;
 
 if($_POST['page'] == "delete") {
@@ -146,8 +144,7 @@ while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
 $h->title = "Select Name";
 $h->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
 
-$b->script =<<<EOF
-<script>
+$b->inlineScript =<<<EOF
   $(".name").on("click", function() {
     const id = $(this).attr("data-id");
     const tr = $(this).closest('tr');
@@ -158,7 +155,6 @@ $b->script =<<<EOF
 
     location.replace("editBridgeNames.php?page=edit&id="+id+"&fname="+fname+"&lname="+lname);
   });             
-</script>
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);

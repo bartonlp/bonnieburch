@@ -13,12 +13,10 @@ if($_POST) {
   $h->banner = "<h1>$h->title</h1>";
   
   $h->css =<<<EOF
-<style>
 table tbody td:nth-of-type(2) { text-align: center; }
 table thead th:nth-of-type(3) { text-align: right; }
 table tbody td:nth-of-type(3) { text-align: right; }
 .posted { font-weight: bold; }
-</style>
 EOF;
 
   [$top, $footer] = $S->getPageTopBottom($h);
@@ -145,5 +143,5 @@ $names
 <br>
 <a href="bridgeclub.php">Return to Home Page</a>
 <hr>
-$footer;
+$footer
 EOF;

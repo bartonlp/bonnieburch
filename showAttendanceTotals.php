@@ -19,12 +19,10 @@ $h->title = "Bridge Attendance Totals";
 $h->desc = "Lot of bridge playing here";
 $h->banner = "<h1>Bridge Attendance Totals</h1>";
 $h->css =<<<EOF
-<style>
   .tfoot { background: yellow; }
   .total { text-align: right; }
   #show-totals td:last-of-type { text-align: right }
   #show-totals td, th { padding: 0 5px; }
-</style>
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h);

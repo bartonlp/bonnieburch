@@ -61,13 +61,11 @@ if($_GET['page'] == 'edit') {
   $h->title = "Edit Donation";
   $h->banner = "<h1>Edit/Delete Donation</h1>";
   $h->css =<<<EOF
-<style>
   input { text-align: right; }
   button { border-radius: 5px; padding: 5px; }
   #editButton { color: white; background: green; }
   #deleteButton { color: white; background: red; }
   h2 { margin-bottom: 0px; }
-</style>
 EOF;
 
   $b->script .= "<script src='addAttendance.js'></script>";

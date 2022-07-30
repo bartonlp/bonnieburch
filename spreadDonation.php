@@ -58,24 +58,20 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
 $h->title = "Bridge Donation Spread Sheet";
 $h->banner = "<h1>Bridge Donation Spread Sheet</h1>";
 $h->css =<<<EOF
-<style>
   td { text-align: right; }
   td.no { text-align: left; }
   td, th { padding: 0 5px; }
   .tfoot { background: yellow; }
   .total { text-align: right }
-</style>
 EOF;
 
-$b->script =<<<EOF
-<script>
+$b->inlineScript =<<<EOF
   $(".money").on("click", function(e) {
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
     
     location.replace("editDonation.php?page=edit&id="+id+"&week="+week);
   });
-</script>
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h, $b);

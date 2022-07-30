@@ -83,7 +83,6 @@ $S = new $_site->className($_site);
 
 $h->title = "Add Cookie";
 $h->css = <<<EOF
-  <style>
 input {
   font-size: 1rem;
   padding-left: .5rem;
@@ -92,7 +91,6 @@ input[type="submit"] {
   border-radius: .5rem;
   background-color: green;
 }
-  </style>
 EOF;
 
 // BLP 2022-01-16 -- noGeo is a new flag that has been added to footer.i.php
