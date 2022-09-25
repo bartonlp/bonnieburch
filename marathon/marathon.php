@@ -72,8 +72,7 @@ EOF;
   
   echo <<<EOF
 $top
-<h1 class='center'>Marathon Bridge Under Construction</h1>
-<p>This site should be ready in a couple of weeks.</p>
+<hr>
 <form method='post'>
 Login with your email address: <input type='text' name='email'><br>
 <button type='submit' name='page' value='auth'>Continue</button>
