@@ -48,7 +48,7 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
 
   $julyCnt = 0;
   $S->query("select `date` from weeks where fid=$fid and `date` >='$julyOn'");
-  while($date = $S->fetchrow('num')[0]) {
+  while([$date] = $S->fetchrow('num')) {
     ++$julyCnt;
   }
   $finalJuly += $julyCnt;
@@ -63,12 +63,23 @@ $h->desc = "A spread sheet of bridge attendance";
 $h->banner = "<h1>Bridge Attendance Spread Sheet</h1>";
 
 $h->css =<<<EOF
+  #scroll { overflow-x: auto; }
   #spread-attendance tbody td { padding: 0 5px; }
   #spread-attendance tbody td:nth-of-type(2) { text-align: right }
   #spread-attendance tbody td:nth-of-type(3) { text-align: right }
   .tfoot { background: yellow; }
   .total { text-align: right; padding: 0 5px; }
   .center { text-align: center; }
+@page { size: landscape; margin: .125in;}
+@media print {
+  header, footer, hr, #info, #printbtn, #return { display: none; }
+  #printTitle { display: block; margin: 0; }
+  #scroll { overflow: visible; }
+  #spread-attendance {
+    font-size: 6pt;
+    width: 100%;
+  }
+}  
 EOF;
 
 $b->inlineScript =<<<EOF
@@ -96,8 +107,11 @@ $foot .= "</tr>";
 echo <<<EOF
 $top
 <hr>
-<p>Today is $today</p>
-<p>To add attendance or delete attendance click on the <b>H</b> or <b>blank</b> cell under the date.</p>
+<p id="info">Today is $today<br>
+To add attendance or delete attendance click on the <b>H</b> or <b>blank</b> cell under the date.</p>
+<h1 id='printTitle'>Attendance Spread Sheet</h1> <!-- Hidden except while printing -->
+
+<div id="scroll">
 <table id="spread-attendance" border='1'>
 <thead>
 $hdr
@@ -109,8 +123,10 @@ $rows
 $foot
 </tfoot>
 </table>
-<br>              
-<a href="bridgeclub.php">Return to Home Page</a>
+</div>
+<br>
+<input type='image' id='printbtn' src='https://bartonphillips.net/images/print.gif' onclick='window.print()' style='width: 100px'/><br>
+<a id="return" href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;

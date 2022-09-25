@@ -39,7 +39,6 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   $total += $cnt;
   $julyTotal += $julyCnt;
   
-  //$cnt= $S->fetchrow('num')[0];
   $list .= "<tr><td>$name</td><td>$cnt</td><td>$julyCnt</td></tr>";
 }
 

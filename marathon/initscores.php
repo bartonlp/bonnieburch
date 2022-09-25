@@ -1,0 +1,21 @@
+<?php
+$_site = require_once(getenv("SITELOADNAME"));
+$S = new Database($_site);
+
+$months = ['September', 'October', 'November', 'December', 'January 1', 'January 2', 'February 1', 'February 2', 'March', 'April', 'May'];
+
+// Delete everything from scores.
+
+$S->query("delete from scores");
+
+// Now recreate an empty table
+
+$n = 0;
+
+foreach($months as $k=>$month) {  
+  for($i=1; $i<13; ++$i) {
+    $n += $S->query("insert into scores values($i, '$month', $k, 0, null, null)");
+  }
+}
+
+echo "Done. $n inserts (should be 132)<br>";

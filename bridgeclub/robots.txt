@@ -1,0 +1,18 @@
+User-agent: *
+Disallow: robots.php
+Disallow: addAttendance.php
+Disallow: addDonation.php
+Disallow: addDonation.js
+Disallow: addcookie.php
+Disallow: editAttendance.php
+Disallow: editBridgeNames.php
+Disallow: editDonation.php
+Disallow: help.php
+Disallow: mysitemap.json
+Disallow: showAttendanceTotals.php
+Disallow: showDonationTotals.php
+Disallow: spreadAttendance.php
+Disallow: spreadDonation.php
+Disallow: startup.i.php
+
+

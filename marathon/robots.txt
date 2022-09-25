@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: robots.php
+Disallow: addphone.php
+Disallow: enterBulkScores.php
+Disallow: enterScores.php
+Disallow: init.sql
+Disallow: initscores.php
+Disallow: marathon.php
+Disallow: mysitemap.json
+Disallow: showAllScores.php
+Disallow: showScores.php
+Disallow: showTeams.php

@@ -37,26 +37,43 @@ CREATE TABLE `money` (
   UNIQUE KEY `fiddate` (`fid`,`date`),
   KEY `date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Donation';
+
+CREATE TABLE `badplayer` (
+  `ip` varchar(20) NOT NULL,
+  `botAs` varchar(50) DEFAULT NULL,
+  `type` varchar(50) NOT NULL,
+  `count` int DEFAULT NULL,
+  `errno` int DEFAULT NULL,
+  `errmsg` varchar(255) DEFAULT NULL,
+  `agent` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `lasttime` datetime DEFAULT NULL,
+  PRIMARY KEY (`ip`,`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;  
 */
 
 $_site = require_once(getenv("SITELOADNAME"));
-ErrorClass::setDevelopment(true);
 
 if($_GET['blp'] != '8653') {
   // Check if user is Authorized. Look at the BLP-Finger cookie.
   
   $finger = $_COOKIE['BLP-Finger'];
-  $bonnieFingers = require("fingers/bonnieFinger.php");
+  $bonnieFingers = require("../fingers/bonnieFinger.php");
 
+  $S = new Database($_site);
+  
   if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
+    $S = new Database($_site);
+    $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
+              "values('$S->ip', 'BB_STARTUP', 'STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
+              "on duplicate key update count=count+1, lasttime=now()");
+    
     echo <<<EOF
   <h1>You are NOT AUTHORIZED</h1>
   EOF;
-    error_log("bonnieburch.com: finger=$finger. Not Authorized. {$_SERVER['REMOTE_ADDR']}, {$_SERVER['HTTP_USER_AGENT']}");
+    error_log("bridgeclub/startup.i.php: finger=$finger, ip=$S->ip, site=$S->siteName. Not Authorized, agent=$S->agent");
     exit();
   }
-} else {
-  error_log("bonnieburch.com: using secret. {$_SERVER['REMOTE_ADDR']}, {$_SERVER['HTTP_USER_AGENT']}");
 }
 
 // End of Check if user is Authorized

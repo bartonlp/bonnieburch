@@ -25,7 +25,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   $S->query($sql);
   $money = 0;
   
-  while($m = $S->fetchrow('num')[0]) {
+  while([$m] = $S->fetchrow('num')) {
     $money += $m;
     $total += $m;
   }
