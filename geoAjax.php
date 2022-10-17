@@ -1,1 +1,1 @@
-../bartonphillipsnet/geoAjax.php
+../bartonlp.com/otherpages/geoAjax.php

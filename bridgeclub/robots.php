@@ -1,1 +1,1 @@
-../../bartonphillipsnet/robots.php
+../../bartonlp.com/otherpages/robots.php

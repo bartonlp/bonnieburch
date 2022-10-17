@@ -144,20 +144,7 @@ while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
 $h->title = "Select Name";
 $h->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
 
-$b->inlineScript =<<<EOF
-  $(".name").on("click", function() {
-    const id = $(this).attr("data-id");
-    const tr = $(this).closest('tr');
-    const fname = $(".fname", tr).text();
-    const lname = $(".lname", tr).text();
-
-    //console.log("name: "+name+", fname: "+fname+", lname: "+lname);
-
-    location.replace("editBridgeNames.php?page=edit&id="+id+"&fname="+fname+"&lname="+lname);
-  });             
-EOF;
-
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom($h);
 
 echo <<<EOF
 $top

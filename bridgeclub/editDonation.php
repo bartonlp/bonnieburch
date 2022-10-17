@@ -68,7 +68,7 @@ if($_GET['page'] == 'edit') {
   h2 { margin-bottom: 0px; }
 EOF;
 
-  $b->script .= "<script src='addAttendance.js'></script>";
+  $b->script .= "<script src='addDonation.js'></script>"; //  BLP 2022-10-02 - fixed, was addAttendance.js which does not exist!
   
   [$top, $footer] = $S->getPageTopBottom($h, $b);
                  

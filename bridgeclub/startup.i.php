@@ -58,6 +58,7 @@ if($_GET['blp'] != '8653') {
   // Check if user is Authorized. Look at the BLP-Finger cookie.
   
   $finger = $_COOKIE['BLP-Finger'];
+
   $bonnieFingers = require("../fingers/bonnieFinger.php");
 
   $S = new Database($_site);
@@ -65,13 +66,13 @@ if($_GET['blp'] != '8653') {
   if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
     $S = new Database($_site);
     $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
-              "values('$S->ip', 'BB_STARTUP', 'STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
+              "values('$S->ip', 'counted', '{$S->self}_BB_STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
     
     echo <<<EOF
   <h1>You are NOT AUTHORIZED</h1>
   EOF;
-    error_log("bridgeclub/startup.i.php: finger=$finger, ip=$S->ip, site=$S->siteName. Not Authorized, agent=$S->agent");
+    error_log("bridgeclub/startup.i.php: $S->ip, $S->siteName, $S->self, Not Authorized - finger=$finger, agent=$S->agent");
     exit();
   }
 }

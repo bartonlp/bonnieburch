@@ -1,1 +1,0 @@
-../bartonphillipsnet/sitemap.php

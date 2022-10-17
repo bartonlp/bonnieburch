@@ -86,7 +86,7 @@ $b->inlineScript =<<<EOF
   $("#spread-attendance td.h-a").on("click", function(e) {
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
-    
+
     if(id) {
       location.replace("editAttendance.php?page=delete&id="+id+"&week="+week);
     } else {

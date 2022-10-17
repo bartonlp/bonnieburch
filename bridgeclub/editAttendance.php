@@ -92,7 +92,7 @@ form a {
 }
 EOF;
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom($h, $b);
 
   // $page is now Capitalized!
   

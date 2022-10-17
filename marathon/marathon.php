@@ -32,7 +32,7 @@ if($_POST['page'] == 'auth' || $_GET['page'] == 'auth') {
   $S = new Database($_site);
 
   $email = $_POST['email'] ?? $_GET['email'];
-
+  
   if(empty($email)) {
     youareok(false, 'NO_EMAIL');
     exit();
@@ -99,27 +99,9 @@ function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null,
   if(!$ok) {
     //You are NOT OK
 
-    if(!$S->query("select errmsg from $S->masterdb.badplayer where ip='$S->ip' and type='MARATHON'")) {
-      $errmsg = "Not valid email: " . $email;
-      $errmsg = substr($errmsg, 0, 246);
-    } else {
-      $n = strlen($email);
-      
-      $errmsg = $S->fetchrow('num')[0];
-      $errmsg = substr($errmsg, 0, 246);
-      
-      if((strlen($errmsg)+$n) > 246) {
-        $errmsg .= ",TOO_LONG";
-      } else {
-        $errmsg .= ",$email";
-      }
-    }
-
-    //echo "strlen=" . strlen($errmsg) . "<br>";
-    
     $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
-              "values('$S->ip', 'NOT_AUTH', 'MARATHON', 1, -1, '$errmsg', '$S->agent', now(), now()) ".
-              "on duplicate key update botAs='$botAs', errmsg='$errmsg', count=count+1, lasttime=now()");
+              "values('$S->ip', 'counted', '$S->self', 1, -1, 'Not Authorized', '$S->agent', now(), now()) ".
+              "on duplicate key update count=count+1, lasttime=now()");
 
     error_log("marathon.php: $S->ip, 'NOT_AUTH', $errmsg, $S->agent");
                 
@@ -139,7 +121,6 @@ EOF;
   if($email == 'bartonphillips@gmail.com') { // Is it me?
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
-<a href="showAllScores.php?email=$emal">Show All Scores</a><br>
 <a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a>
 EOF;
   }
@@ -155,9 +136,11 @@ Your team consists of $name1 and $name2.<br>
 If this is all correct you can proceed to <b>Enter Scores</b>, <b>Show Spreadsheet</b> or <b>Show Teams</b><br>
 If this is NOT CORRECT please email bartonphillips@gmail.com.</p>
 <hr>
-<a href="enterScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Enter Your Team Scores</a><br>
-<a href="showScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Show All Of Your Scores</a><br>
-<a href="showTeams.php?team=$team&name1=$name1&name2=$name2&email=$email">Show Teams</a>
+<!--<a href="enterScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Enter Your Team Scores</a><br>
+<a href="showScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Show All Of Your Scores</a><br>-->
+<a href="showAllScores.php?email=$email">Show All Scores</a><br>
+<a href="showTeams.php?team=$team&name1=$name1&name2=$name2&email=$email">Show Teams</a><br>
+<a href="whoplayswho.php?email=$email">Who Plays Whom</a>
 $onlyBlp
 <br><br><a href="marathon.php">Return to main page</a>
 <hr>

@@ -42,7 +42,8 @@ EOF;
   // First insert the id and date.
 
   foreach($teams as $k=>$v) {
-    $v = !empty($v) ? $v : 0;
+    if(empty($v)) continue;
+    
     $n = $S->query("update scores set score=$v, created=now(), lasttime=now() where fkteam=$k and month='$month'");
   }
   
@@ -107,6 +108,17 @@ button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color
 EOF;
 
 $email = $_GET['email'];
+
+if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
+  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+              "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
+              "on duplicate key update count=count+1, lasttime=now()");
+
+  error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
+
+  echo "<h1>Not Authorized</h1><p>Go Away</p>";  
+  exit();
+}
 
 [$top, $footer] = $S->getPageTopBottom($h);
 
