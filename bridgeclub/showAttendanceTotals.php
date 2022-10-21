@@ -23,6 +23,13 @@ $h->css =<<<EOF
   .total { text-align: right; }
   #show-totals td:last-of-type { text-align: right }
   #show-totals td, th { padding: 0 5px; }
+@media print {
+  header, footer, hr, .noPrint, #printbtn, #return { display: none; }
+  #printTitle { display: block; margin: 0; }
+  #scroll { overflow: visible; }
+  #show-totals {
+    font-size: 10pt;
+  }
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h);
@@ -47,8 +54,8 @@ $total = number_format($total);
 echo <<<EOF
 $top
 <hr>
-<h1>Totals as of $fullDate</h1>
-<p>Today is $today.<br>
+<h1 id="printTitle">Totals as of $fullDate</h1>
+<p class="noPrint">Today is $today.<br>
 Showing only people who have attended at least once.</p>
 <table id="show-totals" border="1">
 <thead>
@@ -62,7 +69,8 @@ $list
 </tfoot>
 </table>
 <br>
-<a href="bridgeclub.php">Return to Home Page</a>
+<input type='image' id='printbtn' src='https://bartonphillips.net/images/print.gif' onclick='window.print()' style='width: 100px'/><br>
+<a id="return" href="bridgeclub.php">Return to Home Page</a>
 <hr>
 $footer
 EOF;
