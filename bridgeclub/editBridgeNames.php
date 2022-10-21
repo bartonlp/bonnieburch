@@ -7,9 +7,23 @@ $S = new $_site->className($_site);
 
 $h->css =<<<EOF
   .dontshow { display: none; }
-  button { font-size: var(--blpFontSize); border-radius: 10px; background: green; color: white; }
-  .delete { background: red; }
+  #add, #post { font-size: var(--blpFontSize); border-radius: 10px; background: green; color: white; }
+  .delete { font-size: var(--blpFontSize); border-radius: 10px; background: red; color: white }
+  .name { cursor: pointer; }
   input { font-size: var(--blpFontSize); }
+EOF;
+
+$b->inlineScript =<<<EOF
+  $(".name").on("click", function() {
+    const id = $(this).attr("data-id");
+    const tr = $(this).closest('tr');
+    const fname = $(".fname", tr).text();
+    const lname = $(".lname", tr).text();
+
+    //console.log("name: "+name+", fname: "+fname+", lname: "+lname);
+
+    location.replace("editBridgeNames.php?page=edit&id="+id+"&fname="+fname+"&lname="+lname);
+  });             
 EOF;
 
 if($_POST['page'] == "delete") {
@@ -84,7 +98,7 @@ if($_POST['page'] == "post") {
   
   $h->title = "Posted Name";
   $h->banner = "<h1>Edited Name Posted</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  [$top, $footer] = $S->getPageTopBottom($h);
   
   $S->query("update bridge set name='$fname $lname', fname='$fname', lname='$lname', lasttime=now() where id=$id");
   echo <<<EOF
@@ -117,7 +131,7 @@ $top
 <form method="post">
 Selected Name <input type="text" name="fname" value="$fname" required><input type="text" name="lname" value="$lname" required><br>
 <input type="hidden" name="id" value="$id">
-<button type="submit" name="page" value="post">Submit</button>
+<button id="post" type="submit" name="page" value="post">Submit</button>
 </form>
 <hr>
 <h2>Delete $fname $lname</h2>
@@ -144,7 +158,7 @@ while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
 $h->title = "Select Name";
 $h->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
 
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom($h, $b);
 
 echo <<<EOF
 $top
@@ -161,7 +175,7 @@ $lines
 <h2>Add a New Name</h2>
 <form method='post'>
 New First Name <input type='text' name='fname' required>&nbsp;New Last Name <input type'text' name='lname' required>
-<button type='submit' name='page' value='add'>Add New Name</button>
+<button id='add' type='submit' name='page' value='add'>Add New Name</button>
 </form>
 <br>
 <a href="bridgeclub.php">Return to Home Page</a>
