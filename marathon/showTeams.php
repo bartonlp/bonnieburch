@@ -41,6 +41,12 @@ $h->css =<<<EOF
 @media(max-width:  1850px) {
   #teams { font-size: 15px; }
 }
+@media print {
+  header, footer, hr, #printbtn, #return { display: none; }
+  #teams {
+    font-size: 12pt;
+  }
+}
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom($h);
@@ -50,7 +56,8 @@ $top
 <hr>
 $tbl
 <br>
-<a href="marathon.php?page=auth&email=$email">Return to main page</a>
+<input type='image' id='printbtn' src='https://bartonphillips.net/images/print.gif' onclick='window.print()' style='width: 100px'/><br>
+<a id="return"href="marathon.php?page=auth&email=$email">Return to main page</a>
 <hr>
 $footer
 EOF;

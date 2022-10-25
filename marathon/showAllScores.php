@@ -49,6 +49,12 @@ $h->css =<<<EOF
 #results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
 #results tbody td { text-align: right; }
 #results tbody td:nth-of-type(2) { text-align: left; }
+@media print {
+  header, footer, hr, #printbtn, #return { display: none; }
+  #teams {
+    font-size: 12pt;
+  }
+}
 EOF;
 $tbl =<<<EOF
 <table id='results' border='1'>
@@ -89,7 +95,8 @@ $top
 $team
 $tbl
 <br>
-<a href="marathon.php?page=auth&email=$email">Return to Home Page</a>
+<input type='image' id='printbtn' src='https://bartonphillips.net/images/print.gif' onclick='window.print()' style='width: 100px'/><br>
+<a id="return" href="marathon.php?page=auth&email=$email">Return to Home Page</a>
 <hr>
 $footer
 EOF;

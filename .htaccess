@@ -4,6 +4,8 @@ Require all granted
 Options +Includes
 
 Header set Access-Control-Allow-Origin "*"
+# Use X-Robots-Tag to prevent indexing.
+Header set X-Robots-Tag "noindex, nofollow"
 
 SetEnv SITELOAD /var/www/vendor/bartonlp/site-class/includes
 SetEnv SITELOADNAME /var/www/vendor/bartonlp/site-class/includes/siteload.php

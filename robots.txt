@@ -1,12 +1,4 @@
-User-agent: *
-Disallow: bonnie3.jpg
-Disallow: index.php
-Disallow: mysitemap.json
-Disallow: fingers/
-Disallow: geoAjax.php
-Disallow: getcookie.php
-Disallow: marathon/
-Disallow: robots.php
-Disallow: sitemap.php
+user-agent: *
+disallow: /
 
-Sitemap: http://www.bonnieburch.com/Sitemap.xml
+sitemap: https://www.bonnieburch.com/Sitemap.xml
