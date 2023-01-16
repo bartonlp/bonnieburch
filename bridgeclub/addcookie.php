@@ -75,7 +75,7 @@ if($_POST) {
     throw(new Exception("Can't set cookie BLP-Finger in addcookie.php " . __LINE__));
   }
 
-  header("Location: /bridgeclub.php");
+  header("Location: /bridgeclub/bridgeclub.php");
   exit();
 }
 

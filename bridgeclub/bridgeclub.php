@@ -14,7 +14,7 @@ define("WEEK", 604800);
 define("STARTWED", 1641358800);
 
 $unixToday = strtotime("today");
-//$unixToday = strtotime('2022-02-15');
+//$unixToday = strtotime('2023-01-04');
 $today = date("l F j, Y", $unixToday);
 
 $unixWed = strtotime("Wednesday", $unixToday);

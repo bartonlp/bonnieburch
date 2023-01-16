@@ -28,21 +28,24 @@ $_site = require_once(getenv("SITELOADNAME")); // Get Startup info from mysitema
 // enterScores.php, showAllScores.php, showScores.php, and showTeams.php via $_GET. Only start()
 // uses $_POST.
 
-if($_POST['page'] == 'auth' || $_GET['page'] == 'auth') {
+if($_REQUEST['page'] == 'auth') {
   $S = new Database($_site);
 
-  $email = $_POST['email'] ?? $_GET['email'];
+  $email = $_REQUEST['email'];
   
   if(empty($email)) {
     youareok(false, 'NO_EMAIL');
     exit();
   }
+
+  // If the email address in in the team table you are OK.
   
   if($S->query("select team, name1, name2 from teams where email1='$email' or email2='$email'")) {
     [$team, $name1, $name2] = $S->fetchrow('num');
 
     youareok(true, $email, $team, $name1, $name2);
   } else {
+    // If you are not then 
     youareok(false, $email);
   }
   exit();
@@ -83,7 +86,7 @@ EOF;
   exit();
 }
 
-// This is the other function. It checks to see if $ok is true or false and then either logs an
+// Checks to see if $ok is true or false and then either logs an
 // error in the badplayer table or outputs the OK page.
 
 function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null, ?string $name2=null): never {
@@ -92,7 +95,7 @@ function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null,
 
   $h->title = "Marathon Bridge";
   $h->banner = "<h1>Marathon Bridge</h1>";
-  $h->css = ".center {text-align: center;}";
+  $h->css = ".center {text-align: center;} .red { color: red; }";
   
   [$top, $footer] = $S->getPageTopBottom($h, $b);
 
@@ -117,8 +120,9 @@ EOF;
   }
 
   // You Are OK!
-  
+  $greeting = "<h1 class='center'>$greeting</h1>";
   if($email == 'bartonphillips@gmail.com') { // Is it me?
+    $greeting = "<h1 class='center red'>Hello Barton. You are the Administrator</h1>";
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
 <a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a>
@@ -130,16 +134,14 @@ EOF;
   echo <<<EOF
 $top
 <hr>
-<h1 class='center'>Your are OK</h1>
+$greeting
 <p>Your are team $team.<br>
 Your team consists of $name1 and $name2.<br>
 If this is all correct you can proceed to <b>Enter Scores</b>, <b>Show Spreadsheet</b> or <b>Show Teams</b><br>
 If this is NOT CORRECT please email bartonphillips@gmail.com.</p>
 <hr>
-<!--<a href="enterScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Enter Your Team Scores</a><br>
-<a href="showScores.php?team=$team&name1=$name1&name2=$name2&email=$email">Show All Of Your Scores</a><br>-->
 <a href="showAllScores.php?email=$email">Show All Scores</a><br>
-<a href="showTeams.php?team=$team&name1=$name1&name2=$name2&email=$email">Show Teams</a><br>
+<a href="showTeams.php?email=$email">Show Teams</a><br>
 <a href="whoplayswho.php?email=$email">Who Plays Whom</a>
 $onlyBlp
 <br><br><a href="marathon.php">Return to main page</a>

@@ -145,10 +145,10 @@ $top
 <option>October</option>
 <option>November</option>
 <option>December</option>
-<option>January (1)</option>
-<option>January (2)</option>
-<option>February (1)</option>
-<option>February (2)</option>
+<option>January 1</option>
+<option>January 2</option>
+<option>February 1</option>
+<option>February 2</option>
 <option>March</option>
 <option>April</option>
 <option>May</option>

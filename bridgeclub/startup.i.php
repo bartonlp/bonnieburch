@@ -5,7 +5,7 @@
 
 //***************************************
 // FOR testing put a date in $todayDateIs
-//$todayDateIs = "2022-01-14";
+//$todayDateIs = "2023-01-04";
 //***************************************
 
 /*
@@ -54,24 +54,27 @@ CREATE TABLE `badplayer` (
 
 $_site = require_once(getenv("SITELOADNAME"));
 
+// If you have the secret blp code you are in.
 if($_GET['blp'] != '8653') {
+  // BLP 2023-01-16 - Changed logic to just use the use $finger from
+  // bartonphillipsnet/myfingerprints.php.
   // Check if user is Authorized. Look at the BLP-Finger cookie.
   
   $finger = $_COOKIE['BLP-Finger'];
 
-  $bonnieFingers = require("../fingers/bonnieFinger.php");
-
-  $S = new Database($_site);
+  // Get the authorized fingerprints from bartonphillipsnet.
   
-  if(array_intersect([$finger] , $bonnieFingers)[0] === null) {
-    $S = new Database($_site);
+  $bonnieFingers = require("/var/www/bartonphillipsnet/myfingerprints.php");
+
+  if(array_key_exists($finger , $bonnieFingers) === false) {
+    $S = new Database($_site); // Instantiate Database
     $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
               "values('$S->ip', 'counted', '{$S->self}_BB_STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
-    
+
     echo <<<EOF
-  <h1>You are NOT AUTHORIZED</h1>
-  EOF;
+<h1>You are NOT AUTHORIZED</h1>
+EOF;
     error_log("bridgeclub/startup.i.php: $S->ip, $S->siteName, $S->self, Not Authorized - finger=$finger, agent=$S->agent");
     exit();
   }
@@ -81,8 +84,8 @@ if($_GET['blp'] != '8653') {
 
 // Define a week and the first wed. we will use.
 
-$startWed = strtotime("2022-01-05");
-$julyOn = "2022-07-06"; // This is the start of the real counting towards the prize!
+$startWed = strtotime("2023-01-04");
+$julyOn = "2023-07-05"; // This is the start of the real counting towards the prize!
 define("WEEK", 604800);
 define("STARTWED", $startWed);
 
