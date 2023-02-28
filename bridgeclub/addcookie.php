@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // This file is used to set up bonnieburch.com with the correct fingerprint.
 // NOTE *** There are only two places where the myip table is inserted or updated, that is here
 // and in bartonphillips.com/register.php.
@@ -81,8 +82,8 @@ if($_POST) {
 
 $S = new $_site->className($_site);
 
-$h->title = "Add Cookie";
-$h->css = <<<EOF
+$S->title = "Add Cookie";
+$S->css = <<<EOF
 input {
   font-size: 1rem;
   padding-left: .5rem;
@@ -95,10 +96,10 @@ EOF;
 
 // BLP 2022-01-16 -- noGeo is a new flag that has been added to footer.i.php
 
-$b->noGeo = true; // Don't add geo.js
-$b->script = "<script src='https://bartonphillips.net/js/getFingerprint.js'></script>";
+$S->noGeo = true; // Don't add geo.js
+$S->b_script = "<script src='https://bartonphillips.net/js/getFingerprint.js'></script>";
 
-list($top, $footer) = $S->getPageTopBottom($h, $b);
+list($top, $footer) = $S->getPageTopBottom();
 
 // Render Page
 

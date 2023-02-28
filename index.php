@@ -1,15 +1,18 @@
+
 <?php
+// BLP 2023-02-24 - use new approach
+
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
-$h->title = "Bonnie's Home Page";
+$S->title = "Bonnie's Home Page";
 
-$h->inlineScript = <<<EOF
+$S->h_inlineScript = <<<EOF
 var thesite = '$S->siteName';
 var thisip = '$S->ip';
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

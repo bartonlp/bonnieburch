@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - does not do getPage...
 // startup.i.php is used by all of the bridge apps except index.php
 // This is one place for the table comments, the finger test and the date logic.
 // Some apps don't need all of the date logic but it does not hurt to have it.

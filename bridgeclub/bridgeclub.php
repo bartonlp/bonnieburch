@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // This is the Home page for Bonnie Bridge
 // BLP 2022-01-07 -- I should ALWAYS WORK in the bridgetest directory.
 // It has a .gitignore that is NOT pushed to 'origin' and a mysitemap.json that is NOT pushed to 'origin'.
@@ -31,16 +32,16 @@ if($unixToday >= $unixWed && $unixToday < $unixNextWed) {
 
 $fullDate = date("D m-d-y", $unixWed);
 
-$h->title = "Bonnie Bridge";
-$h->desc = "Lot of bridge playing here";
-$h->banner = "<h1>Bonnie's Bridge Club</h1>";
+$S->title = "Bonnie Bridge";
+$S->desc = "Lot of bridge playing here";
+$S->banner = "<h1>Bonnie's Bridge Club</h1>";
 
-$h->css =<<<EOF
+$S->css =<<<EOF
 button { font-size: var(--blpFontSize); border-radius: 10px; background: green; }
 button a { text-decoration: none; color: white; }
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

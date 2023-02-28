@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // Shows a spread sheet of donations
 
 require("startup.i.php");
@@ -20,10 +21,10 @@ if($_POST['page'] == 'postit') {
     ++$i;
   }
 
-  $h->title = "Add Donation Posted";
-  $h->banner = "<h1>$h->title</h1>";
+  $S->title = "Add Donation Posted";
+  $S->banner = "<h1>$S->title</h1>";
   
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
   $name = implode(',<br>', $names);
   $date = date("l F j, Y", $unixWed);
   echo <<<EOF
@@ -41,10 +42,10 @@ EOF;
 // This is the post from the $_GET() below
 
 if($_POST['page'] == 'post') {
-  $h->title = "Custom Week";
-  $h->banner = "<h1>$h->title</h1>";
+  $S->title = "Custom Week";
+  $S->banner = "<h1>$S->title</h1>";
   
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
   
   $id = $_POST['id'];
   $money = $_POST['money'];
@@ -70,12 +71,11 @@ EOF;
   exit();
 }
 
-$h->css = <<<EOF
-  input { text-align: right; }
-
+$S->css = <<<EOF
+input { text-align: right; }
 EOF;
 
-$b->script = <<<EOF
+$S->b_script = <<<EOF
 <script src="addDonation.js"></script>
 EOF;
 
@@ -84,11 +84,11 @@ EOF;
 // location.replace('addmoney.php?page=add&id="+id);
 
 if($_GET['page'] == 'add') {
-  $h->title = "Donation for Week";
-  $h->banner = "<h1>$h->title</h1>";
-  $h->css .= "button { background: green; color: white; border-radius: 10px; }";
+  $S->title = "Donation for Week";
+  $S->banner = "<h1>$S->title</h1>";
+  $S->css .= "button { background: green; color: white; border-radius: 10px; }";
   
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  [$top, $footer] = $S->getPageTopBottom();
   
   $id = $_GET['id'];
   
@@ -130,10 +130,10 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   $lines .= "<tr><td data-id='$id'>$name</td><td><input type='text' data-type='currency' name='money[$id]' value='$money'></td></tr>";
 }
 
-$h->title = "Add Donation";
-$h->banner = "<h1>$h->title</h1>";
+$S->title = "Add Donation";
+$S->banner = "<h1>$S->title</h1>";
 
-$h->css .=<<<EOF
+$S->css .=<<<EOF
   input[data-type='currency'] { font-size: var(--blpFontSize); width: 150px; border: 0; padding-right: 5px;}
   button {
     font-size: var(--blpFontSize);
@@ -150,7 +150,7 @@ $h->css .=<<<EOF
   .total { text-align: right; padding-right: 5px; }
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 $total = number_format($total);
 

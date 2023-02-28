@@ -1,11 +1,12 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // Edit the names in the bridge table
 
 require("startup.i.php");
 
 $S = new $_site->className($_site);
 
-$h->css =<<<EOF
+$S->css =<<<EOF
   .dontshow { display: none; }
   #add, #post { font-size: var(--blpFontSize); border-radius: 10px; background: green; color: white; }
   .delete { font-size: var(--blpFontSize); border-radius: 10px; background: red; color: white }
@@ -13,7 +14,7 @@ $h->css =<<<EOF
   input { font-size: var(--blpFontSize); }
 EOF;
 
-$b->inlineScript =<<<EOF
+$S->b_inlineScript =<<<EOF
   $(".name").on("click", function() {
     const id = $(this).attr("data-id");
     const tr = $(this).closest('tr');
@@ -27,9 +28,9 @@ $b->inlineScript =<<<EOF
 EOF;
 
 if($_POST['page'] == "delete") {
-  $h->title = "Delete Name";
-  $h->banner = "<h1>$h->title</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
+  $S->title = "Delete Name";
+  $S->banner = "<h1>$S->title</h1>";
+  [$top, $footer] = $S->getPageTopBottom();
   
   $fname = $_POST['fname'];
   $lname = $_POST['lname'];
@@ -61,9 +62,9 @@ EOF;
 }
 
 if($_POST['page'] == "add") {
-  $h->title = "Add New Name";
-  $h->banner = "<h1>$h->title</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
+  $S->title = "Add New Name";
+  $S->banner = "<h1>$S->title</h1>";
+  [$top, $footer] = $S->getPageTopBottom();
   
   $fname = $_POST['fname'];
   $lname = $_POST['lname'];
@@ -96,9 +97,9 @@ if($_POST['page'] == "post") {
   $fname = $_POST['fname'];
   $lname = $_POST['lname'];
   
-  $h->title = "Posted Name";
-  $h->banner = "<h1>Edited Name Posted</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
+  $S->title = "Posted Name";
+  $S->banner = "<h1>Edited Name Posted</h1>";
+  [$top, $footer] = $S->getPageTopBottom();
   
   $S->query("update bridge set name='$fname $lname', fname='$fname', lname='$lname', lasttime=now() where id=$id");
   echo <<<EOF
@@ -119,10 +120,10 @@ if($_GET['page'] == 'edit') {
   $fname = $_GET['fname'];
   $lname = $_GET['lname'];
 
-  $h->title = "Edit Name";
-  $h->banner = "<h1>$h->title</h1>";
+  $S->title = "Edit Name";
+  $S->banner = "<h1>$S->title</h1>";
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
 
   echo <<<EOF
 $top
@@ -155,10 +156,10 @@ while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
   $lines .= "<tr><td class='name' data-id='$id'>$name</td><td class='dontshow fname'>$fname</td><td class='dontshow lname'>$lname</td></tr>";
 }
 
-$h->title = "Select Name";
-$h->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
+$S->title = "Select Name";
+$S->banner = "<h1>Add, Edit or Delete Player's Names</h1>";
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

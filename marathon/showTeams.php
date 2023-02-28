@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - uses new approach
 /*
 CREATE TABLE `teams` (
   `team` int NOT NULL,
@@ -16,7 +17,6 @@ CREATE TABLE `teams` (
 
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
-$T = new dbTables($S);
 
 $email = $_GET['email'];
 
@@ -31,11 +31,13 @@ if(empty($email) || !$S->query("select team from marathon.teams where email1='$e
   exit();
 }
 
+$T = new dbTables($S);
+
 $tbl = $T->maketable("select team, name1, name2, email1, email2, phone1, phone2 from teams", ['attr'=>['id'=>'teams', 'border'=>'1']])[0];
 
-$h->title = "Show Teams";
-$h->banner = "<h1>$h->title</h1>";
-$h->css =<<<EOF
+$S->title = "Show Teams";
+$S->banner = "<h1>$S->title</h1>";
+$S->css =<<<EOF
 #teams { font-size: calc(18px + .4vw); }
 #teams th, #teams td { padding: 0 5px; }
 @media(max-width:  1850px) {
@@ -49,7 +51,7 @@ $h->css =<<<EOF
 }
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
@@ -61,4 +63,3 @@ $tbl
 <hr>
 $footer
 EOF;
-

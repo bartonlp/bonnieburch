@@ -1,0 +1,12 @@
+<?php
+// This is the email message for bulk emails from showAllScores, or from sendemails.php
+// Enter the $msg as html
+// Enter $sal (salutation) as html
+
+$msg = "<p>The attached reflect the scores we have entered. Hopefully, they correspond with your score sheets.</p>";
+$sal = "<p>Thank you, Barton</p>";
+
+// return the array.
+
+return ['msg'=>$msg, 'sal'=>$sal];
+

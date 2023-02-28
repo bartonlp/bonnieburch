@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // Add Attendance info into weeks table for Wed. games
 
 require("startup.i.php");
@@ -9,17 +10,17 @@ if($_POST) {
   $_site->footerFile = null;
   
   $S = new $_site->className($_site);
-  $h->title = "Attendance Posted";
-  $h->banner = "<h1>$h->title</h1>";
+  $S->title = "Attendance Posted";
+  $S->banner = "<h1>$S->title</h1>";
   
-  $h->css =<<<EOF
+  $S->css =<<<EOF
 table tbody td:nth-of-type(2) { text-align: center; }
 table thead th:nth-of-type(3) { text-align: right; }
 table tbody td:nth-of-type(3) { text-align: right; }
 .posted { font-weight: bold; }
 EOF;
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
   
   $ids = $_POST['id']; // id is an array of checked on elements
 
@@ -89,30 +90,23 @@ EOF;
 
 $S = new $_site->className($_site);
 
-$h->title = "Add Bridge Attendance";
-$h->banner = "<h1>$h->title</h1>";
+$S->title = "Add Bridge Attendance";
+$S->banner = "<h1>$S->title</h1>";
 
-$h->desc = "Lot of bridge playing here";
-$h->css =<<<EOF
-<style>
+$S->desc = "Lot of bridge playing here";
+$S->css =<<<EOF
 table tbody td:nth-of-type(2) { text-align: center; }
 table thead th:nth-of-type(3) { text-align: right; }
 table tbody td:nth-of-type(3) input { text-align: right; width: 100px; }
-</style>
-EOF;
-
-$h->css =<<<EOF
-<style>
-  button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color: white; background: green; }
-  input[type='checkbox'] { width: 30px; height: 30px; }
-  #week tbody td:last-of-type { text-align: center; }
-  #week { border-collapse: collapse; }
-  #week tbody tr { border: 1px solid black; }
-  #week tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; }
-</style>
+button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color: white; background: green; }
+input[type='checkbox'] { width: 30px; height: 30px; }
+#week tbody td:last-of-type { text-align: center; }
+#week { border-collapse: collapse; }
+#week tbody tr { border: 1px solid black; }
+#week tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; }
 EOF;
   
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 $S->query("select id, name from bridge order by lname");
 while([$id, $name] = $S->fetchrow('num')) {

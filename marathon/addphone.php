@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-23 - using new approach
 /*
 CREATE TABLE `teams` (
   `team` int NOT NULL,
@@ -16,62 +17,8 @@ CREATE TABLE `teams` (
 
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
-$T = new dbTables($S);
 
-if($_POST['page'] == 'submit') {
-  $phone1 = $_POST['phone1'];
-  $phone2 = $_POST['phone2'];
-  $email = $_POST['email'];
-  
-  for($i=1; $i<13; ++$i) {
-    if(empty($phone1[$i]) && empty($phone2[$i])) continue;
-    
-    if(empty($phone1[$i])) {
-      $S->query("update teams set phone2='$phone2[$i]', lasttime=now() where team=$i");
-    } elseif(empty($phone2[$i])) {
-      $S->query("update teams set phone1='$phone1[$i]', lasttime=now() where team=$i");
-    } else {
-      $S->query("update teams set phone1='$phone1[$i]', phone2='$phone2[$i]', lasttime=now() where team=$i");
-    }
-  }
-  $h->title = "Add Phone POST";
-  $h->banner = "<h1>$h->title</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
-  
-  echo <<<EOF
-$top
-<hr>
-<a href="marathon.php?page=auth&email=$email">Return to main page</a>
-<hr>
-$footer
-EOF;
-  
-  exit();
-}
-
-function callback(&$row, &$desc) {
-  $row['phone1'] = "<input class='phone1' name='phone1[".$row["team"]."]'>";
-  $row['phone2'] = "<input class='phone2' name='phone2[".$row["team"]."]'>";
-}
-
-$tbl = $T->maketable("select team, name1, name2, email1, email2, phone1, phone2 from teams", ['callback'=>'callback', 'attr'=>['id'=>'teams', 'border'=>'1']])[0];
-
-$h->title = "Add Phone";
-$h->banner = "<h1>$h->title</h1>";
-$h->css =<<<EOF
- #teams th, #teams td { padding: 0 5px; }
- .phone1, .phone2 { font-size: 20px; width: 150px; }
- button { border-radius: 5px; background: green; color: white; font-size: 20px; }
-EOF;
-$h->script = <<<EOF
-  <script src="https://bartonphillips.net/js/allnatural/js/maskedinput.js"></script>
-  <script>
-jQuery(document).ready(function($) {
-  $(".phone1").mask("(999) 999-9999");
-  $(".phone2").mask("(999) 999-9999");
-});
-  </script>
-EOF;
+// Do Auth via email first.
 
 $email = $_GET['email'];
 
@@ -86,7 +33,104 @@ if(empty($email) || !$S->query("select team from marathon.teams where email1='$e
   exit();
 }
 
-[$top, $footer] = $S->getPageTopBottom($h);
+$T = new dbTables($S);
+
+// Submit the changes.
+
+if($_POST['page'] == 'submit') {
+  //vardump("POST", $_POST);
+  $phone1 = $_POST['phone1'];
+  $phone2 = $_POST['phone2'];
+  $email1 = $_POST['email1'];
+  $email2 = $_POST['email2'];
+  
+  $email = $_POST['email'];
+
+  $updates = ''; // String to show who has been updated
+  
+  for($i=1; $i<13; ++$i) {
+    // If everything is empty skip.
+    
+    if(empty($phone1[$i]) && empty($phone2[$i]) && empty($email1[$i]) && empty($email2[$i])) continue;
+
+    // Get the original info.
+    
+    $S->query("select name1, name2, email1, email2, phone1, phone2 from teams where team=$i");
+    [$name1, $name2, $e1, $e2, $p1, $p2] = $S->fetchrow('num');
+
+    $str = '';
+
+    // Is the new info different from the old info?
+    
+    if($phone1[$i] != $p1) $str .= "phone1='$phone1[$i]',";
+    if($phone2[$i] != $p2) $str .= "phone2='$phone2[$i]',";
+    if($email1[$i] != $e1) $str .= "email1='$email1[$i]',";
+    if($email2[$i] != $e2) $str .= "email2='$email2[$i]',";
+
+    // If no change do next team
+
+    if(empty($str)) continue;
+
+    $msg = rtrim($str, ","); // strip off the trailing ','
+    $updates .= "Team: $i, $name1, $name2, str=$msg<br>";
+
+    // UPDATE the table.
+    
+    $S->query("update teams set $str lasttime=now() where team=$i");
+  }
+
+  $S->title = "Add Phone POST";
+  $S->banner = "<h1>$S->title</h1>";
+
+  [$top, $footer] = $S->getPageTopBottom();
+  
+  echo <<<EOF
+$top
+<hr>
+<h2>Updated</h2>
+<div>$updates</div>
+<br>
+<a href="marathon.php?page=auth&email=$email">Return to main page</a>
+<hr>
+$footer
+EOF;
+  
+  exit();
+}
+
+// Callback tor $T. Make the input fields.
+
+function callback(&$row, &$desc) {
+  $row['phone1'] = "<input class='phone1' data-form-type='other' name='phone1[".$row["team"]."]' value='". $row["phone1"]."'>";
+  $row['phone2'] = "<input class='phone2' data-form-type='other' name='phone2[".$row["team"]."]' value='". $row["phone2"]."'>";
+  $row['email1'] = "<input class='email1' data-form-type='other' name='email1[".$row["team"]."]' value='". $row["email1"]."'>";
+  $row['email2'] = "<input class='email2' data-form-type='other' name='email2[".$row["team"]."]' value='". $row["email2"]."'>";
+}
+
+$tbl = $T->maketable("select team, name1, name2, email1, email2, phone1, phone2 from teams", ['callback'=>'callback', 'attr'=>['id'=>'teams', 'border'=>'1']])[0];
+
+$S->title = "Add Phone";
+$S->banner = "<h1>$S->title</h1>";
+$S->css =<<<EOF
+ #teams th, #teams td { padding: 0 5px; }
+ .phone1, .phone2, .email1, .email2 { font-size: 20px; width: 150px; height: 40px; padding: 0 5px; border: none; cursor: pointer; }
+ .email1, .email2 { width: 350px; }
+ button { border-radius: 5px; background: green; color: white; font-size: 25px; }
+EOF;
+
+// maskedinput.js formats the phone items
+
+$S->h_script = <<<EOF
+  <script src="https://bartonphillips.net/js/allnatural/js/maskedinput.js"></script>
+  <script>
+jQuery(document).ready(function($) {
+  $(".phone1").mask("(999) 999-9999");
+  $(".phone2").mask("(999) 999-9999");
+});
+  </script>
+EOF;
+
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
@@ -101,4 +145,3 @@ $tbl
 <hr>
 $footer
 EOF;
-

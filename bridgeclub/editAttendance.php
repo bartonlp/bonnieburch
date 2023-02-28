@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // A spread sheet of the bridge club
 // It shows the name and then each wed from 1/5 to the current time.
 // This file is called by spreadAttendance.php. It should NEVER be run on its own (see 'Go Away' as
@@ -9,9 +10,9 @@ require("startup.i.php");
 $S = new $_site->className($_site);
 
 if($which = $_POST['page']) {
-  $h->title = "$which Done";
-  $h->desc = $whcih;
-  $h->banner = "<h1>Record {$which}ed</h1>";
+  $S->title = "$which Done";
+  $S->desc = $whcih;
+  $S->banner = "<h1>Record {$which}ed</h1>";
 
   $id = $_POST['id'];
   $name = $_POST['name'];
@@ -31,7 +32,7 @@ if($which = $_POST['page']) {
 
   $week = date("l F j, Y", strtotime($week));
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
 
   echo <<<EOF
 $top
@@ -69,10 +70,10 @@ if($_GET) {
 
   $page = ucfirst($page);
   
-  $h->title = "Are You Sure";
-  $h->desc = $page;
-  $h->banner = "<h1>Are You Sure?</h1>";
-  $h->css =<<<EOF
+  $S->title = "Are You Sure";
+  $S->desc = $page;
+  $S->banner = "<h1>Are You Sure?</h1>";
+  $S->css =<<<EOF
 form button {
   background: red;
   color: white;
@@ -92,7 +93,7 @@ form a {
 }
 EOF;
 
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  [$top, $footer] = $S->getPageTopBottom();
 
   // $page is now Capitalized!
   

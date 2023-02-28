@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 /*
  CREATE TABLE `teams` (
   `team` int NOT NULL,
@@ -27,21 +28,6 @@ CREATE TABLE `scores` (
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
-$h->title = "Who Plays Whom";
-$h->banner = "<h1>$h->title</h1>";
-//$b->nofooter = true;
-
-$h->css =<<<EOF
-@page { size: landscape; margin: .1in .125in .1in .125in; }
-@media print {
-  header, footer, hr, #info, #printbtn, #return { display: none; }
-  #who {
-    font-size: 8pt;
-    width: 100%;
-  }
-}  
-EOF;
-
 $email = $_GET['email'];
 
 if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
@@ -54,6 +40,20 @@ if(empty($email) || !$S->query("select team from marathon.teams where email1='$e
   echo "<h1>Not Authorized</h1><p>Go Away</p>";  
   exit();
 }
+
+$S->title = "Who Plays Whom";
+$S->banner = "<h1>$S->title</h1>";
+
+$S->css =<<<EOF
+@page { size: landscape; margin: .1in .125in .1in .125in; }
+@media print {
+  header, footer, hr, #info, #printbtn, #return { display: none; }
+  #who {
+    font-size: 8pt;
+    width: 100%;
+  }
+}  
+EOF;
 
 $whoHosts = ['Sep' => [[1,2], [3,4], [5,6], [7,8], [9,10], [11,12]],
              'Oct' => [[2,3], [4,5], [6,7], [8,9], [10,11], [12,1]],
@@ -88,7 +88,7 @@ $tbl
 </table>
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

@@ -1,14 +1,15 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // Show the total donations
 
 require("startup.i.php");
 
 $S = new $_site->className($_site);
 
-$h->title = "Bridge Donation Totals";
-$h->desc = "Lot of bridge playing here";
-$h->banner = "<h1>Bridge Donation Totals</h1>";
-$h->css =<<<EOF
+$S->title = "Bridge Donation Totals";
+$S->desc = "Lot of bridge playing here";
+$S->banner = "<h1>Bridge Donation Totals</h1>";
+$S->css =<<<EOF
   .tfoot { background: yellow; }
   .total { text-align: right; }
   #show-totals td:last-of-type { text-align: right }
@@ -23,7 +24,7 @@ $h->css =<<<EOF
   }
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 $sql = "select id, name from bridge order by lname";
 $S->query($sql);

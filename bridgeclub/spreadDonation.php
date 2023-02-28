@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // Add pressent to weeks table for Wed. games
 // This file uses editDonation.php
 
@@ -79,9 +80,9 @@ $foot
 </table>
 EOF;
 
-$h->title = "Bridge Donation Spread Sheet";
-$h->banner = "<h1>Bridge Donation Spread Sheet</h1>";
-$h->css =<<<EOF
+$S->title = "Bridge Donation Spread Sheet";
+$S->banner = "<h1>Bridge Donation Spread Sheet</h1>";
+$S->css =<<<EOF
   #scroll { overflow-x: auto; }
   td { text-align: right; }
   td.no { text-align: left; }
@@ -101,7 +102,7 @@ $h->css =<<<EOF
 }  
 EOF;
 
-$b->inlineScript =<<<EOF
+$S->b_inlineScript =<<<EOF
   $(".money").on("click", function(e) {
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
@@ -110,7 +111,7 @@ $b->inlineScript =<<<EOF
   });
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

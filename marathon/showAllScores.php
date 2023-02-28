@@ -1,4 +1,8 @@
 <?php
+// BLP 2023-02-23 - Using new approach
+// Show All of the Scores. They can be printed or emailed to everyone.
+// This uses the file 'marathon-msg.txt' which has the message and salutation that appear on the
+// Bulk Email. 
 /*
  CREATE TABLE `teams` (
   `team` int NOT NULL,
@@ -41,21 +45,6 @@ if(empty($email) || !$S->query("select team from marathon.teams where email1='$e
   exit();
 }
 
-$h->title = "Show All Scores";
-$h->banner = "<h1>$h->title</h1>";
-
-$h->css =<<<EOF
-#results th, #results td { padding: 0 5px; }
-#results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
-#results tbody td { text-align: right; }
-#results tbody td:nth-of-type(2) { text-align: left; }
-@media print {
-  header, footer, hr, #printbtn, #return { display: none; }
-  #teams {
-    font-size: 12pt;
-  }
-}
-EOF;
 $tbl =<<<EOF
 <table id='results' border='1'>
 <thead>
@@ -85,9 +74,129 @@ while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
   $list .= "<td>$total</td></tr>";
 }
 
+// The table fully formed
+
 $tbl .= "$list</tbody></table>";
 
-[$top, $footer] = $S->getPageTopBottom($h);
+// Send a Bulk Email.
+
+if($_GET['send']) {
+  // Create the css for the email.
+  
+  $css =<<<EOF
+<style>
+#results th, #results td { padding: 0 5px; }
+#results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
+#results tbody td { text-align: right; }
+#results tbody td:nth-of-type(2) { text-align: left; }
+</style>
+EOF;
+
+  // Check if marathone-msg.txt is pressent
+  
+  if(file_exists("marathon-msg.txt")) {
+    // If it is requior it. It has 'msg', and 'sal'
+  
+    $ar = require("marathon-msg.txt");
+    $msg = $ar['msg'];
+    $sal = $ar['sal'];
+  }
+
+  // Finish up the Email we are sending.
+  
+  $tbl =<<<EOF
+$css
+$msg
+$tbl
+$sal
+EOF;
+
+  $S->title = "Send Emails";
+  $S->banner = "<h1>$S->title</h1>";
+
+  [$top, $footer] = $S->getPageTopBottom();
+
+  $envelope["from"]= "barton@bartonphillips.org";
+
+  $date = date("m-d-Y");
+
+  $subject = "Current Scores as of $date";
+
+  $tmp = '';
+    
+  if($S->query("select email1, email2 from teams")) {
+    while([$email1, $email2] = $S->fetchrow('num')) {
+      if(!empty($email1)) {
+        $tmp .= "$email1,";
+      }
+      if(!empty($email2)) {
+        $tmp .= "$email2,";
+      }
+    }
+  }
+  $envelope["cc"] = rtrim($tmp, ",");
+  //$envelope["cc"] = "barton@bartonphillips.com";
+  
+  $part1["type"] = TYPEMULTIPART;
+  $part1["subtype"] = "alternative";
+
+  $part2["type"] = TYPETEXT;
+  $part2["encoding"] = ENC7BIT;
+  $part2["subtype"] = "html"; 
+  $part2["contents.data"] = $tbl;
+
+  // Make the body parts
+  
+  $body[] = $part1;
+  $body[] = $part2;
+
+  // Create the header from the envelope and the body parts
+  
+  $headers = imap_mail_compose($envelope, $body);
+
+  // This is the main person we are sending this to.
+  
+  $to = "bartonphillips@gmail.com";
+
+  if(imap_mail("$to", "$subject", "", $headers) === false) {
+    echo "Error<br>" . imap_errors();
+    exit();
+  }
+
+  $tmp = preg_replace("~,~", "<br>", $envelope['cc']);
+
+  echo <<<EOF
+$top
+<hr>
+$tbl
+<hr>
+$footer
+EOF;
+  
+  exit();
+}
+
+$S->title = "Show All Scores";
+$S->banner = "<h1>$S->title</h1>";
+
+$S->css =<<<EOF
+#results th, #results td { padding: 0 5px; }
+#results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
+#results tbody td { text-align: right; }
+#results tbody td:nth-of-type(2) { text-align: left; }
+@media print {
+  header, footer, hr, #printbtn, #return { display: none; }
+  #teams {
+    font-size: 12pt;
+  }
+}
+EOF;
+
+if($email == "bartonphillips@gmail.com") {
+  $showBulkEmailMsg = "<a href='showAllScores.php?send=true&email=$email'>Send Bulk Emails</a><br>";
+}
+
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
@@ -96,6 +205,7 @@ $team
 $tbl
 <br>
 <input type='image' id='printbtn' src='https://bartonphillips.net/images/print.gif' onclick='window.print()' style='width: 100px'/><br>
+$showBulkEmailMsg
 <a id="return" href="marathon.php?page=auth&email=$email">Return to Home Page</a>
 <hr>
 $footer

@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-23 - Using new approach.
 /*
 CREATE TABLE `scores` (
   `fkteam` int NOT NULL,
@@ -23,19 +24,94 @@ CREATE TABLE `teams` (
 */
 
 $_site = require_once(getenv("SITELOADNAME"));
+$S = new SiteClass($_site);
+
+// GET the date we are to enter the scores. Because Barton always forgets!
+
+if($_POST['page'] == "DATE") {
+  $month = $_POST['month'];
+
+  $email = $_GET['email'];
+
+  if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
+    $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+              "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
+              "on duplicate key update count=count+1, lasttime=now()");
+
+    error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
+
+    echo "<h1>Not Authorized</h1><p>Go Away</p>";  
+    exit();
+  }
+
+  $S->title = "Enter Bulk Scores";
+  $S->banner = "<h1>$S->title</h1>";
+
+  $S->desc = "Lot of bridge playing here";
+  $S->css =<<<EOF
+#month span { color: red; }
+#enterscore tbody td:first-of-type { text-align: center; width:100px; }
+#enterscore table tbody td:nth-of-type(2) { text-align: left; }
+#enterscore table thead th:nth-of-type(3) { text-align: right; }
+#enterscore table tbody td:nth-of-type(3) input { text-align: right; width: 100px; }
+button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color: white; background: green; }
+#enterscore tbody input { font-size: calc(22px + .4vw); }
+#enterscore thead select { font-size: calc(22px + .4vw); }
+#enterscore tbody td:last-of-type input { text-align: right; }
+#enterscore { border-collapse: collapse; }
+#enterscore tbody tr { border: 1px solid black; }
+
+EOF;
+
+  [$top, $footer] = $S->getPageTopBottom();
+
+  $S->query("select team, name1, name2 from teams order by team");
+  while([$team, $name1, $name2] = $S->fetchrow('num')) {
+    $names .= <<<EOF
+<tr><td>$team</td><td>$name1 & $name2</td>
+<td><input type='text' name='team[$team]'></td></tr>
+EOF;
+  }
+
+  echo <<<EOF
+$top
+<hr>
+<h2 id="month">For the month of <span>$month</span></h2>
+<form method="post">
+<table id="enterscore" border="1">
+<thead>
+<tr><th>Team</th><th>Team Members</th><th>Score</th><tr>
+</thead>
+<tbody>
+$names
+</tbody>
+</table>
+<br>
+<input type="hidden" name="email" value="$email">
+<input type="hidden" name="month" value="$month">
+<button name="page" value="submit">Submit</button>
+</form>
+<br>
+<a href="marathon.php?page=auth&email=$email">Return to Home Page</a>
+<hr>
+$footer
+EOF;
+  exit();
+}
+
+// Now that we have the DATE we can get the rest of the stuff
 
 if($_POST['page'] == 'submit') {
-  $S = new $_site->className($_site);
-  $h->title = "Enter Bulck Scores";
-  $h->banner = "<h1>$h->title</h1>";
+  $S->title = "Enter Bulck Scores";
+  $S->banner = "<h1>$S->title</h1>";
 
-  $h->css =<<<EOF
+  $S->css =<<<EOF
 #results tbody td { text-align: right; padding: 0 5px; }
 #results tbody td:nth-of-type(2) { text-align: left; }
 .posted { font-weight: bold; }
 EOF;
 
-  [$top, $footer] = $S->getPageTopBottom($h);
+  [$top, $footer] = $S->getPageTopBottom();
   
   $email = $_POST['email'];
   $teams = $_POST['team']; // team is an array of teams
@@ -57,7 +133,6 @@ EOF;
 <tbody>
 EOF;
   
-  //$S->query("select distinct fkteam from scores order by fkteam");
   $S->query("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam=t.team order by s.fkteam");
   $r = $S->getResult();
 
@@ -89,56 +164,25 @@ EOF;
   exit();
 }
 
-// First Page
+// Start Page Just ask for the Month because Barton always forgets.
 
-$S = new $_site->className($_site);
-
-$h->title = "Enter Bulk Scores";
-$h->banner = "<h1>$h->title</h1>";
-
-$h->desc = "Lot of bridge playing here";
-$h->css =<<<EOF
-table tbody td:nth-of-type(2) { text-align: center; }
-table thead th:nth-of-type(3) { text-align: right; }
-table tbody td:nth-of-type(3) input { text-align: right; width: 100px; }
+$S->title = "Enter Month Playes";
+$S->banner = "<h1>$S->title</h1>";
+$S->desc = "Lot of bridge playing here";
+$S->css =<<<EOF
 button { font-size: var(--blpFontSize); border-radius: 10px; padding: 5px; color: white; background: green; }
-#enterscore tbody input { font-size: calc(22px + .4vw); }
-#enterscore thead select { font-size: calc(22px + .4vw); }
-#enterscore tbody td:last-of-type input { text-align: right; }
-#enterscore { border-collapse: collapse; }
-#enterscore tbody tr { border: 1px solid black; }
-#enterscore tbody td:first-of-type { padding: 0 5px; width: 400px; border-right: 1px solid black; }
+td { padding: 5px; }
+input { font-size: calc(22px + .4vw); }
+select { font-size: calc(22px + .4vw); }
 EOF;
 
-$email = $_GET['email'];
-
-if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
-              "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
-              "on duplicate key update count=count+1, lasttime=now()");
-
-  error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
-
-  echo "<h1>Not Authorized</h1><p>Go Away</p>";  
-  exit();
-}
-
-[$top, $footer] = $S->getPageTopBottom($h);
-
-$S->query("select team, name1, name2 from teams order by team");
-while([$team, $name1, $name2] = $S->fetchrow('num')) {
-  $names .= <<<EOF
-<tr><td>$team</td><td>$name1 & $name2</td>
-<td><input type='text' name='team[$team]'></td></tr>
-EOF;
-}
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
-<hr>
 <form method="post">
-<table id="enterscore">
-<thead>
+<table id="enterdate">
+<tbody>
 <tr><td>Select Month:</td>
 <td><select name="month">
 <option>September</option>
@@ -153,18 +197,10 @@ $top
 <option>April</option>
 <option>May</option>
 </select></td><td></td><tr>
-<tr><th>Team</th><th>Team Members</th><th>Score</th><tr>
-</thead>
-<tbody>
-$names
 </tbody>
 </table>
-<br>
 <input type="hidden" name="email" value="$email">
-<button name="page" value="submit">Submit</button>
+<button name="page" value="DATE">Submit</button>
 </form>
-<br>
-<a href="marathon.php?page=auth&email=$email">Return to Home Page</a>
-<hr>
 $footer
 EOF;

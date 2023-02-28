@@ -1,9 +1,11 @@
 <?php
+// BLP 2023-02-24 - use new approach
+
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
-$h->title = "Not Authorized";
-$h->banner = "<h1>NOT AUTHORIZED</h1>";
-[$top, $footer] = $S->getPageTopBottom($h);
+$S->title = "Not Authorized";
+$S->banner = "<h1>NOT AUTHORIZED</h1>";
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top

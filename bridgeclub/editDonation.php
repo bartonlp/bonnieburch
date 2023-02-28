@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - new approach
 // Edit or delete a Donation entry.
 // Called from spreadDonation.php. This should never be run by itself (see 'Go Away' at the bottom).
 
@@ -7,9 +8,9 @@ require("startup.i.php");
 $S = new $_site->className($_site);
   
 if($_POST['page'] == 'post') {
-  $h->title = "Edit Donation Post";
-  $h->banner = "<h1>Edit Donation Post</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
+  $S->title = "Edit Donation Post";
+  $S->banner = "<h1>Edit Donation Post</h1>";
+  [$top, $footer] = $S->getPageTopBottom();
               
   $money = preg_replace("~,~", "", $_POST['money']);
   $id = $_POST['id'];
@@ -33,9 +34,9 @@ EOF;
 }
 
 if($_POST['page'] == 'delete') {
-  $h->title = "Edit Donation Delete";
-  $h->banner = "<h1>Edit Donation Delete</h1>";
-  [$top, $footer] = $S->getPageTopBottom($h);
+  $S->title = "Edit Donation Delete";
+  $S->banner = "<h1>Edit Donation Delete</h1>";
+  [$top, $footer] = $S->getPageTopBottom();
                  
   $id = $_POST['id'];
   $week = $_POST['week'];
@@ -58,9 +59,9 @@ EOF;
 }
   
 if($_GET['page'] == 'edit') {
-  $h->title = "Edit Donation";
-  $h->banner = "<h1>Edit/Delete Donation</h1>";
-  $h->css =<<<EOF
+  $S->title = "Edit Donation";
+  $S->banner = "<h1>Edit/Delete Donation</h1>";
+  $S->css =<<<EOF
   input { text-align: right; }
   button { border-radius: 5px; padding: 5px; }
   #editButton { color: white; background: green; }
@@ -68,9 +69,9 @@ if($_GET['page'] == 'edit') {
   h2 { margin-bottom: 0px; }
 EOF;
 
-  $b->script .= "<script src='addDonation.js'></script>"; //  BLP 2022-10-02 - fixed, was addAttendance.js which does not exist!
+  $S->b_script .= "<script src='addDonation.js'></script>"; //  BLP 2022-10-02 - fixed, was addAttendance.js which does not exist!
   
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  [$top, $footer] = $S->getPageTopBottom();
                  
   $id = $_GET['id'];
   $week = $_GET['week'];

@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-23 - Using new approach
 /*
 CREATE TABLE `teams` (
   `team` int NOT NULL,
@@ -22,15 +23,14 @@ CREATE TABLE `scores` (
 */
 
 $_site = require_once(getenv("SITELOADNAME")); // Get Startup info from mysitemap.json
+$S = new SiteClass($_site);
 
 // If $_POST or $_GET check authorization.
 // This file is called from each of the other pages: addphone.php, enterBulkScores.php,
-// enterScores.php, showAllScores.php, showScores.php, and showTeams.php via $_GET. Only start()
-// uses $_POST.
+// enterScores.php, showAllScores.php, showScores.php, and showTeams.php via $_GET. Only the Start
+// page uses $_POST to authenticate.
 
 if($_REQUEST['page'] == 'auth') {
-  $S = new Database($_site);
-
   $email = $_REQUEST['email'];
   
   if(empty($email)) {
@@ -51,53 +51,17 @@ if($_REQUEST['page'] == 'auth') {
   exit();
 }
 
-// We have only two functions start() and yourarok()
-
-function start():never {
-  global $_site, $h, $b;
-  $S = new SiteClass($_site);
-  
-  $h->title = "Marathon Bridge";
-  $h->css =<<<EOF
-.center { text-align: center; }
-button {
-  border-radius: 5px;
-  background: green;
-  color: white;
-}
-input { width: 350px; }
-input, button { font-size: 20px; }
-EOF;
-    
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
-
-  // Call auth
-  
-  echo <<<EOF
-$top
-<hr>
-<form method='post'>
-Login with your email address: <input type='text' name='email'><br>
-<button type='submit' name='page' value='auth'>Continue</button>
-</form>
-<hr>
-$footer
-EOF;
-  exit();
-}
-
 // Checks to see if $ok is true or false and then either logs an
 // error in the badplayer table or outputs the OK page.
 
 function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null, ?string $name2=null): never {
-  global $_site, $h, $b;
-  $S = new SiteClass($_site);
+  global $S;
 
-  $h->title = "Marathon Bridge";
-  $h->banner = "<h1>Marathon Bridge</h1>";
-  $h->css = ".center {text-align: center;} .red { color: red; }";
+  $S->title = "Marathon Bridge";
+  $S->banner = "<h1>Marathon Bridge</h1>";
+  $S->css = ".center {text-align: center;} .red { color: red; }";
   
-  [$top, $footer] = $S->getPageTopBottom($h, $b);
+  [$top, $footer] = $S->getPageTopBottom();
 
   if(!$ok) {
     //You are NOT OK
@@ -125,7 +89,8 @@ EOF;
     $greeting = "<h1 class='center red'>Hello Barton. You are the Administrator</h1>";
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
-<a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a>
+<a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a><br>
+<a href="sendemails.php">Send Bulk Emails</a><br>
 EOF;
   }
 
@@ -151,5 +116,32 @@ EOF;
   exit();
 }
 
-start();
+// Start Page
+
+$S->title = "Marathon Bridge";
+$S->css =<<<EOF
+.center { text-align: center; }
+button {
+  border-radius: 5px;
+  background: green;
+  color: white;
+}
+input { width: 350px; }
+input, button { font-size: 20px; }
+EOF;
+
+[$top, $footer] = $S->getPageTopBottom();
+
+// Call auth
+
+echo <<<EOF
+$top
+<hr>
+<form method='post'>
+Login with your email address: <input type='text' name='email'><br>
+<button type='submit' name='page' value='auth'>Continue</button>
+</form>
+<hr>
+$footer
+EOF;
 

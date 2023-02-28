@@ -1,4 +1,5 @@
 <?php
+// BLP 2023-02-24 - use new approach
 // A spread sheet of the bridge club
 // It shows the name and then each wed from 1/5 to the current time.
 // This file uses editAttendance.php
@@ -58,11 +59,11 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
   $rows .= $row;
 }
 
-$h->title = "Bridge Attendance Spread";
-$h->desc = "A spread sheet of bridge attendance";
-$h->banner = "<h1>Bridge Attendance Spread Sheet</h1>";
+$S->title = "Bridge Attendance Spread";
+$S->desc = "A spread sheet of bridge attendance";
+$S->banner = "<h1>Bridge Attendance Spread Sheet</h1>";
 
-$h->css =<<<EOF
+$S->css =<<<EOF
   #scroll { overflow-x: auto; }
   #spread-attendance tbody td { padding: 0 5px; }
   #spread-attendance tbody td:nth-of-type(2) { text-align: right }
@@ -82,7 +83,7 @@ $h->css =<<<EOF
 }  
 EOF;
 
-$b->inlineScript =<<<EOF
+$S->b_inlineScript =<<<EOF
   $("#spread-attendance td.h-a").on("click", function(e) {
     let id = $(this).attr('data-id');
     let week = $(this).attr('data-week');
@@ -96,7 +97,7 @@ $b->inlineScript =<<<EOF
   });
 EOF;
 
-[$top, $footer] = $S->getPageTopBottom($h, $b);
+[$top, $footer] = $S->getPageTopBottom();
 
 $foot = "<tr><th class='tfoot'>Total</th><th class='tfoot total'>$finaltotal</th><th class='tfoot total'>$finalJuly</th>";
 for($i=0; $i < count($wedList); ++$i) {

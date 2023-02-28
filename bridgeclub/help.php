@@ -5,12 +5,12 @@ require("startup.i.php");
 
 $S = new $_site->className($_site);
 
-$h->title = "Bridge App Help";
-$h->banner = "<h1>$h->title</h1>";
-$h->css =<<<EOF
+$S->title = "Bridge App Help";
+$S->banner = "<h1>$S->title</h1>";
+$S->css =<<<EOF
 button { background: green; color: white; border-radius: 10px; }  
 EOF;
-[$top, $footer] = $S->getPageTopBottom($h);
+[$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
