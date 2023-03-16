@@ -41,7 +41,11 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   if($money == 0) continue;
   
   $money = "$". number_format($money);
-      
+
+  if($name == 'Tudi Moldestad') {
+    $name = 'Tudi & John';
+  }
+ 
   $list .= "<tr><td>$name</td><td>$money</td></tr>";
 }
 
