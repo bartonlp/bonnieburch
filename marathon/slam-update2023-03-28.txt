@@ -1,0 +1,13 @@
+<p>To date, slams have been bid and made by the following:</p>
+<table border='1'>
+<tbody>
+<tr><td>Ceil & Jerry</td><td>2</td></tr>
+<tr><td>Bonnie & Barton</td><td>2</td></tr>
+<tr><td>Libertys</td><td>1</td></tr>
+<tr><td>Peter & Joyce</td><td>1</td></tr>
+<tr><td>Judy & Bernie</td><td>1</td></tr>
+<tr><td>Pat & Bob/Jackie</td><td>4</td></tr>
+</tbody>
+</table>
+<p>If this does not correspond with your records, please advise.</p>
+<p>Barton</p>

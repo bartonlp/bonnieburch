@@ -78,104 +78,6 @@ while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
 
 $tbl .= "$list</tbody></table>";
 
-// Send a Bulk Email.
-
-if($_GET['send']) {
-  // Create the css for the email.
-  
-  $css =<<<EOF
-<style>
-#results th, #results td { padding: 0 5px; }
-#results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
-#results tbody td { text-align: right; }
-#results tbody td:nth-of-type(2) { text-align: left; }
-</style>
-EOF;
-
-  // Check if marathone-msg.txt is pressent
-  
-  if(file_exists("marathon-msg.txt")) {
-    // If it is requior it. It has 'msg', and 'sal'
-  
-    $ar = require("marathon-msg.txt");
-    $msg = $ar['msg'];
-    $sal = $ar['sal'];
-  }
-
-  // Finish up the Email we are sending.
-  
-  $tbl =<<<EOF
-$css
-$msg
-$tbl
-$sal
-EOF;
-
-  $S->title = "Send Emails";
-  $S->banner = "<h1>$S->title</h1>";
-
-  [$top, $footer] = $S->getPageTopBottom();
-
-  $envelope["from"]= "barton@bartonphillips.org";
-
-  $date = date("m-d-Y");
-
-  $subject = "Current Scores as of $date";
-
-  $tmp = '';
-    
-  if($S->query("select email1, email2 from teams")) {
-    while([$email1, $email2] = $S->fetchrow('num')) {
-      if(!empty($email1)) {
-        $tmp .= "$email1,";
-      }
-      if(!empty($email2)) {
-        $tmp .= "$email2,";
-      }
-    }
-  }
-  $envelope["cc"] = rtrim($tmp, ",");
-  //$envelope["cc"] = "barton@bartonphillips.com";
-  
-  $part1["type"] = TYPEMULTIPART;
-  $part1["subtype"] = "alternative";
-
-  $part2["type"] = TYPETEXT;
-  $part2["encoding"] = ENC7BIT;
-  $part2["subtype"] = "html"; 
-  $part2["contents.data"] = $tbl;
-
-  // Make the body parts
-  
-  $body[] = $part1;
-  $body[] = $part2;
-
-  // Create the header from the envelope and the body parts
-  
-  $headers = imap_mail_compose($envelope, $body);
-
-  // This is the main person we are sending this to.
-  
-  $to = "bartonphillips@gmail.com";
-
-  if(imap_mail("$to", "$subject", "", $headers) === false) {
-    echo "Error<br>" . imap_errors();
-    exit();
-  }
-
-  $tmp = preg_replace("~,~", "<br>", $envelope['cc']);
-
-  echo <<<EOF
-$top
-<hr>
-$tbl
-<hr>
-$footer
-EOF;
-  
-  exit();
-}
-
 $S->title = "Show All Scores";
 $S->banner = "<h1>$S->title</h1>";
 
@@ -192,11 +94,15 @@ $S->css =<<<EOF
 }
 EOF;
 
-if($email == "bartonphillips@gmail.com") {
-  $showBulkEmailMsg = "<a href='showAllScores.php?send=true&email=$email'>Send Bulk Emails</a><br>";
-}
-
 [$top, $footer] = $S->getPageTopBottom();
+
+// ******************
+// This is the empty $_GET, which is the first page.
+// If it is ME then add the send option to do the $_GET['send'] option.
+
+if($email == "bartonphillips@gmail.com") {
+  $showBulkEmailMsg = "<a href='sendemails.php?send=true&showallscores=on&marathon=on&email=$email'>Send Bulk Emails</a><br>";
+}
 
 echo <<<EOF
 $top

@@ -1,5 +1,8 @@
 # Apache2 2.4 uses Require
-Require all granted
+<RequireAll>
+ Require all granted
+ Require not ip 193.42.33.5
+</RequireAll>
 
 Options +Includes
 
