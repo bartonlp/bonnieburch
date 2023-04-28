@@ -18,8 +18,9 @@ echo <<<EOF
 $top
 <h2 class="center">My Own Home Page -- Oh Boy</h2>
 <hr>
-<a href="bridgeclub/bridgeclub.php">Go To Bridge Club</a><br>
-<a href="marathon/marathon.php">Go To Marathon Bridge</a>
+<a href="bridgeclub/bridgeclub.php">Bridge Club</a><br>
+<a href="marathon/marathon.php">Marathon Bridge</a><br>
+<a href="mitchell/family.php">The Mitchell Family</a>
 <hr>
 $footer
 EOF;
