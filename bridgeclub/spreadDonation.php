@@ -53,9 +53,9 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
   $S->query("select sum(money) from money where fid=$id");
   $total = "$". number_format($S->fetchrow('num')[0]);
 
-  if($name == 'Tudi Moldestad') {
-    $name = 'Tudi & John';
-  }
+//  if($name == 'Tudi Moldestad') {
+//    $name = 'Tudi & John';
+//  }
  
   $rows .= "<tr><td class='no'>$name</td><td>$total</td>$line</tr>";
 }

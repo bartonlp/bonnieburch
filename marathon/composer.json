@@ -1,0 +1,13 @@
+{
+  "require": {
+    "sendgrid/sendgrid": "~7",
+    "php-http/guzzle6-adapter": "^1.1",
+    "guzzlehttp/guzzle": "^6.0",
+    "sparkpost/sparkpost": "^2.3"
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  }
+}

@@ -1,35 +1,4 @@
 <?php
-// Send out bulk emails to Marathon Members.
-// I lookup the email addresses for members from the teams tables.
-/*
-CREATE TABLE `teams` (
-  `team` int NOT NULL,
-  `name1` varchar(100) NOT NULL,
-  `name2` varchar(100) NOT NULL,
-  `email1` varchar(100) NOT NULL,
-  `email2` varchar(100) NOT NULL,
-  `phone1` varchar(20) DEFAULT NULL,
-  `phone2` varchar(20) DEFAULT NULL,
-  `created` datetime NOT NULL,
-  `lasttime` datetime NOT NULL,
-  PRIMARY KEY (`team`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE `scores` (
-  `fkteam` int NOT NULL,
-  `month` varchar(20) NOT NULL,
-  `moNo` int DEFAULT NULL,
-  `score` int DEFAULT '0',
-  `created` datetime DEFAULT NULL,
-  `lasttime` datetime DEFAULT NULL,
-  PRIMARY KEY (`fkteam`,`month`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-*/
-
-// Start a session. We pass the information in $_SESSION['info']. See below.
-
-session_start();
-
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
@@ -54,9 +23,10 @@ function getheader($info) {
   global $S;
 
   $errorMsg = '';
-  $envelope["from"] = $from = "barton@bartonphillips.com";
+  $from =  "Marathon@mail.bartonphillips.com";
+    
   $to = "barton@bartonphillips.com";
-
+    
   $subject = $info['subject'];
   $showallscores = $info['showallscores'];
   $sendto = $info['sendto'];
@@ -104,18 +74,9 @@ function getheader($info) {
 
     // The table fully formed
 
-    $contents =<<<EOF
-$css
-$msg
-<table id='results' border='1'>
-<tbody>
-$list
-</tbody>
-</table>
-$sal
-EOF;
+    $contents = "$msg<table id='results' border='1'><tbody>$list</tbody></table>$sal";
 
-    $subject = "Current Scores as of $date";
+    $subject = "$subject<br>Current Scores as of $date";
   } else if($texttosend) {
     $contents = $texttosend;
   } else {
@@ -130,39 +91,10 @@ EOF;
     $errorMsg .= "<h2>No valid 'Subject'</h2>";
   }
 
-  if($attachment = $_FILES['attachment']['name']) {
-    if($err = $_FILES['attachment']['error']) {
-      $errorMsg .= $fileUploadErrors[$err];
-    } else {
-      $attachType = $_FILES['attachment']['type'];
-      $attachFile = $_FILES['attachment']['tmp_name'];
-      $part3["type"] = TYPEAPPLICATION;
-      $part3["encoding"] = ENCBASE64;
-      $part3["subtype"] = "octet-stream";
-      $part3["description"] = basename($attachment);
-      $part3["disposition.type"] = "attachment";
-      $part3["disposition"] = ['filename'=>basename($attachment)];
-      $part3["type.parameters"] = ['name'=>basename($attachment)];
-      $part3["contents.data"] = base64_encode(file_get_contents($attachFile));
-      $part3["bytes"] = strlen($part3["content.data"]);
-
-      if(array_intersect([$attachType], ['image/jpeg', 'image/gif', 'image/png'])[0] !== null) {
-        $uploaddir = '/var/www/bonnieburch.com/marathon/data/';
-        $uploadfile = $uploaddir . basename($_FILES['attachment']['name']);
-
-        if(!move_uploaded_file($_FILES['attachment']['tmp_name'], $uploadfile)) {
-          echo "Move error<br>";
-        }
-      }
-    }
-  }
-  
   if($sendto) {
     $cc = $sendto;
-    $envelope["cc"]  = $cc;
   } elseif($sendfile) {
     $cc = file_get_contents($sendfile);
-    $envelope["cc"]  = rtrim(preg_replace(["~\n~m", "~, *~"], ",", $cc), ",");
   } elseif($marathon) {
     // Lookup email addresses in the teams table.
 
@@ -177,7 +109,7 @@ EOF;
           $cc .= "$email2,";
         }
       }
-      $envelope["cc"] = rtrim($cc, ",");
+      $cc = rtrim($cc, ",");
     } else {
       $errorMsg .= "<h2>NO valid email addresses found in the 'marathon' database?</h2>";
     }
@@ -185,29 +117,50 @@ EOF;
     $errorMsg .= "<h2>You must provide either a CC list, a Filename or check 'Marathon group'</h2>";
   }
 
-  $part1["type"] = TYPEMULTIPART;
-  $part1["subtype"] = "alternative";
+  $recipients = '{"address": {"email": "bartonphillips@gmail.com"}}';
 
-  $part2["type"] = TYPETEXT;
-  $part2["encoding"] = ENC7BIT;
-  $part2["subtype"] = "html"; 
-  $part2["description"] = basename($filename);
-  $part2["contents.data"] = $contents;
+  $ccval = '';
   
-  $body[] = $part1;
-  $body[] = $part2;
-
-  if($part3) {
-    $body[] = $part3;
+  foreach(explode(',', $cc) as $c) {
+    $ccval .= ",{\"address\": {\"email\": \"$c\",\"header_to\": \"$c\"}}";
   }
 
-  $headers = imap_mail_compose($envelope, $body);
-
+  $recipients .= "$ccval";
+  
+  if($attachment = $_FILES['attachment']['name']) {
+    if($err = $_FILES['attachment']['error']) {
+      $errorMsg .= $fileUploadErrors[$err];
+    } else {
+      $name = basename($attachment);
+      $type = "octet-stream";
+      $data = base64_encode(file_get_contents($_FILES['attachment']['tmp_name']));
+    }
+    $attachments = ",\"attachments\": [{\"name\": \"$name\",\"type\": \"$type\",\"data\": \"$data\"}]";
+  }
+  
   if(!empty($errorMsg)) {
     return ['ERROR', $errorMsg];
   } else {
-    return ['HEADERS', $headers, 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
-            'contents'=>$contents, 'attachment'=>$attachment, 'attachType'=>$attachType];
+    $post =<<<EOF
+{"recipients": [
+  $recipients
+],
+  "content": {
+    "from": "Marathon@mail.bartonphillips.com",
+    "reply_to": "Barton Phillips<bartonphillips@gmail.com>",
+    "headers": {
+      "CC": "$cc"
+    },
+    "subject": "$subject",
+    "text": "View This in HTML Mode",
+    "html": "$contents"
+    $attachments
+  }
+}
+EOF;
+    
+    return ['HEADERS', $post, 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
+            'contents'=>$contents, 'attachments'=>$name];
   }
 }
 
@@ -227,105 +180,8 @@ if(empty($email) || !$S->query("select team from marathon.teams where email1='$e
   exit();
 }
 
-//********************
-// This is the GET from showAllScores.php it passes:
-// send=true&showallscores=on&marathon=on&email={email address of user}
-
-if($_GET["send"]) {
-  $info = getheader($_GET);
-  
-  if($info[0] == 'ERROR') {
-    $errorMsg = $info[1];
-    goto ERROR;
-  }
-
-  $to = $info['to'];
-  $subject = $info['subject'];
-  $headers = $info[1];
-  $contents = $info['contents'];
-  $cc = $info['cc'];
-
-  if(imap_mail("$to", "$subject", "", $headers) === false) {
-    $errorMsg = "Error 'imap_mail'<br>" . imap_errors();
-    goto ERROR;
-  }
-
-  $S->title = "Bulk Emails Sent";
-  $S->banner = "<h1>$S->title</h1>";
-  $S->css = "h3 { margin-bottom: 0; }";
-
-  [$top, $footer] = $S->getPageTopBottom();
-
-  echo <<<EOF
-$top
-<hr>
-<h2>Subject: $subject</h2>
-<h3 id="cc">CC:</h3>
-$cc
-<h3>Message:</h3>
-$contents
-<hr>
-<a id="return" href="marathon.php?page=auth&email=$email">Return to Home Page</a>
-$footer
-EOF;
-  exit();
-
-ERROR:
-  $S->title = "Send Error";
-  $S->banner = "<h1>$S->title</h1>";
-  [$top, $footer] = $S->getPageTopBottom();
-  echo <<<EOF
-$top
-<hr>
-$errorMsg
-<a id="return" href="marathon.php?page=auth&email=$email">Return to Home Page</a>
-<hr>
-$footer
-EOF;
-  exit();
-}
-
-//***********************
-// FROM form POST 'sendit'
-// The main pages does a post to 'sendpreview' which if everything looks OK does a POST to 'sendit'
-
-if($_POST['sendit']) {
-  $email = $_POST['email'];
-  
-  $info = $_SESSION['info'];
-  $headers = $info[1];
-  $to = $info['to'];
-  $subject = $info['subject'];
-
-  if(imap_mail("$to", "$subject", "", $headers) === false) {
-    $errorMsg = "Error 'imap_mail'<br>" . imap_errors();
-    $S->title = "Send Error";
-    $S->banner = "<h1>$S->title</h1>";
-    $msg = "<p>$errorMsg</p>";
-  } else {
-    $S->title = "Data Sent";
-    $S->banner = "<h1>$S->title</h1>";
-    $msg =<<<EOF
-<h2>You information has been sent.</h2>
-<a href="marathon.php?page=auth&email=$email">Return to Marathon</a>
-EOF;
-  }
-
-  [$top, $footer] = $S->getPageTopBottom();
-  
-  echo <<<EOF
-$top
-<hr>
-$msg
-<hr>
-$footer
-EOF;
-  unlink("data/{$info['attachment']}"); // Unlink a file if it is in 'data/'. If nothing there we don't care.
-  exit();
-}
-
 //*****************************
-// FROM form POST 'sendpreview'
+// FROM form POST main page to 'sendpreview'
 // The main program does a post to here. If all is OK this does a post to 'sendit'
 
 if($_POST['sendpreview']) {
@@ -349,17 +205,17 @@ EOF;
     // Here we set the session variable with $info form getheader()
     // This is how we pass the info to 'sendit'
     
-    $_SESSION['info'] = $info;
-
     // Display the preview info and give the option to 'sendit'
 
-    if($attach = $info['attachment']) {
+    if($attach = $info['attachments']) {
       $attachFile = "data/$attach";
       $attachStr = "<p>Attachment:<br>$attach</p>";
       if(array_intersect([$info['attachType']], ['image/jpeg', 'image/gif', 'image/png'])[0] !== null) {
         $attachStr .= "<img src='$attachFile' style='width: 300px;'><br>";
       }
     }
+
+    $postdata = preg_replace(["~\n~", '~"~'], ['', "`"], $info[1]);
     
     echo <<<EOF
 $top
@@ -369,11 +225,12 @@ Subject: {$info['subject']}<br>
 CC: {$info['cc']}</p>
 <p>Message:<br>{$info['contents']}</p>
 $attachStr
-<form method="POST">
+<form method="POST" action="sparkpost2.php">
 <input type="hidden" name="email" value="$email">
+<input type="hidden" name="post" value="$postdata">
 <button type="submit" name="sendit" value="sendit">Send It</button>
 </form>
-<br><a href="sendmail.php?page=auth&email=$email">Return to Send Mail</a>
+<br><a href="sendemail2.php?page=auth&email=$email">Return to Send Mail</a>
 <hr>
 $footer
 EOF;

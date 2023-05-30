@@ -1,5 +1,4 @@
 <?php
-// BLP 2023-02-24 - use new approach
 // This file is used to set up bonnieburch.com with the correct fingerprint.
 // NOTE *** There are only two places where the myip table is inserted or updated, that is here
 // and in bartonphillips.com/register.php.
@@ -23,7 +22,7 @@ if($_POST['page'] == 'finger') {
   exit();
 }
       
-// If a post from the form
+// A post from the form below
 
 if($_POST) {
   $S = new Database($_site);
@@ -48,7 +47,7 @@ if($_POST) {
   $visitorId = file_get_contents("/tmp/visitorfingertemp");
   unlink("/tmp/visitorfingertemp");
 
-  error_log("visitorId: $visitorId");
+  error_log("addcookie.php: visitorId: $visitorId");
   
   $S->query("insert into bartonphillips.members (name, email, finger, count, created, lasttime) ".
                  "values('$name', '$email', '$visitorId', 1, now(), now()) ".

@@ -94,6 +94,14 @@ $S->css =<<<EOF
 }
 EOF;
 
+$S->b_script = <<<EOF
+<script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
+<link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
+<script>
+  $("#results").tablesorter({sortList: [[14, 0]]});
+</script>  
+EOF;
+
 [$top, $footer] = $S->getPageTopBottom();
 
 // ******************
@@ -101,7 +109,7 @@ EOF;
 // If it is ME then add the send option to do the $_GET['send'] option.
 
 if($email == "bartonphillips@gmail.com") {
-  $showBulkEmailMsg = "<a href='sendemails.php?send=true&showallscores=on&marathon=on&email=$email'>Send Bulk Emails</a><br>";
+  $showBulkEmailMsg = "<a href='sendemails2.php?email=$email'>Send Bulk Emails</a><br>";
 }
 
 echo <<<EOF

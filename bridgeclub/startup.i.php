@@ -60,9 +60,13 @@ if($_GET['blp'] != '8653') {
   // BLP 2023-01-16 - Changed logic to just use the use $finger from
   // bartonphillipsnet/myfingerprints.php.
   // Check if user is Authorized. Look at the BLP-Finger cookie.
+
+  //error_log("startup.i.php: COOKIES, site=$_site->siteName, " . print_r($_COOKIE, true));
+  //vardump("COOKIES", $_COOKIE);
   
   $finger = $_COOKIE['BLP-Finger'];
-
+  //echo "finger=$finger<br>";
+  
   // Get the authorized fingerprints from bartonphillipsnet.
   
   $bonnieFingers = require("/var/www/bartonphillipsnet/myfingerprints.php");
