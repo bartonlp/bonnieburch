@@ -66,7 +66,7 @@ $top
 <hr>
 $greeting
 $onlyAdmin
-<a href="family-email.php?page=auth&email=$email">Send Family Emails</a>
+<a href="family-email3.php?page=auth&email=$email">Send Family Emails</a>
 <br><br><a href="../index.php">Return to main page</a>
 <hr>
 $footer

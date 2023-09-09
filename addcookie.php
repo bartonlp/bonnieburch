@@ -15,6 +15,8 @@ if($_POST['page'] == 'finger') {
   // This is NOT the case with the command line version of PHP which really does write to /tmp!
   
   $visitor = $_POST['visitor'];
+  error_log("addcookie.php to /tmp/visitorfingertemp: $visitor");
+  
   if(file_put_contents("/tmp/visitorfingertemp", $visitor) === false) {
     error_log("addcookie: finger can't write to /tmp/visitorfingertemp");
   }

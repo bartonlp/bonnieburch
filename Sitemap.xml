@@ -5,13 +5,13 @@
                       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 	<url>
 		<loc>https://www.bonnieburch.com/index.php</loc>
-		<lastmod>2023-04-12T16:18:39Z</lastmod>
+		<lastmod>2023-08-09T14:31:34Z</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1</priority>
 	</url>
 	<url>
 		<loc>https://www.bonnieburch.com/marathon/marathon.php</loc>
-		<lastmod>2023-03-28T23:03:59Z</lastmod>
+		<lastmod>2023-06-05T23:16:51Z</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1</priority>
 	</url>

@@ -1,19 +1,53 @@
 <?php
-// Help for index.php
+// Help for Bridgeclub app.
 
-require("startup.i.php");
+$_site = require_once(getenv("SITELOADNAME"));
+$S = new SiteClass($_site);
 
-$S = new $_site->className($_site);
+// BLP 2023-08-12 - add check. This is a little bit different from the one in startup.php.
 
+if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // BLP 2023-08-12 - added ip address
+  // BLP 2023-01-16 - Changed logic to just use the $finger from
+  // bartonphillipsnet/myfingerprints.php.
+  // Check if user is Authorized. Look at the BLP-Finger cookie.
+
+  //error_log("startup.i.php: COOKIES, site=$_site->siteName, " . print_r($_COOKIE, true));
+  //vardump("COOKIES", $_COOKIE);
+  
+  $finger = $_COOKIE['BLP-Finger'];
+  //echo "finger=$finger<br>";
+  
+  // Get the authorized fingerprints from bartonphillipsnet.
+  
+  $bonnieFingers = require("/var/www/bartonphillipsnet/myfingerprints.php");
+
+  //error_log("startup.i.php $S->siteName: finger=$finger, bonnieFingers=" . print_r($bonnieFingers, true));
+  
+  if(array_key_exists($finger , $bonnieFingers) === false) {
+    $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
+              "values('$S->ip', 'counted', '{$S->self}_BB_STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
+              "on duplicate key update count=count+1, lasttime=now()");
+  }
+  $auth = "You are <span style='color: red'>NOT AUTHORIZED</span>";
+} else {
+  $auth = "You Are Authorized";
+}
+      
 $S->title = "Bridge App Help";
 $S->banner = "<h1>$S->title</h1>";
 $S->css =<<<EOF
-button { background: green; color: white; border-radius: 10px; }  
+button { background: green; color: white; border-radius: 10px; }
+.red { color: red; }
 EOF;
+
 [$top, $footer] = $S->getPageTopBottom();
 
 echo <<<EOF
 $top
+<hr>
+<h2 class='red'>First</h2>
+<p>You must be authorized to use this site. You must either be located at Bonnie's Home, or know the secret CODE, or have a Fingerprint
+in your COOKIEs. If you need to be Authorized please tell Bonnie. <b>$auth</b>.</p>
 <hr>
 <h2>Add Attendance for {date}</h2>
 <p>There are two columns: <b>Name</b> and <b>Present</b>. Use the checkmark box under <b>Present</b>

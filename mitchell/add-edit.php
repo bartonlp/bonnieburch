@@ -3,6 +3,12 @@ $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 $T = new dbTables($S);
 
+$S->css =<<<EOF
+button[type='submit'] { color: white; background: green; font-size: var(--blpFontSize); border-radius: 5px; }
+input[type='text'] { font-size: var(--blpFontSize); }
+#tbl td, #tbl th { padding: 5px; }
+EOF;
+
 if($_POST['Delete']) {
   extract($_POST);
   if(!$S->query("select fname from bonnie.family where fname='$fname' and lname='$lname'")) {
@@ -30,7 +36,7 @@ if($_POST['submit']) {
 
   $S->query("insert into bonnie.family (fname, lname, phone, email, address, created, lasttime) ".
             "values('$fname', '$lname', '$phone', '$email', '$address', now(), now()) ".
-            "on duplicate key update phone='$phone', email='$email', address='$address', lasttime=now()");
+            "on duplicate key update fname='$fname', lname='$lname', phone='$phone', email='$email', address='$address', lasttime=now()");
 
   $S->title = "Posted";
   $S->banner = "<h1>$S->title</h1>";
@@ -139,8 +145,8 @@ $S->banner = "<h1>$S->title</h1>";
 function addcheck(&$row, &$desc) {
   global $xemail;
   
-  $fname = $row['fname'];
-  $lname = $row['lname'];
+  $fname = urlencode($row['fname']);
+  $lname = urlencode($row['lname']);
   $row['Select'] = "<a href='add-edit.php?page=auth&email=$xemail&fname=$fname&lname=$lname'>Edit</a>";
 }
 
@@ -160,8 +166,8 @@ $tbl
 <hr>
 <form method="POST">
 <p>Delete the record for:</p>
-Fname<input type="text" data-form-type='other' name="fname"><br>
-Lname<input type="text" data-form-type='other' name="lname"><br>
+Fname <input type="text" data-form-type='other' name="fname"><br>
+Lname <input type="text" data-form-type='other' name="lname"><br>
 <input type='hidden' name='xemail' value='$xemail'>
 <button type="submit" name="Delete" value="del">Delete Record</button>
 <hr>

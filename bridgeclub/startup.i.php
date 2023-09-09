@@ -55,9 +55,11 @@ CREATE TABLE `badplayer` (
 
 $_site = require_once(getenv("SITELOADNAME"));
 
-// If you have the secret blp code you are in.
-if($_GET['blp'] != '8653') {
-  // BLP 2023-01-16 - Changed logic to just use the use $finger from
+// BLP 2023-08-12 - If you have the secret blp code 
+// OR you are at HOME (my home static ip) you are in.
+
+if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // BLP 2023-08-12 - added ip address
+  // BLP 2023-01-16 - Changed logic to just use the $finger from
   // bartonphillipsnet/myfingerprints.php.
   // Check if user is Authorized. Look at the BLP-Finger cookie.
 
@@ -71,6 +73,8 @@ if($_GET['blp'] != '8653') {
   
   $bonnieFingers = require("/var/www/bartonphillipsnet/myfingerprints.php");
 
+  //error_log("startup.i.php $S->siteName: finger=$finger, bonnieFingers=" . print_r($bonnieFingers, true));
+  
   if(array_key_exists($finger , $bonnieFingers) === false) {
     $S = new Database($_site); // Instantiate Database
     $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".

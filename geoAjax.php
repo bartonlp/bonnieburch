@@ -1,1 +1,0 @@
-../bartonlp.com/otherpages/geoAjax.php

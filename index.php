@@ -20,7 +20,8 @@ $top
 <hr>
 <a href="bridgeclub/bridgeclub.php">Bridge Club</a><br>
 <a href="marathon/marathon.php">Marathon Bridge</a><br>
-<a href="mitchell/family.php">The Mitchell Family</a>
+<a href="mitchell/family.php">The Mitchell Family</a><br>
+<a href="Grandma Journal.pdf">Grandma Journal</a>
 <hr>
 $footer
 EOF;

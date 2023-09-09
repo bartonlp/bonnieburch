@@ -3,7 +3,7 @@
 // Enter the $msg as html
 // Enter $sal (salutation) as html
 
-$fromfile_msg = "<p>The attached reflect the scores we have entered. Hopefully, they correspond with your score sheets.</p>";
+$fromfile_msg = ""; //"<p>The attached reflects the scores we have entered. Hopefully, they correspond with your score sheets.</p>";
 $fromfile_sal = "<p>Thank you, Barton</p>";
 
 // return the array.

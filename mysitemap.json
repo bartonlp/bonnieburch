@@ -34,8 +34,8 @@
     "bannerFile": "/var/www/bartonphillips.com/includes/banner.i.php",
     "footerFile": "/var/www/bartonphillips.com/includes/footer.i.php",
     "count": true,
-    "ctrmsg": "Counter Reset: Jan. 1, 2022",
     "trackerImg1": "/images/bonnie3.jpg", // Picture of Bonnie at https://bartonphillips.net/images
+    "trackerImgPhone": "/images/bonnie3.jpg",
     "EMAILADDRESS": "bartonphillips@gmail.com",
     "EMAILRETURN": "bartonphillips@gmail.com",
     "EMAILFROM": "barton@bartonphillips.com"

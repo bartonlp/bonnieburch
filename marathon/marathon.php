@@ -90,7 +90,7 @@ EOF;
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
 <a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a><br>
-<a href="sendemails.php?email=$email">Send Bulk Emails</a><br>
+<a href="sendemails2.php?email=$email">Send Bulk Emails</a><br>
 EOF;
   }
 

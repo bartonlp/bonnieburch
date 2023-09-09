@@ -1,0 +1,5 @@
+
+SetEnv SPARKPOST_API_KEY aad6254ffc1e42ab9163c11ec10e2be7e750113d
+
+RewriteEngine on
+RewriteRule ^csstest-(.*)\.css$ https://bartonlp.com/otherpages/tracker.php?id=$1&page=csstest [L,QSA]
