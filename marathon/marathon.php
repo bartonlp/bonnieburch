@@ -32,7 +32,7 @@ $S = new SiteClass($_site);
 
 if($_REQUEST['page'] == 'auth') {
   $email = $_REQUEST['email'];
-  
+
   if(empty($email)) {
     youareok(false, 'NO_EMAIL');
     exit();
@@ -85,8 +85,8 @@ EOF;
 
   // You Are OK!
   $greeting = "<h1 class='center'>$greeting</h1>";
-  if($email == 'bartonphillips@gmail.com') { // Is it me?
-    $greeting = "<h1 class='center red'>Hello Barton. You are the Administrator</h1>";
+  if($email == 'bonnieburch2015@gmail.com') { // Is it bonnie?
+    $greeting = "<h1 class='center red'>Hello Bonnie. You are the Administrator</h1>";
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
 <a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a><br>

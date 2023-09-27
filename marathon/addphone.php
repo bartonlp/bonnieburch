@@ -121,7 +121,7 @@ EOF;
 // maskedinput.js formats the phone items
 
 $S->h_script = <<<EOF
-  <script src="https://bartonphillips.net/js/allnatural/js/maskedinput.js"></script>
+  <script src="https://bartonphillips.net/js/maskedinput.js"></script>
   <script>
 jQuery(document).ready(function($) {
   $(".phone1").mask("(999) 999-9999");

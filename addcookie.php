@@ -67,7 +67,7 @@ if($_POST) {
                     'samesite' => 'Lax'    // None || Lax  || Strict // BLP 2021-12-20 -- changed to Lax
                    );
 
-  if(setcookie('SiteId', "$visitorId:$email", $options) === false) {
+  if(setcookie('SiteId', "$name:$visitorId:$email", $options) === false) {
     echo "Can't set cookie SiteId in addcookie.php<br>";
     throw(new Exception("Can't set cookie SiteId in addcookie.php " . __LINE__));
   }

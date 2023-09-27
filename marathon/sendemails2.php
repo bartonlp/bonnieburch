@@ -216,7 +216,7 @@ EOF;
     }
 
     $postdata = preg_replace(["~\n~", '~"~'], ['', "`"], $info[1]);
-    
+
     echo <<<EOF
 $top
 <hr>

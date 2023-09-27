@@ -3,6 +3,7 @@
 if($_POST['sendit']) {
   $_site = require_once(getenv("SITELOADNAME"));
   $S = new SiteClass($_site);
+  $email = $_POST['email'];
   $post = preg_replace("~`~", '"', $_POST['post']);
   //vardump("POST", $_POST);
     
