@@ -38,14 +38,14 @@ if($_POST['page'] == "delete") {
 
   $msg = '';
   
-  if($S->query("select * from weeks where fid='$id'")) {
+  if($S->sql("select * from weeks where fid='$id'")) {
     $msg = "<h2>Can't delete $fname $lname because there are Attendance Records</h2>";
   }
-  if($S->query("select * from money where fid='$id'")) {
+  if($S->sql("select * from money where fid='$id'")) {
     $msg = "<h2>Can't delete $fname $lname because there are Donation Records</h2>";
   }
   if($msg == '') {
-    $S->query("delete from bridge where id='$id'");
+    $S->sql("delete from bridge where id='$id'");
     $msg = "<h2>The name $fname $lname has been deleted</h2><p>There were no Attendance or Donation Records</p>";
   }
 
@@ -73,7 +73,7 @@ if($_POST['page'] == "add") {
   $msg = "New Name $name Posted";
   
   try {
-    $S->query("insert into bridge (name, fname, lname, created, lasttime) values('$name', '$fname', '$lname', now(), now())");
+    $S->sql("insert into bridge (name, fname, lname, created, lasttime) values('$name', '$fname', '$lname', now(), now())");
   } catch(Exception $e) {
     if($e->getCode() == 1062) { // 1062 is dup key error
       $msg = "The name $name has already been entered.";
@@ -101,7 +101,7 @@ if($_POST['page'] == "post") {
   $S->banner = "<h1>Edited Name Posted</h1>";
   [$top, $footer] = $S->getPageTopBottom();
   
-  $S->query("update bridge set name='$fname $lname', fname='$fname', lname='$lname', lasttime=now() where id=$id");
+  $S->sql("update bridge set name='$fname $lname', fname='$fname', lname='$lname', lasttime=now() where id=$id");
   echo <<<EOF
 $top
 <hr>
@@ -151,7 +151,7 @@ EOF;
   exit();
 }
 
-$S->query("select id, name, fname, lname from bridge order by lname");
+$S->sql("select id, name, fname, lname from bridge order by lname");
 while([$id, $name, $fname, $lname] = $S->fetchrow('num')) {
   $lines .= "<tr><td class='name' data-id='$id'>$name</td><td class='dontshow fname'>$fname</td><td class='dontshow lname'>$lname</td></tr>";
 }

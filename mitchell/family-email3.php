@@ -89,27 +89,6 @@ function getheader($info) {
     // one line.
 
     $contents = checktext($texttosend);
-/*    
-    if(($r = preg_match("~<.*>~", $texttosend)) === 0) {
-      $contents = preg_replace("~^(.*?)$~m", "$1<br>", $texttosend);
-    } elseif($r === 1) {
-      $ar = explode("\n", $texttosend);
-      foreach($ar as $a) {
-        if(preg_match("~<.*>~", $a) === 0) {
-          $contents .= "$a<br>";
-        } else {
-          $contents .= $a;
-        }
-      }
-
-      //$contents = $texttosend;
-
-    } else {
-      echo "ERROR<br>";
-      exit();
-    }
-    file_put_contents("./data/lasttext.data", $texttosend);
-*/    
   } else {
     if(empty($_FILES['filename']['name'])) {
       $errorMsg .= "<h2>You must supply a 'Send to Filename'</h2>";
@@ -189,7 +168,7 @@ EOF;
 
 $xemail = $_REQUEST['email'];
 
-if(empty($xemail) || !$S->query("select fname, lname from bonnie.family where email='$xemail'")) {
+if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email='$xemail'")) {
   error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
 
   echo "<h1>Not Authorized</h1><p>Go Away</p>";  
@@ -344,7 +323,7 @@ $("#all").on("click", function() {
 $("#past").on("click", function() {
   $.ajax({
     url: "https://bonnieburch.com/mitchell/family-email3.php",
-    data: { "past": true, "email": "bonnieburch2015@gmail.com" },
+    data: { "past": true, "email": "bonnieburch2015@gmail.com" }, // BLP 2023-10-07 - email needed for check auth above.
     type: 'post',
     success: function(data) {
       $("textarea").html(data);
@@ -366,7 +345,7 @@ $familyTbl =<<<EOF
 <tbody>
 EOF;
 
-$S->query("select fname, lname, phone, email, address from bonnie.family order by lname");
+$S->sql("select fname, lname, phone, email, address from bonnie.family order by lname");
 while([$fname, $lname, $phone, $fileEmail, $address] = $S->fetchrow('num')) {
   $familyTbl .= "<tr><td><input type='checkbox' name='femail[]' value='$fileEmail'></td>".
                 "<td>$fname $lname</td><td>$phone</td><td>$fileEmail</td><td>$address</td></tr>";
@@ -397,7 +376,7 @@ $familyTbl
 </table>
 <br>
 <input type="hidden" name="email" value="$xemail">
-<button id="send" type="submit" name="sendpreview" value="true">Preview, Send Email</button>
+<button id="send" type="submit" name="sendpreview" value="true">Preview, then Send Email</button>
 </form>
 <a href="family.php?page=auth&email=$xemail">Return to Mitchell Family</a>
 <hr>

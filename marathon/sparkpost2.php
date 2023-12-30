@@ -3,9 +3,10 @@
 if($_POST['sendit']) {
   $_site = require_once(getenv("SITELOADNAME"));
   $S = new SiteClass($_site);
+
   $email = $_POST['email'];
+
   $post = preg_replace("~`~", '"', $_POST['post']);
-  //vardump("POST", $_POST);
     
   $apikey = getenv("SPARKPOST_API_KEY");
 
@@ -21,10 +22,10 @@ if($_POST['sendit']) {
               CURLOPT_POSTFIELDS=>$post
                                  ];
 
-  //vardump("options", $options);
-  
   $ch = curl_init();
-  curl_setopt_array($ch, $options);
+  if($ch === false) exit("curl_init failed");
+  
+  if(curl_setopt_array($ch, $options) === false) exit("curl_setopt_array failed");
 
   $result = curl_exec($ch);
   if($result === false) {

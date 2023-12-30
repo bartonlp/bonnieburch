@@ -20,10 +20,10 @@ if($which = $_POST['page']) {
   
   switch($which) {
     case 'Delete':
-      $S->query("delete from weeks where fid=$id and date='$week'");
+      $S->sql("delete from weeks where fid=$id and date='$week'");
       break;
     case 'Add':
-      $S->query("insert ignore into weeks (fid, date, lasttime) values($id, '$week', now())");
+      $S->sql("insert ignore into weeks (fid, date, lasttime) values($id, '$week', now())");
       break;
     default:
       echo "<h1>Go Away</h1>";
@@ -51,7 +51,7 @@ if($_GET) {
   $id = $_GET['id'];
   $page = $_GET['page'];
 
-  $S->query("select name from bridge where id=$id");
+  $S->sql("select name from bridge where id=$id");
   $name = $S->fetchrow('num')[0];
 
   $date = date("m-d-Y", strtotime($week));

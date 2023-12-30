@@ -16,7 +16,7 @@ if($_REQUEST['page'] == 'auth') {
 
   // If the email address in in the team table you are OK.
   
-  if($S->query("select fname, lname from bonnie.family where email='$email'")) {
+  if($S->sql("select fname, lname from bonnie.family where email='$email'")) {
     [$fname, $lname] = $S->fetchrow('num');
 
     youareok(true, $email, $fname, $lname);

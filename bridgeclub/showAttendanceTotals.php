@@ -36,14 +36,14 @@ EOF;
 [$top, $footer] = $S->getPageTopBottom();
 
 $sql = "select id, name from bridge order by lname";
-$S->query($sql);
+$S->sql($sql);
 $r = $S->getResult();
 while([$id, $name] = $S->fetchrow($r, 'num')) {
   $sql = "select fid from weeks where fid=$id and date <= '$wed'";
-  $cnt = $S->query($sql);
+  $cnt = $S->sql($sql);
   if(!$cnt) continue;
   $sql = "select fid from weeks where fid=$id and date >= '$julyOn'";
-  $julyCnt = $S->query($sql);
+  $julyCnt = $S->sql($sql);
   $total += $cnt;
   $julyTotal += $julyCnt;
   

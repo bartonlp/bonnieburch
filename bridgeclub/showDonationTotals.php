@@ -27,11 +27,11 @@ EOF;
 [$top, $footer] = $S->getPageTopBottom();
 
 $sql = "select id, name from bridge order by lname";
-$S->query($sql);
+$S->sql($sql);
 $r = $S->getResult();
 while([$id, $name] = $S->fetchrow($r, 'num')) {
   $sql = "select money from money where fid=$id and date <= '$wed'";
-  $S->query($sql);
+  $S->sql($sql);
   $money = 0;
   
   while([$m] = $S->fetchrow('num')) {

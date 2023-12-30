@@ -11,10 +11,10 @@ EOF;
 
 if($_POST['Delete']) {
   extract($_POST);
-  if(!$S->query("select fname from bonnie.family where fname='$fname' and lname='$lname'")) {
+  if(!$S->sql("select fname from bonnie.family where fname='$fname' and lname='$lname'")) {
     $S->banner = "<h1>$fname $lname not found in database.</h1>";
   } else {
-    $S->query("delete from bonnie.family where fname='$fname' and lname='$lname'");
+    $S->sql("delete from bonnie.family where fname='$fname' and lname='$lname'");
     $S->banner = "<h1>$fname $lname Deleted</h1>";
   }
   
@@ -34,7 +34,7 @@ EOF;
 if($_POST['submit']) {
   extract($_POST);
 
-  $S->query("insert into bonnie.family (fname, lname, phone, email, address, created, lasttime) ".
+  $S->sql("insert into bonnie.family (fname, lname, phone, email, address, created, lasttime) ".
             "values('$fname', '$lname', '$phone', '$email', '$address', now(), now()) ".
             "on duplicate key update fname='$fname', lname='$lname', phone='$phone', email='$email', address='$address', lasttime=now()");
 
@@ -75,7 +75,7 @@ if($_GET['fname']) {
   $xemail = $_GET['email'];
 
   $sql = "select fname, lname, phone, email, address from bonnie.family where fname='$fname' and lname='$lname'";
-  $S->query($sql);
+  $S->sql($sql);
   
   $row = $S->fetchrow('assoc');
 
@@ -130,7 +130,7 @@ EOF;
 
 $xemail = $_GET['email'];
 
-if(empty($xemail) || !$S->query("select fname, lname from bonnie.family where email='$xemail'")) {
+if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email='$xemail'")) {
   error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
 
   echo "<h1>Not Authorized</h1><p>Go Away</p>";  

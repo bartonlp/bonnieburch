@@ -6,7 +6,7 @@ $months = ['September', 'October', 'November', 'December', 'January 1', 'January
 
 // Delete everything from scores.
 
-$S->query("delete from scores");
+$S->sql("delete from scores");
 
 // Now recreate an empty table
 
@@ -14,7 +14,7 @@ $n = 0;
 
 foreach($months as $k=>$month) {  
   for($i=1; $i<13; ++$i) {
-    $n += $S->query("insert into scores values($i, '$month', $k, 0, null, null)");
+    $n += $S->sql("insert into scores values($i, '$month', $k, 0, null, null)");
   }
 }
 

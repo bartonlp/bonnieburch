@@ -40,7 +40,7 @@ if($_REQUEST['page'] == 'auth') {
 
   // If the email address in in the team table you are OK.
   
-  if($S->query("select team, name1, name2 from teams where email1='$email' or email2='$email'")) {
+  if($S->sql("select team, name1, name2 from teams where email1='$email' or email2='$email'")) {
     [$team, $name1, $name2] = $S->fetchrow('num');
 
     youareok(true, $email, $team, $name1, $name2);
@@ -66,7 +66,7 @@ function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null,
   if(!$ok) {
     //You are NOT OK
 
-    $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+    $S->sql("insert into $S->masterdb.badplayer (ip, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
               "values('$S->ip', 'counted', '$S->self', 1, -1, 'Not Authorized', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 
@@ -89,7 +89,7 @@ EOF;
     $greeting = "<h1 class='center red'>Hello Bonnie. You are the Administrator</h1>";
     $onlyBlp =<<<EOF
 <br><a href="enterBulkScores.php?email=$email">Enter Bulk Scores</a><br>
-<a href="addphone.php?email=$email">Add/Edit Phone nubers in Teams</a><br>
+<a href="addphone.php?email=$email">Add/Edit Phone numbers in Teams</a><br>
 <a href="sendemails2.php?email=$email">Send Bulk Emails</a><br>
 EOF;
   }

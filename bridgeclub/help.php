@@ -24,7 +24,7 @@ if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // B
   //error_log("startup.i.php $S->siteName: finger=$finger, bonnieFingers=" . print_r($bonnieFingers, true));
   
   if(array_key_exists($finger , $bonnieFingers) === false) {
-    $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
+    $S->sql("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
               "values('$S->ip', 'counted', '{$S->self}_BB_STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
   }

@@ -129,7 +129,7 @@ EOF;
 
 $xemail = $_REQUEST['email'];
 
-if(empty($xemail) || !$S->query("select fname, lname from bonnie.family where email='$xemail'")) {
+if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email='$xemail'")) {
   error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
 
   echo "<h1>Not Authorized</h1><p>Go Away</p>";  
@@ -290,7 +290,7 @@ $familyTbl =<<<EOF
 <tbody>
 EOF;
 
-$S->query("select fname, lname, phone, email, address from bonnie.family order by lname");
+$S->sql("select fname, lname, phone, email, address from bonnie.family order by lname");
 while([$fname, $lname, $phone, $fileEmail, $address] = $S->fetchrow('num')) {
   $familyTbl .= "<tr><td><input type='checkbox' name='femail[]' value='$fileEmail'></td>".
                 "<td>$fname $lname</td><td>$phone</td><td>$fileEmail</td><td>$address</td></tr>";

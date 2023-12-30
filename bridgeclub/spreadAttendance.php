@@ -28,7 +28,7 @@ for($i=STARTWED; $unixToday > ($i - WEEK); $i = $i + WEEK) {
 
 $hdr = "<tr><th>Name</th><th>Total</th><th>July<br>Total</td>$hdr</tr>";
 
-$n = $S->query("select id, name from bridge order by lname");
+$n = $S->sql("select id, name from bridge order by lname");
 
 $r = $S->getResult();
 
@@ -37,7 +37,7 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
   $row = '';
 
   for($i=0; $i < count($wedList); ++$i) {
-    if($S->query("select `date` from weeks where fid=$fid and `date`='$wedList[$i]'")) {
+    if($S->sql("select `date` from weeks where fid=$fid and `date`='$wedList[$i]'")) {
       [$date] = $S->fetchrow('num');
       ++$total;
       ++$ar[$i];
@@ -48,7 +48,7 @@ while([$fid, $name] = $S->fetchrow($r, 'num')) {
   }
 
   $julyCnt = 0;
-  $S->query("select `date` from weeks where fid=$fid and `date` >='$julyOn'");
+  $S->sql("select `date` from weeks where fid=$fid and `date` >='$julyOn'");
   while([$date] = $S->fetchrow('num')) {
     ++$julyCnt;
   }

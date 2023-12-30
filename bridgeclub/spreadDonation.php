@@ -6,7 +6,7 @@
 require("startup.i.php");
 $S = new $_site->className($_site);
 
-$S->query("select distinct date from money order by date");
+$S->sql("select distinct date from money order by date");
 
 while([$date] = $S->fetchrow('num')) {
   $d = date("m-d-y", strtotime($date));
@@ -14,11 +14,11 @@ while([$date] = $S->fetchrow('num')) {
   $datear[] = $date;
 }
 
-$S->query("select id, name from bridge order by lname");
+$S->sql("select id, name from bridge order by lname");
 $r = $S->getResult();
 
 while([$id, $name] = $S->fetchrow($r, 'num')) {
-  if($S->query("select date, money from money where fid=$id order by date")) {
+  if($S->sql("select date, money from money where fid=$id order by date")) {
     $line = '';
     $ii = 0;
     while([$date, $money] = $S->fetchrow('num')) {
@@ -50,7 +50,7 @@ while([$id, $name] = $S->fetchrow($r, 'num')) {
 
   //$fill = "<th colspan='" . count($datear) . "'></th>";
   
-  $S->query("select sum(money) from money where fid=$id");
+  $S->sql("select sum(money) from money where fid=$id");
   $total = "$". number_format($S->fetchrow('num')[0]);
 
 //  if($name == 'Tudi Moldestad') {

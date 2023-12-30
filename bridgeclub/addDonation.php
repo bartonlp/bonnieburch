@@ -11,12 +11,12 @@ if($_POST['page'] == 'postit') {
 
   foreach($ids as $id=>$money) {
     if($money == '') continue;
-    $S->query("select name from bridge where id=$id");
+    $S->sql("select name from bridge where id=$id");
     $r = $S->getResult();
     $names[] = $S->fetchrow($r, 'num')[0] . " \${$money}";
     $money = preg_replace("~,~", '', $money); // For the javascript currency function
     
-    $S->query("insert into money (fid, date, money, lasttime) values($id, '$wed', $money, now()) ".
+    $S->sql("insert into money (fid, date, money, lasttime) values($id, '$wed', $money, now()) ".
               "on duplicate key update money=$money, lasttime=now()");
     ++$i;
   }
@@ -54,7 +54,7 @@ if($_POST['page'] == 'post') {
 
   $money = preg_replace("~,~", '', $money); // When we use currency logic
   
-  $S->query("insert into money (fid, date, money, lasttime) values($id, '$date', '$money', now()) ".
+  $S->sql("insert into money (fid, date, money, lasttime) values($id, '$date', '$money', now()) ".
             "on duplicate key update money='$money', lasttime=now()");
 
   $money = "$". number_format($money);
@@ -92,7 +92,7 @@ if($_GET['page'] == 'add') {
   
   $id = $_GET['id'];
   
-  $S->query("select name from bridge where id=$id");
+  $S->sql("select name from bridge where id=$id");
   $name = $S->fetchrow('num')[0];
   // Show a form and then goto the 'page=post' above.
   
@@ -120,11 +120,11 @@ EOF;
   exit();
 }
 
-$S->query("select id, name from bridge order by lname");
+$S->sql("select id, name from bridge order by lname");
 $r = $S->getResult();
 
 while([$id, $name] = $S->fetchrow($r, 'num')) {
-  $S->query("select money from money where fid=$id and date='$wed'");
+  $S->sql("select money from money where fid=$id and date='$wed'");
   $money = $S->fetchrow('num')[0];
   $total += $money;
   $lines .= "<tr><td data-id='$id'>$name</td><td><input type='text' data-type='currency' name='money[$id]' value='$money'></td></tr>";

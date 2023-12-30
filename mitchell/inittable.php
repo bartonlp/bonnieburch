@@ -12,6 +12,6 @@ foreach($lines as $line) {
   $email = $items[2];
   $phone = $items[3];
   
-  $S->query("insert into bonnie.family (fname, lname, email, phone, created, lasttime) ".
+  $S->sql("insert into bonnie.family (fname, lname, email, phone, created, lasttime) ".
             "values('$fname', '$lname', '$email', '$phone', now(), now())");
 }

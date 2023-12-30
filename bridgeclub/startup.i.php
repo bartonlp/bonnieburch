@@ -55,8 +55,23 @@ CREATE TABLE `badplayer` (
 
 $_site = require_once(getenv("SITELOADNAME"));
 
+function notAuthorized($finger) {
+  global $S;
+  
+  echo <<<EOF
+<h1>You are NOT AUTHORIZED</h1>
+EOF;
+  error_log("bridgeclub/startup.i.php: $S->ip, $S->siteName, $S->self, Not Authorized - finger=$finger, agent=$S->agent");
+  exit();
+}
+
+if($_SERVER['PHP_SELF'] == "/bridgeclub/startup.i.php") header("location: https://bartonlp.com/otherpages/NotAuthorized.php");
+
+//echo "remote addr: = {$_SERVER['REMOTE_ADDR']}<br>";
+
 // BLP 2023-08-12 - If you have the secret blp code 
 // OR you are at HOME (my home static ip) you are in.
+//echo $_SERVER['REMOTE_ADDR'] . "<br>";
 
 if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // BLP 2023-08-12 - added ip address
   // BLP 2023-01-16 - Changed logic to just use the $finger from
@@ -64,7 +79,8 @@ if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // B
   // Check if user is Authorized. Look at the BLP-Finger cookie.
 
   //error_log("startup.i.php: COOKIES, site=$_site->siteName, " . print_r($_COOKIE, true));
-  //vardump("COOKIES", $_COOKIE);
+
+  //vardump("bridgeclub startup.i.php: cookie", $_COOKIE);
   
   $finger = $_COOKIE['BLP-Finger'];
   //echo "finger=$finger<br>";
@@ -77,19 +93,16 @@ if($_GET['blp'] != '8653' && $_SERVER['REMOTE_ADDR'] != '195.252.232.86') { // B
   
   if(array_key_exists($finger , $bonnieFingers) === false) {
     $S = new Database($_site); // Instantiate Database
-    $S->query("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
+    $S->sql("insert into $S->masterdb.badplayer (ip, botAs, type, count, errmsg, agent, created, lasttime) ".
               "values('$S->ip', 'counted', '{$S->self}_BB_STARTUP', 1, 'NOT AUTHOREIZED', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 
-    echo <<<EOF
-<h1>You are NOT AUTHORIZED</h1>
-EOF;
-    error_log("bridgeclub/startup.i.php: $S->ip, $S->siteName, $S->self, Not Authorized - finger=$finger, agent=$S->agent");
-    exit();
+    notAuthorized($finger);
   }
 }
 
 // End of Check if user is Authorized
+// BLP 2023-10-18 - it is either the secret or my home, or I found the finger.
 
 // Define a week and the first wed. we will use.
 

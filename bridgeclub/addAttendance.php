@@ -27,13 +27,13 @@ EOF;
   // First insert the id and date.
   
   foreach($ids as $k=>$v) {
-    $S->query("select name from bridge where id=$k");
+    $S->sql("select name from bridge where id=$k");
     $name = $S->fetchrow('num')[0];
     $names .= "$name, ";
     
     try {
       $sql = "insert into weeks (fid, date, lasttime) values('$k', '$wed', now())";
-      $S->query($sql);
+      $S->sql($sql);
     } catch(Exception $e) {
       if($e->getCode() == 1062) { // 1062 is dup key error
         $err .= "This date has already been entered for $name.<br>";
@@ -44,11 +44,11 @@ EOF;
   }
 
   $sql = "select id, name from bridge order by lname";
-  $S->query($sql);
+  $S->sql($sql);
   $r = $S->getResult();
   while([$id, $name] = $S->fetchrow($r, 'num')) {
     $sql = "select count(*) from weeks where fid=$id and date <= '$wed'";
-    $S->query($sql);
+    $S->sql($sql);
     $cnt = $S->fetchrow('num')[0];
     $total += $cnt;
     $list .= "<tr><td>$name</td><td>$cnt</td></tr>";
@@ -88,7 +88,7 @@ EOF;
 
 // First Page
 
-$S = new $_site->className($_site);
+$S = new SiteClass($_site);
 
 $S->title = "Add Bridge Attendance";
 $S->banner = "<h1>$S->title</h1>";
@@ -108,7 +108,7 @@ EOF;
   
 [$top, $footer] = $S->getPageTopBottom();
 
-$S->query("select id, name from bridge order by lname");
+$S->sql("select id, name from bridge order by lname");
 while([$id, $name] = $S->fetchrow('num')) {
   $names .= <<<EOF
 <tr><td>$name</td>

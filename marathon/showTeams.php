@@ -20,8 +20,8 @@ $S = new SiteClass($_site);
 
 $email = $_GET['email'];
 
-if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+if(empty($email) || !$S->sql("select team from marathon.teams where email1='$email' or email2='$email'")) {
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
               "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 

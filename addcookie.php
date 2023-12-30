@@ -38,10 +38,10 @@ if($_POST) {
     $sql = "insert into $S->masterdb.myip (myIp, createtime, lasttime) values('$S->ip', now(), now()) " .
            "on duplicate key update lasttime=now()";
 
-    $S->query($sql);
+    $S->sql($sql);
   }
 
-  if(!$S->query("select TABLE_NAME from information_schema.tables ".
+  if(!$S->sql("select TABLE_NAME from information_schema.tables ".
             "where (table_schema = 'bartonphillips') and (table_name = 'members')")) {
     throw new Exception(__LINE__ .": register.php, members table for database bartonphillips does not exist");
   }
@@ -50,9 +50,11 @@ if($_POST) {
   unlink("/tmp/visitorfingertemp");
 
   error_log("addcookie.php: visitorId: $visitorId");
+
+  // BLP 2023-10-13 - ip added to members table
   
-  $S->query("insert into bartonphillips.members (name, email, finger, count, created, lasttime) ".
-                 "values('$name', '$email', '$visitorId', 1, now(), now()) ".
+  $S->sql("insert into bartonphillips.members (ip, name, email, finger, count, created, lasttime) ".
+                 "values('$S->ip', '$name', '$email', '$visitorId', 1, now(), now()) ".
                  "on duplicate key update count=count+1, lasttime=now()");
     
 

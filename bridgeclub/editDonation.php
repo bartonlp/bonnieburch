@@ -17,7 +17,7 @@ if($_POST['page'] == 'post') {
   $week = $_POST['week'];
   $name = $_POST['name'];
   
-  $S->query("update money set money='$money', lasttime=now() where fid=$id and date='$week'");
+  $S->sql("update money set money='$money', lasttime=now() where fid=$id and date='$week'");
   $money = "$" . number_format($money);
   $week = date("l F j, Y", strtotime($week));
   
@@ -43,7 +43,7 @@ if($_POST['page'] == 'delete') {
   $name = $_POST['name'];
   $money = "$". number_format($_POST['money']);
   
-  $S->query("delete from money where fid=$id and date='$week'");
+  $S->sql("delete from money where fid=$id and date='$week'");
   $week = date("l F j, Y", strtotime($week));
 
   echo <<<EOF
@@ -75,10 +75,10 @@ EOF;
                  
   $id = $_GET['id'];
   $week = $_GET['week'];
-  $S->query("select name from bridge where id=$id");
+  $S->sql("select name from bridge where id=$id");
   $name = $S->fetchrow('num')[0];
   
-  $S->query("select money from money where fid=$id and date='$week'");
+  $S->sql("select money from money where fid=$id and date='$week'");
   $money = $S->fetchrow('num')[0];
   $date = date("l F j, Y", strtotime($week));
   $m = "$". number_format($money);

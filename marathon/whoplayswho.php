@@ -30,8 +30,8 @@ $S = new SiteClass($_site);
 
 $email = $_GET['email'];
 
-if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+if(empty($email) || !$S->sql("select team from marathon.teams where email1='$email' or email2='$email'")) {
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
               "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 
@@ -71,9 +71,9 @@ foreach($whoHosts as $key=>$value) {
   $tbl .= "<tr><td>$key</td>";
   foreach($value as $v) {
     $tbl .= "<td>*$v[0] & $v[1]<br>";
-    $S->query("select name1, name2 from marathon.teams where team = '$v[0]'");
+    $S->sql("select name1, name2 from marathon.teams where team = '$v[0]'");
     [$name1a, $name2a] = $S->fetchrow('num');
-    $S->query("select name1, name2 from marathon.teams where team = '$v[1]'");
+    $S->sql("select name1, name2 from marathon.teams where team = '$v[1]'");
     [$name1b, $name2b] = $S->fetchrow('num');
     $tbl .= "$name1a & $name2a vs $name1b & $name2b</td>";
   }

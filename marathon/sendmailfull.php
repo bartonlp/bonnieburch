@@ -2,6 +2,19 @@
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
+// The values from $_FILES['xx']['error']
+
+$fileUploadErrors = [
+                     0 => 'There is no error, the file uploaded with success',
+                     1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+                     2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+                     3 => 'The uploaded file was only partially uploaded',
+                     4 => 'No file was uploaded',
+                     6 => 'Missing a temporary folder',
+                     7 => 'Failed to write file to disk.',
+                     8 => 'A PHP extension stopped the file upload.',
+                    ];
+
 //****************
 // getheader()
 // Parses the $info and returns an array of information
@@ -46,45 +59,71 @@ function getheader($info) {
 
   $errorMsg = '';
   $from =  "Marathon@mail.bartonphillips.com";
+    
   $to = "barton@bartonphillips.com";
-
-  // Make the table of scores
-  
-  $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
-  $r = $S->getResult();
-
-  while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
-    $list .= "<tr><td style='text-align: right; padding: 3px;'>$team</td><td style='text-align: left; padding: 3px'>$name1 & $name2</td>";
-
-    $S->sql("select score from scores where fkteam=$team order by moNo");
-    $total = 0;
-
-    // BLP 2022-08-26 - NOTE: if I do $score = $S->fetchrow('num')[0], I could get a zero back which looks like a
-    // null and  would stop the while loop! So while I could do this ($score =
-    // $S->fetchrow('num')[0]) !== null), it is probably safer to always use an array as the receiver
-    // in a while loop. I think I have fixed all of my code.
-
-    while([$score] = $S->fetchrow('num')) {
-      $total += $score;
-      $list .= "<td style='text-align: right; padding: 3px'>$score</td>";
-    }
-    $list .= "<td style='background: lightpink; text-align: right; padding: 3px'>$total</td></tr>";
-  }
-
-  $contents = checktext($info['texttosend']);
-
-  // The table fully formed
-
-  $contents = "$contents<table id='results' border='1'><tbody>$list</tbody></table>$sal";
-
+    
   $subject = $info['subject'];
+  $showallscores = $info['showallscores'];
+  $sendto = $info['sendto'];
+  $sendfile = $info['sendfile'];
+  $texttosend = $info['texttosend'];
+  $marathon = $info['marathon'];
 
   $date = date("Y-m-d");
-  $subject = "$subject (Current Scores as of $date)";
+  $contents = '';
 
-  $cc = '';
-  
-  if($info['radio'] == "marathon") {
+  if($texttosend) {
+    $contents = checktext($texttosend);
+  } else {
+    if(empty($_FILES['filename']['name'])) {
+      $errorMsg .= "<h2>You must supply a 'Send to Filename' or check 'Show All Scores'</h2>";
+    } else {
+      $contents = file_get_contents($_FILES['filename']['tmp_name']);
+    }
+  }
+
+  if(!empty($showallscores)) {
+    $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
+    $r = $S->getResult();
+
+    while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
+      $list .= "<tr><td style='text-align: right; padding: 3px;'>$team</td><td style='text-align: left; padding: 3px'>$name1 & $name2</td>";
+
+      $S->sql("select score from scores where fkteam=$team order by moNo");
+      $total = 0;
+
+      // BLP 2022-08-26 - NOTE: if I do $score = $S->fetchrow('num')[0], I could get a zero back which looks like a
+      // null and  would stop the while loop! So while I could do this ($score =
+      // $S->fetchrow('num')[0]) !== null), it is probably safer to always use an array as the receiver
+      // in a while loop. I think I have fixed all of my code.
+
+      while([$score] = $S->fetchrow('num')) {
+        $total += $score;
+        $list .= "<td style='text-align: right; padding: 3px'>$score</td>";
+      }
+      $list .= "<td style='background: lightpink; text-align: right; padding: 3px'>$total</td></tr>";
+    }
+
+    // The table fully formed
+
+    $contents = "$contents<table id='results' border='1'><tbody>$list</tbody></table>$sal";
+   
+    $subject = "$subject (Current Scores as of $date)";
+  }
+
+  if(empty($subject)) {
+    $errorMsg .= "<h2>No valid 'Subject'</h2>";
+  }
+
+  if($sendto) {
+    $cc = $sendto;
+  } elseif($sendfile) {
+    $cc = file_get_contents($sendfile);
+  } elseif($marathon) {
+    // Lookup email addresses in the teams table.
+
+    $cc = '';
+    
     if($S->sql("select email1, email2 from teams")) {
       while([$email1, $email2] = $S->fetchrow('num')) {
         if(!empty($email1)) {
@@ -95,15 +134,11 @@ function getheader($info) {
         }
       }
       $cc = rtrim($cc, ",");
+    } else {
+      $errorMsg .= "<h2>NO valid email addresses found in the 'marathon' database?</h2>";
     }
-  } elseif($info['radio'] == "individual") {
-    $cc = $info['sendto'];
   } else {
-    $errorMsg .= "<h2>You must select either 'Marathon group' or 'individuals'</h2>";
-  }
-  
-  if(empty($subject)) {
-    $errorMsg .= "<h2>No valid 'Subject'</h2>";
+    $errorMsg .= "<h2>You must provide either a CC list, a Filename or check 'Marathon group'</h2>";
   }
 
   $recipients = "{\"address\": {\"email\": \"$to\",\"header_to\": \"$to\"}},";
@@ -114,6 +149,17 @@ function getheader($info) {
 
   $recipients = rtrim($recipients, ',');
 
+  if($attachment = $_FILES['attachment']['name']) {
+    if($err = $_FILES['attachment']['error']) {
+      $errorMsg .= $fileUploadErrors[$err];
+    } else {
+      $name = basename($attachment);
+      $type = "octet-stream";
+      $data = base64_encode(file_get_contents($_FILES['attachment']['tmp_name']));
+    }
+    $attachments = ",\"attachments\": [{\"name\": \"$name\",\"type\": \"$type\",\"data\": \"$data\"}]";
+  }
+  
   if(!empty($errorMsg)) {
     return ['ERROR', $errorMsg];
   } else {
@@ -130,11 +176,12 @@ function getheader($info) {
     "subject": "$subject",
     "text": "View This in HTML Mode",
     "html": "$contents"
+    $attachments
   }
 }
 EOF;
     return ['HEADERS', $post, 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
-            'contents'=>$contents];
+            'contents'=>$contents, 'attachments'=>$name];
   }
 }
 
@@ -157,7 +204,7 @@ if(empty($email) || !$S->sql("select team from marathon.teams where email1='$ema
 // BLP 2023-10-07 - From inlineScript Ajax
 
 if($_POST['past']) {
-  $txt = file_get_contents("./data/lasttext.data");
+  $txt = file_get_contents("./data/lasttext.txt");
   echo $txt;
   exit();
 }
@@ -190,6 +237,14 @@ EOF;
     
     // Display the preview info and give the option to 'sendit'
 
+    if($attach = $info['attachments']) {
+      $attachFile = "data/$attach";
+      $attachStr = "<p>Attachment:<br>$attach</p>";
+      if(array_intersect([$info['attachType']], ['image/jpeg', 'image/gif', 'image/png'])[0] !== null) {
+        $attachStr .= "<img src='$attachFile' style='width: 300px;'><br>";
+      }
+    }
+
     $postdata = preg_replace(["~\n~", '~"~'], ['', "`"], $info[1]);
 
     echo <<<EOF
@@ -199,12 +254,13 @@ $top
 Subject: {$info['subject']}<br>
 CC: {$info['cc']}</p>
 <p id="msg">Message:</p>{$info['contents']}
+$attachStr
 <form method="POST" action="sparkpost2.php">
 <input type="hidden" name="email" value="$email">
 <input type="hidden" name="post" value="$postdata">
 <button type="submit" name="sendit" value="sendit">Send It</button>
 </form>
-<br><a href="sendemails2.php?page=auth&email=$email">Return to Send Mail</a>
+<br><a href="sendemailsfull.php?page=auth&email=$email">Return to Send Mail</a>
 <hr>
 $footer
 EOF;
@@ -228,40 +284,12 @@ $S->banner = "<h1>$S->title</h1>";
 $S->css =<<<EOF
 form table input { width: 1000px; font-size: 30px; }
 td:first-of-type { padding-right: 20px; }
-input[type="radio"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
+input[type="checkbox"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
 #send { padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
-/*#send span { border-radius: 7px; border: 2px solid black; padding: 3px;}*/
-#texttosend { width: 1000px; font-size: 30px; }
+#send span { border-radius: 7px; border: 2px solid black; padding: 3px;}
 EOF;
 
 $S->b_inlineScript = <<<EOF
-$("#toindividuals").hide();
-
-$("#marathon").on("click", function() {
-  if(this.flag) {
-    $("input", this).prop("checked", false);
-    $("#marathon").show();
-    $("#individual").show();
-  } else {
-    $("#marathon").show();
-    $("#individual").hide();
-  }
-  this.flag = !this.flag;
-});
-
-$("#individual").on("click", function() {
-  if(this.flag) {
-    $("input", this).prop("checked", false);
-    $("#marathon").show();
-    $("#individual").show();
-    $("#toindividuals").hide();
-  } else {
-    $("#marathon").hide();
-    $("#toindividuals").show();
-  }
-  this.flag = !this.flag;
-});
-
 $("#past").on("click", function() {
   $.ajax({
     url: "https://bonnieburch.com/marathon/sendemails2.php",
@@ -279,19 +307,29 @@ EOF;
 
 [$top, $footer] = $S->getPageTopBottom();
 
+if($marathon) {
+  $marathonStr = "checked";
+}
+if($showallscores) {
+  $showallscoresStr = "checked";
+}
 echo <<<EOF
 $top
 <hr>
 $errorMsg
 <button id="past" value="TRUE">Get Last 'Text to send"</button>
+<p>The CC (Carbon Copies) must be seperated by commas. The entries in the CC-file can be seperated by commas or new lines.</p>
 
 <form enctype="multipart/form-data" method="POST">
 <table>
 <tr><td>Enter Subject</td><td><input type="text" name="subject" value="$subject"></td></tr>
-<tr><td>Enter Text to send</td><td><textarea id="texttosend" name="texttosend" rows="5" placeholder="Enter Text"></textarea></td></tr>
-<tr id="marathon"><td>Send to Marathon group</td><td><input type="radio" name="radio" value="marathon"></td></tr>
-<tr id="individual"><td>Send to individuals.</td><td><input type="radio" name="radio" value="individual"></td></tr>
-<tr id="toindividuals"><td>Enter CC: </td><td><input type="text" name="sendto" value="$sendto" data-form-type="other"></td></tr>
+<tr><td>Enter Send to Filename</td><td><input type="file" name="filename"></td></tr>
+<tr><td>Enter Text to send</td><td><textarea name="texttosend" rows="5" cols="50" placeholder="Enter Text"></textarea></td></tr>
+<tr><td>OR Send 'Show All Scores'</td><td><input type="checkbox" name="showallscores" $showallscoresStr></td></tr>
+<tr><td>Enter CC: </td><td><input type="text" name="sendto" value="$sendto" data-form-type="other"></td></tr>
+<tr><td>OR Enter Filename with CC: </td><td><input type="text" name="sendfile" value="$sendfile" data-form-type="other"></td></tr>
+<tr><td>OR CC: to Marathon group</td><td><input type="checkbox" name="marathon" $marathonStr></td><tr>
+<tr><td>Attachment File</td><td><input type="file" name="attachment"></td></tr>
 </table>
 <br>
 <input type="hidden" name="email" value="$email">

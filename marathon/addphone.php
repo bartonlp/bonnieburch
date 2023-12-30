@@ -22,8 +22,8 @@ $S = new SiteClass($_site);
 
 $email = $_GET['email'];
 
-if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+if(empty($email) || !$S->sql("select team from marathon.teams where email1='$email' or email2='$email'")) {
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
               "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 
@@ -55,7 +55,7 @@ if($_POST['page'] == 'submit') {
 
     // Get the original info.
     
-    $S->query("select name1, name2, email1, email2, phone1, phone2 from teams where team=$i");
+    $S->sql("select name1, name2, email1, email2, phone1, phone2 from teams where team=$i");
     [$name1, $name2, $e1, $e2, $p1, $p2] = $S->fetchrow('num');
 
     $str = '';
@@ -76,7 +76,7 @@ if($_POST['page'] == 'submit') {
 
     // UPDATE the table.
     
-    $S->query("update teams set $str lasttime=now() where team=$i");
+    $S->sql("update teams set $str lasttime=now() where team=$i");
   }
 
   $S->title = "Add Phone POST";

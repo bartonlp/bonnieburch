@@ -34,8 +34,8 @@ $S = new SiteClass($_site);
 
 $email = $_GET['email'];
 
-if(empty($email) || !$S->query("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->query("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
+if(empty($email) || !$S->sql("select team from marathon.teams where email1='$email' or email2='$email'")) {
+  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
               "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
               "on duplicate key update count=count+1, lasttime=now()");
 
@@ -53,13 +53,13 @@ $tbl =<<<EOF
 <tbody>
 EOF;
   
-$S->query("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
+$S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
 $r = $S->getResult();
 
 while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
   $list .= "<tr><td>$team</td><td>$name1 & $name2</td>";
   
-  $S->query("select score from scores where fkteam=$team order by moNo");
+  $S->sql("select score from scores where fkteam=$team order by moNo");
   $total = 0;
 
   // BLP 2022-08-26 - NOTE: if I do $score = $S->fetchrow('num')[0], I could get a zero back which looks like a
