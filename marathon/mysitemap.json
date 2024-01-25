@@ -19,7 +19,7 @@
       "host": "localhost",
       "user": "barton",
       "database": "marathon", // we have a seperate database from barton.
-      "engine": "mysqli"
+      "engine": "mysql"
     },
     "errorMode": {
       "development": true, // development automatically sets email to true.

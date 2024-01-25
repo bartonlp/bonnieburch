@@ -5,19 +5,19 @@
                       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 	<url>
 		<loc>https://www.bonnieburch.com/index.php</loc>
-		<lastmod>2023-08-09T14:31:34Z</lastmod>
+		<lastmod>2023-12-30T18:09:02Z</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1</priority>
 	</url>
 	<url>
 		<loc>https://www.bonnieburch.com/marathon/marathon.php</loc>
-		<lastmod>2023-10-06T20:50:38Z</lastmod>
+		<lastmod>2023-12-30T18:09:02Z</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1</priority>
 	</url>
 	<url>
 		<loc>https://www.bonnieburch.com/bridgeclub/bridgeclub.php</loc>
-		<lastmod>2023-02-24T17:08:45Z</lastmod>
+		<lastmod>2023-12-30T18:09:02Z</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1</priority>
 	</url>
