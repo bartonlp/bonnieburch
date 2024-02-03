@@ -120,7 +120,7 @@ EOF;
   // First insert the id and date.
 
   foreach($teams as $k=>$v) {
-    if(empty($v)) continue;
+    if($v === '') continue;
     
     $n = $S->sql("update scores set score=$v, created=now(), lasttime=now() where fkteam=$k and month='$month'");
   }
