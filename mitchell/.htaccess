@@ -1,5 +1,12 @@
+<RequireAll>
+ Require all granted
+</RequireAll>
 
-SetEnv SPARKPOST_API_KEY aad6254ffc1e42ab9163c11ec10e2be7e750113d
+Options +Includes
+
+Header set Access-Control-Allow-Origin "*"
 
 RewriteEngine on
+RewriteRule ^robots\.txt$ robots.php [L,NC]
+RewriteRule ^Sitemap\.xml$ sitemap.php [L,NC]
 RewriteRule ^csstest-(.*)\.css$ https://bartonlp.com/otherpages/tracker.php?id=$1&page=csstest [L,QSA]

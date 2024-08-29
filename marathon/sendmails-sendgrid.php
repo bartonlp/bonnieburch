@@ -1,4 +1,11 @@
 <?php
+// BLP 2024-05-14 - This is the sendgrid version
+// REMEMBER: The From address must be setup in sendgrid.com. Goto settings and then Sender
+// Authorize. Follow instructions. NOTE: do not use the full url only the part before the domain
+// name.
+
+use SendGrid\Mail\Mail;
+
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
@@ -8,44 +15,46 @@ $S = new SiteClass($_site);
 
 function getheader($info) {
   global $S;
+  //vardump("info", $info);
+  
+  // info has
+  // email
+  // subject
+  // filename
+  // texttosend
+  // radio (radio button)
+  // attachment
+  // sendpreview button
 
   // Small function to check if the text has markup.
   // It returns the contents after fixing the txt.
   
   function checktext(string $txt):string {
-    $contents = '';
-
-    $r = preg_match("~<.*>~m", $txt);
-    if($r === false) exit("preg_match failed: " . __LINE__);
-
-    if($r === 0) { // BLP 2023-10-07 - no match.
+    if(($r = preg_match("~<.*>~m", $txt)) === 0) {
+      $contents = preg_replace("~^(.*?)$~m", "$1<br>", $txt);
+    } elseif($r === 1) {
       $ar = explode("\n", $txt);
       foreach($ar as $a) {
-        $a = rtrim($a);
-        $contents .= "$a<br>";
-      }
-    } else { // BLP 2023-10-07 - match found
-      $ar = explode("\n", $txt); // BLP 2023-10-07 - break $txt appart
-
-      foreach($ar as $a) {
-        $a = rtrim($a);
-        if(preg_match("~^<.*>$~", $a) === 0) { // Not found
+        if(preg_match("~<.*>m~", $a) === 0) {
           $contents .= "$a<br>";
-        } else { // found
+        } else {
           $contents .= $a;
         }
       }
+    } else {
+      echo "ERROR<br>";
+      exit();
     }
 
-    $contents = preg_replace("~\"~m", "&amp;quot;", $contents);
-    $contents .= "<br>";
+    $contents = preg_replace("~\"~m", "&quot;", $contents);
     file_put_contents("./data/lasttext.data", $txt);
 
     return $contents;
   }
 
   $errorMsg = '';
-  $from =  "Marathon@mail.bartonphillips.com";
+  $from = "Marathon@bonnieburch.com"; //"Marathon@mail.bonnieburch.com";
+    
   $to = "barton@bartonphillips.com";
 
   // Make the table of scores
@@ -54,7 +63,7 @@ function getheader($info) {
   $r = $S->getResult();
 
   while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
-    $list .= "<tr><td style='text-align: right; padding: 3px;'>$team</td><td style='text-align: left; padding: 3px'>$name1 & $name2</td>";
+    $list .= "<tr><td style=\"text-align: right; padding: 3px;\">$team</td><td style=\"text-align: left; padding: 3px\">$name1 &amp; $name2</td>";
 
     $S->sql("select score from scores where fkteam=$team order by moNo");
     $total = 0;
@@ -66,75 +75,57 @@ function getheader($info) {
 
     while([$score] = $S->fetchrow('num')) {
       $total += $score;
-      $list .= "<td style='text-align: right; padding: 3px'>$score</td>";
+      $list .= "<td style=\"text-align: right; padding: 3px\">$score</td>";
     }
-    $list .= "<td style='background: lightpink; text-align: right; padding: 3px'>$total</td></tr>";
+    $list .= "<td style=\"background: lightpink; text-align: right; padding: 3px\">$total</td></tr>";
   }
 
   $contents = checktext($info['texttosend']);
 
   // The table fully formed
 
-  $contents = "$contents<table id='results' border='1'><tbody>$list</tbody></table>$sal";
+  $contents = "$contents<table id=\"results\" border=\"1\"><tbody>$list</tbody></table>";
 
   $subject = $info['subject'];
-
+  $sendfile = $info['sendfile'];
+  $texttosend = $info['texttosend'];
+  $sendTo = $info['sendto'];
+  $radio = $info['radio'];
   $date = date("Y-m-d");
-  $subject = "$subject (Current Scores as of $date)";
-
-  $cc = '';
-  
-  if($info['radio'] == "marathon") {
-    if($S->sql("select email1, email2 from teams")) {
-      while([$email1, $email2] = $S->fetchrow('num')) {
-        if(!empty($email1)) {
-          $cc .= "$email1,";
-        }
-        if(!empty($email2)) {
-          $cc .= "$email2,";
-        }
-      }
-      $cc = rtrim($cc, ",");
-    }
-  } elseif($info['radio'] == "individual") {
-    $cc = $info['sendto'];
-  } else {
-    $errorMsg .= "<h2>You must select either 'Marathon group' or 'individuals'</h2>";
-  }
+  $msg = '';
   
   if(empty($subject)) {
     $errorMsg .= "<h2>No valid 'Subject'</h2>";
   }
 
-  $recipients = "{\"address\": {\"email\": \"$to\",\"header_to\": \"$to\"}},";
-  
-  foreach(explode(',', $cc) as $c) {
-    $recipients .= "{\"address\": {\"email\": \"$c\",\"header_to\": \"$to\"}},";
-  }
+  if($radio == "marathon") {
+    if($S->sql("select email1, email2 from teams")) {
+      while([$email1, $email2] = $S->fetchrow('num')) {
+        if(!empty($email1)) {
+          $cc[] = $email1;
+        }
+        if(!empty($email2)) {
+          $cc[] = $email2;
+        }
+      }
+    }
 
-  $recipients = rtrim($recipients, ',');
+  } elseif($sendTo) {
+    $sendTo = explode(",", $sendTo);
+    
+    foreach($sendTo as $e) {
+      if(empty($e)) continue; // If no email address skip
+      $cc[] = $e;
+    }
+  } else {
+    $errorMsg .= "<h2>You must provide a CC list</h2>";
+  }
 
   if(!empty($errorMsg)) {
     return ['ERROR', $errorMsg];
   } else {
-    $post =<<<EOF
-{"recipients": [
-  $recipients
-],
-  "content": {
-    "from": "Marathon@mail.bartonphillips.com",
-    "reply_to": "Barton Phillips<bartonphillips@gmail.com>",
-    "headers": {
-      "CC": "$cc"
-    },
-    "subject": "$subject",
-    "text": "View This in HTML Mode",
-    "html": "$contents"
-  }
-}
-EOF;
-    return ['HEADERS', $post, 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
-            'contents'=>$contents];
+    return ['HEADERS', 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
+            'contents'=>$contents]; //, 'attachments'=>$attachments];
   }
 }
 
@@ -162,11 +153,78 @@ if($_POST['past']) {
   exit();
 }
 
+//***********************
+// The main pages does a post to 'sendpreview' which if everything looks OK does a POST to 'sendit'
+
+if($_POST['sendit']) {
+  $xemail = $_POST['email'];
+  $info = json_decode($_POST['post'], true);
+
+  $email = new Mail();
+
+  $email->setFrom($info['from']);
+  $email->setSubject($info['subject']);
+  $email->addTo($info['to']);
+  
+  foreach($info['cc'] as $cc) {
+    $email->addBcc($cc);
+  }
+  $email->addContent("text/plain", 'View this in HTML mode');
+  $email->addContent("text/html", $info['contents']);
+
+
+  //$email->addAttachment($info['attachments']);
+
+  $apiKey = require "/var/www/PASSWORDS/sendgrid-api-key";
+  
+  $sendgrid = new \SendGrid($apiKey));
+
+  $response = $sendgrid->send($email);
+
+  if($response->statusCode() > 299) {
+    print $response->statusCode() . "<br><pre>";
+    print_r($response->headers());
+    print "</pre>Body: <pre>";
+    print_r(json_decode($response->body()));
+    print "</pre>";
+    exit();
+  }  
+
+  $S->title = "Data Sent";
+  $S->banner = "<h1>$S->title</h1>";
+  $msg =<<<EOF
+<h2>You information has been sent.</h2>
+<a href="marathon.php?page=auth&email=$xemail">Return to Bonnie's Home Page</a>
+EOF;
+
+  [$top, $footer] = $S->getPageTopBottom();
+  
+  echo <<<EOF
+$top
+<hr>
+$msg
+<hr>
+$footer
+EOF;
+  exit();
+};
+
 //*****************************
-// FROM form POST main page to 'sendpreview'
 // The main program does a post to here. If all is OK this does a post to 'sendit'
 
 if($_POST['sendpreview']) {
+  // $_POST has:
+  // email
+  // subject
+  // filename
+  // texttosend
+  // femail[] checkbox
+  // attachment
+  // sendpreview button
+  //vardump("post", $_POST);
+  
+  $xemail = $_POST['email'];
+  
   $info = getheader($_POST);
 
   // $info[0] has either 'ERROR' or "HEADERS"
@@ -178,33 +236,29 @@ if($_POST['sendpreview']) {
   } elseif($info[0] == "HEADERS") {
     $S->title = "Preview";
     $S->banner = "<h1>$S->title</h1>";
-    $S->css =<<<EOF
-button { border-radius: 10px; font-size: 25px; color: white; background: green; width: 100px; height: 50px; margin-top: 20px; }
-#msg { margin-bottom: 0; padding-bottom: 0; }
-EOF;
     
     [$top, $footer] = $S->getPageTopBottom();
 
-    // Here we set the session variable with $info form getheader()
-    // This is how we pass the info to 'sendit'
-    
-    // Display the preview info and give the option to 'sendit'
+    $info['contents'] = preg_replace("~'~", "&apos;", $info['contents']);
+    $info['subject'] = preg_replace("~'~", "&apos;", $info['subject']);
 
-    $postdata = preg_replace(["~\n~", '~"~'], ['', "`"], $info[1]);
+    $postdata = json_encode($info);
+
+    $ccstr = implode(",", $info['cc']);
 
     echo <<<EOF
 $top
 <hr>
 <p>From: {$info['from']}<br>
 Subject: {$info['subject']}<br>
-CC: {$info['cc']}</p>
-<p id="msg">Message:</p>{$info['contents']}
-<form method="POST" action="sparkpost2.php">
-<input type="hidden" name="email" value="$email">
-<input type="hidden" name="post" value="$postdata">
+SENDTO: $ccstr</p>
+<p>Message:<br>{$info['contents']}</p>
+<form method="POST">
+<input type="hidden" name="email" value="$xemail">
+<input type="hidden" name="post" value='$postdata'>
 <button type="submit" name="sendit" value="sendit">Send It</button>
 </form>
-<br><a href="sendemails2.php?page=auth&email=$email">Return to Send Mail</a>
+<br><a href="sendmails-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>
 <hr>
 $footer
 EOF;
@@ -258,6 +312,7 @@ $("#individual").on("click", function() {
   } else {
     $("#marathon").hide();
     $("#toindividuals").show();
+    $("#toindividuals input").focus();
   }
   this.flag = !this.flag;
 });

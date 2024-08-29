@@ -1,5 +1,5 @@
-user-agent: *
+User-Agent: *
 allow: /index.php
 disallow: /
-
+# bonnieburch
 sitemap: https://www.bonnieburch.com/Sitemap.xml

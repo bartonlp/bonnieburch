@@ -66,7 +66,7 @@ $top
 <hr>
 $greeting
 $onlyAdmin
-<a href="family-email3.php?page=auth&email=$email">Send Family Emails</a>
+<a href="family-email-sendgrid.php?page=auth&email=$email">Send Family Emails</a>
 <br><br><a href="../index.php">Return to main page</a>
 <hr>
 $footer
@@ -102,4 +102,3 @@ Login with your email address: <input type='text' name='email'><br>
 <hr>
 $footer
 EOF;
-

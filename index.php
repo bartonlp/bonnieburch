@@ -16,7 +16,7 @@ EOF;
 
 echo <<<EOF
 $top
-<h2 class="center">My Own Home Page -- Oh Boy</h2>
+<h2 class="center">My Own Home Page -- Oh Boy!</h2>
 <hr>
 <a href="bridgeclub/bridgeclub.php">Bridge Club</a><br>
 <a href="marathon/marathon.php">Marathon Bridge</a><br>

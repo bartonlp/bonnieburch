@@ -13,11 +13,6 @@ Header set X-Robots-Tag "noindex, nofollow"
 SetEnv SITELOAD /var/www/vendor/bartonlp/site-class/includes
 SetEnv SITELOADNAME /var/www/vendor/bartonlp/site-class/includes/siteload.php
 
-# for sendgrid
-SetEnv SENDGRID_API_KEY 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
-SetEnv SPARKPOST_API_KEY aad6254ffc1e42ab9163c11ec10e2be7e750113d
-#
-
 RewriteEngine on
 # Don't allow these robots
 RewriteCond %{HTTP_USER_AGENT} "baiduspider" [NC]
