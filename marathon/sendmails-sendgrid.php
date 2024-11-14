@@ -9,12 +9,25 @@ use SendGrid\Mail\Mail;
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
-//****************
+// ************
+// BLP 2024-11-02 - Depending on the year there may be more or less teams. The $lastTeam variable
+// is the is the number of the last team. It is used to limit the 'select left join' below.
+$lastTeam = 10; // BLP 2024-11-02 - for the season 2024-2025 there are only 10 teams.
+// ************
+
+$S->css =<<<EOF
+form table input { width: 1000px; font-size: 30px; }
+td:first-of-type { padding-right: 20px; }
+input[type="radio"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
+.send { padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
+#texttosend { width: 1000px; font-size: 30px; }
+EOF;
+
 // getheader()
 // Parses the $info and returns an array of information
 
 function getheader($info) {
-  global $S;
+  global $S, $lastTeam;
   //vardump("info", $info);
   
   // info has
@@ -58,8 +71,9 @@ function getheader($info) {
   $to = "barton@bartonphillips.com";
 
   // Make the table of scores
+  // BLP 2024-11-02 - For this season the number of teams is 1-10, $lastTeam == 10
   
-  $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
+  $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team where t.team <= $lastTeam order by s.fkteam");
   $r = $S->getResult();
 
   while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
@@ -84,7 +98,18 @@ function getheader($info) {
 
   // The table fully formed
 
-  $contents = "$contents<table id=\"results\" border=\"1\"><tbody>$list</tbody></table>";
+  $tbl =<<<EOF
+<table id='results' border='1'>
+<thead>
+<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
+</thead
+<tbody>
+$list
+</tbody>
+</table>
+EOF;
+  
+  $contents = "$contents$tbl";
 
   $subject = $info['subject'];
   $sendfile = $info['sendfile'];
@@ -177,10 +202,10 @@ if($_POST['sendit']) {
 
   $apiKey = require "/var/www/PASSWORDS/sendgrid-api-key";
   
-  $sendgrid = new \SendGrid($apiKey));
+  $sendgrid = new \SendGrid($apiKey);
 
   $response = $sendgrid->send($email);
-
+/////*** Needs to change like in michell family
   if($response->statusCode() > 299) {
     print $response->statusCode() . "<br><pre>";
     print_r($response->headers());
@@ -256,9 +281,9 @@ SENDTO: $ccstr</p>
 <form method="POST">
 <input type="hidden" name="email" value="$xemail">
 <input type="hidden" name="post" value='$postdata'>
-<button type="submit" name="sendit" value="sendit">Send It</button>
+<button class="send" type="submit" name="sendit" value="sendit">Send It</button>
 </form>
-<br><a href="sendmails-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>
+<br><button class="send" onclick="history.back()">Return to Send Mail</button>
 <hr>
 $footer
 EOF;
@@ -279,14 +304,6 @@ PREVIEW_END:
 
 $S->title = "Send Bulk Emails";  
 $S->banner = "<h1>$S->title</h1>";
-$S->css =<<<EOF
-form table input { width: 1000px; font-size: 30px; }
-td:first-of-type { padding-right: 20px; }
-input[type="radio"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
-#send { padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
-/*#send span { border-radius: 7px; border: 2px solid black; padding: 3px;}*/
-#texttosend { width: 1000px; font-size: 30px; }
-EOF;
 
 $S->b_inlineScript = <<<EOF
 $("#toindividuals").hide();
@@ -319,7 +336,7 @@ $("#individual").on("click", function() {
 
 $("#past").on("click", function() {
   $.ajax({
-    url: "https://bonnieburch.com/marathon/sendemails2.php",
+    url: "./sendmails-sendgrid.php",
     data: { "past": true, "email": "bonnieburch2015@gmail.com" }, // BLP 2023-10-07 - email needed for check auth above.
     type: 'post',
     success: function(data) {
@@ -350,7 +367,7 @@ $errorMsg
 </table>
 <br>
 <input type="hidden" name="email" value="$email">
-<button id="send" type="submit" name="sendpreview" value="true">Preview, then <span>Send It</span></button>
+<button class="send" type="submit" name="sendpreview" value="true">Preview, then <span>Send It</span></button>
 </form>
 <hr>
 $footer

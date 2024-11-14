@@ -26,6 +26,12 @@ CREATE TABLE `teams` (
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
 
+// ************
+// BLP 2024-11-02 - Depending on the year there may be more or less teams. The $lastTeam variable
+// is the is the number of the last team. It is used to limit the 'select left join' below.
+$lastTeam = 10; // BLP 2024-11-02 - for the season 2024-2025 there are only 10 teams.
+// ************
+
 // GET the date we are to enter the scores. Because Barton always forgets!
 
 if($_POST['page'] == "DATE") {
@@ -128,12 +134,12 @@ EOF;
   $hdr =<<<EOF
 <table id='results' border='1'>
 <thead>
-<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan1</th><th>Jan2</th><th>Feb1</th><th>Feb2</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
+<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
 </thead
 <tbody>
 EOF;
   
-  $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam=t.team order by s.fkteam");
+  $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam=t.team where t.team <= $lastTeam order by s.fkteam");
   $r = $S->getResult();
 
   while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {

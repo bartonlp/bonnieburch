@@ -1,4 +1,6 @@
 <?php
+// This is used to initialize the 'family' table from a CSV file.
+
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new Database($_site);
 

@@ -28,17 +28,18 @@ CREATE TABLE `scores` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 */
 
-
 $_site = require_once(getenv("SITELOADNAME"));
 $S = new SiteClass($_site);
+
+// ************
+// BLP 2024-11-02 - Depending on the year there may be more or less teams. The $lastTeam variable
+// is the is the number of the last team. It is used to limit the 'select left join' below.
+$lastTeam = 10; // BLP 2024-11-02 - for the season 2024-2025 there are only 10 teams.
+// ************
 
 $email = $_GET['email'];
 
 if(empty($email) || !$S->sql("select team from marathon.teams where email1='$email' or email2='$email'")) {
-  $S->sql("insert into $S->masterdb.badplayer (ip, site, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
-              "values('$S->ip', '$S->siteName', 'counted', '$S->self', 1, -2, 'Not Authorized', '$S->agent', now(), now()) ".
-              "on duplicate key update count=count+1, lasttime=now()");
-
   error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
 
   echo "<h1>Not Authorized</h1><p>Go Away</p>";  
@@ -48,12 +49,14 @@ if(empty($email) || !$S->sql("select team from marathon.teams where email1='$ema
 $tbl =<<<EOF
 <table id='results' border='1'>
 <thead>
-<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan1</th><th>Jan2</th><th>Feb1</th><th>Feb2</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
+<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
 </thead
 <tbody>
 EOF;
-  
-$S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team order by fkteam");
+
+// BLP 2024-11-02 - For this season the number of teams is 1-10, $lastTeam == 10
+
+$S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join teams as t on s.fkteam = t.team where t.team <= $lastTeam order by s.fkteam");
 $r = $S->getResult();
 
 while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {

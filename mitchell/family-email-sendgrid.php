@@ -14,12 +14,16 @@
 //  created datetime not null,
 //  lasttime datetime not null,
 //  primary key(fname,lname);
+
+// BLP 2024-11-11 - I have to fixup apostrophies and double quotes. See this date.
+//  Also removed the from file logic and the femail which was in Marathon but not here.
 // BLP 2024-05-14 - Now uses sendgrid: https://app.sendgrid.com/
 // You must use composer to load the sendgrid PHP files: 'composer require sendgrid/sendgrid'
 
 use SendGrid\Mail\Mail;
 
 $_site = require_once(getenv("SITELOADNAME"));
+ErrorClass::setDevelopment(true);
 $S = new SiteClass($_site);
 
 $S->css =<<<EOF
@@ -28,6 +32,12 @@ td:first-of-type { padding-right: 20px; }
 input[type="checkbox"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
 #past, form button { padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
 form textarea { font-size: var(--blpFontSize); width: 800px; height: 400px; }
+/* For senditpreview */
+#wait { position: relative; }
+#wait img {
+  position: absolute;
+  top: -18px;
+}
 EOF;
 
 // Upload file errors:
@@ -48,12 +58,11 @@ $fileUploadErrors = [
 // Parses the $info and returns an array of information
 
 function getheader($info) {
-  global $S;
+  global $S, $fileUploadErrors; // BLP 2024-11-11 - added $fileUploadErrors
 
   // info has
   // email
   // subject
-  // filename
   // texttosend
   // femail[] checkbox 
   // attachment
@@ -64,7 +73,13 @@ function getheader($info) {
   
   function checktext(string $txt):string {
     if(($r = preg_match("~<.*>~m", $txt)) === 0) {
-      $contents = preg_replace("~^(.*?)$~m", "$1<br>", $txt);
+      // BLP 2024-11-11 - replace apostrophies
+      
+      $x = str_replace("'", "&apos;", $txt);
+
+      // BLP 2024-11-11 - remove \r before the end and \n after the end.
+      
+      $contents = preg_replace("~^(.*?)\r$\n~m", "$1<br>", $x);
     } elseif($r === 1) {
       $ar = explode("\n", $txt);
       foreach($ar as $a) {
@@ -78,8 +93,9 @@ function getheader($info) {
       echo "ERROR<br>";
       exit();
     }
-    $contents = preg_replace("~\"~m", "&quot;", $contents);
-    file_put_contents("./data/lasttext.data", $txt);
+    $contents = preg_replace('~"~m', "&quot;", $contents);
+
+    file_put_contents("./data/lasttext.data", $txt); // Save original text
 
     return $contents;
   }
@@ -92,22 +108,15 @@ function getheader($info) {
   $subject = $info['subject'];
   $sendfile = $info['sendfile'];
   $texttosend = $info['texttosend'];
-  $femail = $info['femail']; // an array
-
+  $femail = $info['femail'];
+  
   $date = date("Y-m-d");
   $msg = '';
   
-  if($texttosend) {
-    // Look for markup. If no markup then place the code in a <pre> so the text will not be all on
-    // one line.
-
+  if(!empty($texttosend)) {
     $contents = checktext($texttosend);
   } else {
-    if(empty($_FILES['filename']['name'])) {
-      $errorMsg .= "<h2>You must supply a 'Send to Filename'</h2>";
-    } else {
-      $contents = checktext(file_get_contents($_FILES['filename']['tmp_name']));
-    }
+    $errorMsg .= "<h2>You must supply a message.</h2>";
   }
   
   if(empty($subject)) {
@@ -125,7 +134,7 @@ function getheader($info) {
 
   if($attachment = $_FILES['attachment']['name']) {
     if($err = $_FILES['attachment']['error']) {
-      $errorMsg .= $fileUploadErrors[$err];
+      $errorMsg .= $fileUploadErrors[$err]; // BLP 2024-11-11 - uses global
     } else {
       $name = basename($attachment);
       $data = base64_encode(file_get_contents($_FILES['attachment']['tmp_name']));
@@ -133,7 +142,7 @@ function getheader($info) {
     }
     $attachments = [$data,$type,$name,'attachment'];
   }
-  
+
   if(!empty($errorMsg)) {
     return ['ERROR', $errorMsg];
   } else {
@@ -158,6 +167,7 @@ if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where emai
 
 if($_POST['past']) {
   $text = file_get_contents("data/lasttext.data");
+
   echo $text;
   exit();
 }
@@ -166,11 +176,12 @@ if($_POST['past']) {
 // The main pages does a post to 'sendpreview' which if everything looks OK does a POST to 'sendit'
 
 if($_POST['sendit']) {
+  $email = $_POST['email'];
+
   $info = json_decode($_POST['post'], true);
 
   $email = new Mail();
-  //error_log("Email: " . print_r($email, true));
-  
+
   $email->setFrom($info['from']);
   $email->setSubject($info['subject']);
   $email->addTo($info['to']);
@@ -179,8 +190,12 @@ if($_POST['sendit']) {
     $email->addBcc($cc);
   }
   $email->addContent("text/plain", "View this in HTML mode");
-  $email->addContent("text/html", $info['contents']);
 
+  // BLP 2024-11-11 - replace the quote that was removed in sendpreview()
+
+  $info['contents'] = str_replace('~', '&quot;', $info['contents']);
+
+  $email->addContent("text/html", $info['contents']);
 
   if($info['attachments']) {
     $email->addAttachment($info['attachments']);
@@ -192,10 +207,12 @@ if($_POST['sendit']) {
 
   $response = $sendgrid->send($email);
   if($response->statusCode() > 299) {
-    print $response->statusCode() . "\n";
-    print_r($response->headers());
-    print $response->body() . "\n";
-    $errorMsg = "Error 'imap_mail'<br>" . imap_errors();
+    $code = $response->statusCode();
+    //print_r($response->headers()); // ONLY for debugging
+    //print $response->body() . "\n"; // ONLY for debugging
+    $body = json_decode($response->body());
+    $errorMsg = "Error Code: $code<br>SendGrid: {$body->errors[0]->message}<br>";
+    
     $S->title = "Send Error";
     $S->banner = "<h1>$S->title</h1>";
     $msg = "<p>$errorMsg</p>";
@@ -204,16 +221,26 @@ if($_POST['sendit']) {
     $S->banner = "<h1>$S->title</h1>";
     $msg =<<<EOF
 <h2>You information has been sent.</h2>
-<a href="family.php?page=auth&email=$xemail">Return to Bonnie's Home Page</a>
 EOF;
   }
 
+  header("Location: https://bonnieburch.com/mitchell/family-email-sendgrid.php?page=end&msg=$msg&email=$xemail");
+  exit();
+}
+
+// This is the FINAL message after 'sendit' above. The insures that we can not resend the message
+// by pressing F5 etc.
+
+if($_GET['page'] == 'end') {
+  $msg = $_GET['msg'];
+  
   [$top, $footer] = $S->getPageTopBottom();
   
   echo <<<EOF
 $top
 <hr>
 $msg
+<a href="family.php?page=auth&email=$xemail">Return to Bonnie's Home Page</a>
 <hr>
 $footer
 EOF;
@@ -237,8 +264,6 @@ if($_POST['sendpreview']) {
   
   $info = getheader($_POST);
 
-  // $info[0] has either 'ERROR' or "HEADERS"
-  
   if($info[0] == 'ERROR') {
     $errorMsg = $info[1];
     goto PREVIEW_END;
@@ -246,31 +271,46 @@ if($_POST['sendpreview']) {
   } elseif($info[0] == "HEADERS") {
     $S->title = "Preview";
     $S->banner = "<h1>$S->title</h1>";
-    
+
+    $S->b_inlineScript = <<<EOF
+$("#sendit").on("click", function(e) {
+  $(this).hide();
+  $("#wait").html("<h2>Please Wait&nbsp;&nbsp;<img src='https://bartonphillips.net/images/loading.gif' width=100 height=100'></h2>");
+});
+EOF;
+
     [$top, $footer] = $S->getPageTopBottom();
 
-    $info['contents'] = preg_replace("~'~", "&apos;", $info['contents']);
-    $info['subject'] = preg_replace("~'~", "&apos;", $info['subject']);
+    // BLP 2024-11-11 - Can't have a quote in json
+
+    $contents = $info['contents'];
+    
+    $info['contents'] = str_replace('&quot;', '~', $contents);
     
     $postdata = json_encode($info);
-    
+
     if($attach = $info['attachments']) {
       $attachStr = "<br>attachment: $attach[2]";
     }
 
     $ccstr = implode(",", $info['cc']);
+
+    // BLP 2024-11-11 - use $contents for the Message and $postdata with the ~ fix for the hidden
+    // post.
+
     echo <<<EOF
 $top
 <hr>
 <p>From: {$info['from']}<br>
 Subject: {$info['subject']}<br>
 Send To: $ccstr</p>
-<p>Message:<br>{$info['contents']}
+<p>Message:<br>$contents
 $attachStr</p>
 <form method="POST">
 <input type="hidden" name="email" value="$xemail">
 <input type="hidden" name="post" value='$postdata'>
-<button type="submit" name="sendit" value="sendit">Send It</button>
+<button id="sendit" type="submit" name="sendit" value="sendit">Send It</button>
+<div id="wait"></div>      
 </form>
 <br><a href="family-email-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>
 <hr>
@@ -309,7 +349,8 @@ $("#past").on("click", function() {
     data: { "past": true, "email": "bonnieburch2015@gmail.com" }, // BLP 2023-10-07 - email needed for check auth above.
     type: 'post',
     success: function(data) {
-      $("textarea").html(data);
+      console.log("data: ", data);
+      $("#textarea").html(data);
     },
     error: function(err) {
       console.log(err);
@@ -348,8 +389,8 @@ $errorMsg
 <form enctype="multipart/form-data" method="POST">
 <table>
 <tr><td>Enter Subject</td><td><input type="text" name="subject" value="$subject"></td></tr>
-<tr><td>Enter Send to Filename</td><td><input type="file" name="filename"></td></tr>
-<tr><td>Enter Text to send</td><td><textarea name="texttosend" rows="5" cols="50" placeholder="Enter Text"></textarea></td></tr>
+<!--<tr><td>Enter Send to Filename</td><td><input type="file" name="filename"></td></tr>-->
+<tr><td>Enter Text to send</td><td><textarea id="textarea" name="texttosend" rows="5" cols="50" placeholder="Enter Text"></textarea></td></tr>
 </table>
 <p>Select to whom you want to send:</p>
 <input id="all" type="checkbox">Select All
