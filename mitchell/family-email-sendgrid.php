@@ -154,7 +154,7 @@ function getheader($info) {
 //******************
 // Check Authorized
 
-$xemail = $_REQUEST['email'];
+$xemail = $_REQUEST['email']; // For either a POST or a GET. Get the xemail 
 
 if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email='$xemail'")) {
   error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
@@ -174,10 +174,9 @@ if($_POST['past']) {
 
 //***********************
 // The main pages does a post to 'sendpreview' which if everything looks OK does a POST to 'sendit'
+// We already have $xemail from above 'Check Authorized'.
 
 if($_POST['sendit']) {
-  $email = $_POST['email'];
-
   $info = json_decode($_POST['post'], true);
 
   $email = new Mail();
@@ -232,6 +231,7 @@ EOF;
 
 // This is the FINAL message after 'sendit' above. The insures that we can not resend the message
 // by pressing F5 etc.
+// We already have #xemail from 'Check Authoried'
 
 if($_GET['page'] == 'end') {
   $msg = $_GET['msg'];
@@ -251,6 +251,7 @@ EOF;
 
 //*****************************
 // The main program does a post to here. If all is OK this does a post to 'sendit'
+// We already have $xemail from 'Check Authorized'
 
 if($_POST['sendpreview']) {
   // $_POST has:
@@ -262,8 +263,6 @@ if($_POST['sendpreview']) {
   // attachment
   // sendpreview button
 
-  $xemail = $_POST['email'];
-  
   $info = getheader($_POST);
 
   if($info[0] == 'ERROR') {
@@ -381,6 +380,8 @@ $familyTbl .= <<<EOF
 </tbody>
 </table>
 EOF;
+
+// We already have $xemail from 'Check Authorized'
 
 echo <<<EOF
 $top
