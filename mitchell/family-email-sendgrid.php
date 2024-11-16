@@ -185,11 +185,13 @@ if($_POST['sendit']) {
   $email->setFrom($info['from']);
   $email->setSubject($info['subject']);
   $email->addTo($info['to']);
+
+  $email->setReplyTo("bonnieburch2015@gmail.com"); // BLP 2024-11-16 - Add replyto.
   
   foreach($info['cc'] as $cc) {
-    $email->addBcc($cc);
+    $email->addCc($cc);
   }
-  $email->addContent("text/plain", "View this in HTML mode");
+  $email->addContent("text/plain", preg_replace("~<br>~", "\n", $info['contents'])); //"View this in HTML mode");
 
   // BLP 2024-11-11 - replace the quote that was removed in sendpreview()
 
