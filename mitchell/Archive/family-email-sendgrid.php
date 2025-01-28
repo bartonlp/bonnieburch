@@ -15,11 +15,12 @@
 //  lasttime datetime not null,
 //  primary key(fname,lname);
 
-// BLP 2024-12-24 - Reworked logic to use urlencode/urldecode.
-
+// BLP 2024-11-11 - I have to fixup apostrophies and double quotes. See this date.
+//  Also removed the from file logic and the femail which was in Marathon but not here.
+// BLP 2024-05-14 - Now uses sendgrid: https://app.sendgrid.com/
 // You must use composer to load the sendgrid PHP files: 'composer require sendgrid/sendgrid'
 
-use SendGrid\Mail\Mail; // Now that you have used composer to get sendgrid you can use it.
+use SendGrid\Mail\Mail;
 
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
@@ -29,7 +30,7 @@ $S->css =<<<EOF
 form table input { width: 1000px; font-size: 30px; }
 td:first-of-type { padding-right: 20px; }
 input[type="checkbox"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
-#past, form button { cursor: pointer; padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
+#past, form button { padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
 form textarea { font-size: var(--blpFontSize); width: 800px; height: 400px; }
 /* For senditpreview */
 #wait { position: relative; }
@@ -59,21 +60,25 @@ $fileUploadErrors = [
 function getheader($info) {
   global $S, $fileUploadErrors; // BLP 2024-11-11 - added $fileUploadErrors
 
-  /*
-    info has
-    email
-    subject
-    texttosend
-    femail[] checkbox 
-    attachment
-    sendpreview button
-  */
+  // info has
+  // email
+  // subject
+  // texttosend
+  // femail[] checkbox 
+  // attachment
+  // sendpreview button
 
   // Small function to check if the text has markup.
-  // It returns the urlencoded contents after fixing the txt.
-
+  // It returns the contents after fixing the txt.
+  
   function checktext(string $txt):string {
     if(($r = preg_match("~<.*>~m", $txt)) === 0) {
+      // BLP 2024-11-11 - replace apostrophies
+
+      //$x = str_replace("'", "&apos;", $txt);
+
+      // BLP 2024-11-11 - remove \r before the end and \n after the end.
+
       $contents = preg_replace("~^(.*?)$~m", "$1<br>", $txt);
     } elseif($r === 1) {
       $ar = explode("\n", $txt);
@@ -89,7 +94,7 @@ function getheader($info) {
 
       $contents = preg_replace('~"~m', "&quot;", $contents);
     }
-  
+
     $y = file_put_contents("./data/lasttext.data", $txt); // Save original text
     if($y === false) {
       echo "Error writing to file<br>";
@@ -97,17 +102,16 @@ function getheader($info) {
       echo $err['message'];
       exit();
     }
-
-    return urlencode($contents);
+    return $contents;
   }
-  // End function
-  
+
   $errorMsg = '';
   $from =  "MitchellFamily@bonnieburch.com";
     
   $to = "barton@bartonphillips.com";
     
   $subject = $info['subject'];
+  //$sendfile = $info['sendfile']; // BLP 2024-12-23 - 
   $texttosend = $info['texttosend'];
   $femail = $info['femail'];
   
@@ -115,7 +119,7 @@ function getheader($info) {
   $msg = '';
   
   if(!empty($texttosend)) {
-    $contents = checktext($texttosend); // BLP 2024-12-24 - now returns urlencode() 
+    $contents = checktext($texttosend);
   } else {
     $errorMsg .= "<h2>You must supply a message.</h2>";
   }
@@ -135,7 +139,7 @@ function getheader($info) {
 
   if($attachment = $_FILES['attachment']['name']) {
     if($err = $_FILES['attachment']['error']) {
-      $errorMsg .= $fileUploadErrors[$err]; 
+      $errorMsg .= $fileUploadErrors[$err]; // BLP 2024-11-11 - uses global
     } else {
       $name = basename($attachment);
       $data = base64_encode(file_get_contents($_FILES['attachment']['tmp_name']));
@@ -164,7 +168,7 @@ if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where emai
   exit();
 }
 
-// Get Last 'Text to send'
+// Get the past Text
 
 if($_POST['past']) {
   $text = file_get_contents("data/lasttext.data");
@@ -196,9 +200,9 @@ if($_POST['sendit']) {
 
   // BLP 2024-11-11 - replace the quote that was removed in sendpreview()
 
-// BLP 2024-12-24 -   $info['contents'] = str_replace('~', '&quot;', $info['contents']);
+  $info['contents'] = str_replace('~', '&quot;', $info['contents']);
 
-  $email->addContent("text/html", urldecode($info['contents']));
+  $email->addContent("text/html", $info['contents']);
 
   if($info['attachments']) {
     $email->addAttachment($info['attachments']);
@@ -232,9 +236,8 @@ EOF;
   exit();
 }
 
-// This is the FINAL message after 'sendit' above. This insures that we can not resend the message
-// by pressing F5 etc. You can use the 'back arrow' to go back to the 'Preview' page from which you
-// can choose to return to the main page or resend the information.
+// This is the FINAL message after 'sendit' above. The insures that we can not resend the message
+// by pressing F5 etc.
 // We already have #xemail from 'Check Authoried'
 
 if($_GET['page'] == 'end') {
@@ -282,17 +285,16 @@ $("#sendit").on("click", function(e) {
   $(this).hide();
   $("#wait").html("<h2>Please Wait&nbsp;&nbsp;<img src='https://bartonphillips.net/images/loading.gif' width=100 height=100'></h2>");
 });
-$("#backarrow").on("click", function(e) {
-  history.back();
-});
 EOF;
 
-    $S->css .= "#backarrow button { cursor: pointer; padding: 5px 15px; font-size: 30px; background-color: lightpink; color: black; border-radius: 10px; }";
-    
     [$top, $footer] = $S->getPageTopBottom();
 
-    $contents = urldecode($info['contents']);
+    // BLP 2024-11-11 - Can't have a quote in json
+
+    $contents = $info['contents'];
     
+    $info['contents'] = str_replace(["&quot;", "'", "\r"], ['~', "&apos;", ''], $contents);
+        
     $postdata = json_encode($info);
         
     // $attachments has $data, $type, $name, 'attachment'.
@@ -320,8 +322,7 @@ $attachStr</p>
 <button id="sendit" type="submit" name="sendit" value="sendit">Send It</button>
 <div id="wait"></div>      
 </form>
-<br><!--<a href="family-email-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>-->
-<div id="backarrow"><button>Return to Send Mail</button></div>
+<br><a href="family-email-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>
 <hr>
 $footer
 EOF;
