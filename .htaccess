@@ -1,7 +1,5 @@
 # Apache2 2.4 uses Require
-<RequireAll>
- Require all granted
-</RequireAll>
+Require all granted
 
 Options +Includes
 
@@ -72,4 +70,3 @@ AddOutputFilterByType DEFLATE \
   "text/vtt" \
   "text/x-component" \
   "text/xml"
- 

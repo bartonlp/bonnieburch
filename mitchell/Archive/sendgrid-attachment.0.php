@@ -14,7 +14,7 @@ $email->addContent(
     "text/html", "<strong>This is a test with an attachment</strong><div id=''>Test</div>"
 );
 
-$file_encoded = base64_encode(file_get_contents('https://bartonphillips.net/images/1997_dennis_ritchie.jpg'));
+$file_encoded = base64_encode(file_get_contents('/var/www/bartonphillipsnet/images/1997_dennis_ritchie.jpg'));
 $email->addAttachment(
     $file_encoded,
     "image/jpeg",

@@ -1,14 +1,14 @@
 <?php
 // This file is used to set up bonnieburch.com with the correct fingerprint.
-// NOTE *** There are only two places where the myip table is inserted or updated, that is here
-// and in bartonphillips.com/register.php.
 
-$_site = require_once(getenv("SITELOADNAME"));
+$_site = require_once getenv("SITELOADNAME");
 ErrorClass::setDevelopment(true);
-$S = new $_site->className($_site);
+$S = new SiteClass($_site);
+
+// We get here from bartonphillips.net/js/getFingerprint.js
 
 if($_POST['page'] == 'finger') {
-  // BLP 2022-01-12 -- /tmp is not really /tmp. Look at the apache2.service file. Notice the
+  // /tmp is not really /tmp. Look at the apache2.service file. Notice the
   // 'PrivateTmp=true' item. This tells apache to use a seperate /tmp.
   // The actual location is:
   // /tmp/systemd-private-a27bd3d0445a474e80ded3917a0f1bb9-apache2.service-mvTPqh/tmp/
@@ -32,31 +32,12 @@ if($_POST) {
   $name = $S->escape($_POST['name']);
   $email = $S->escape($_POST['email']);
 
-  if($email == "bonnieburch2015@gmail.com") {
-    // Update the myip tables.
-
-    $sql = "insert into $S->masterdb.myip (myIp, createtime, lasttime) values('$S->ip', now(), now()) " .
-           "on duplicate key update lasttime=now()";
-
-    $S->sql($sql);
-  }
-
-  if(!$S->sql("select TABLE_NAME from information_schema.tables ".
-            "where (table_schema = 'bartonphillips') and (table_name = 'members')")) {
-    throw new Exception(__LINE__ .": register.php, members table for database bartonphillips does not exist");
-  }
-
+  // This was set by the $_POST['page'] == 'finger' above.
+  
   $visitorId = file_get_contents("/tmp/visitorfingertemp");
   unlink("/tmp/visitorfingertemp");
 
   error_log("addcookie.php: visitorId: $visitorId");
-
-  // BLP 2023-10-13 - ip added to members table
-  
-  $S->sql("insert into bartonphillips.members (ip, name, email, finger, count, created, lasttime) ".
-                 "values('$S->ip', '$name', '$email', '$visitorId', 1, now(), now()) ".
-                 "on duplicate key update count=count+1, lasttime=now()");
-    
 
   // Always set the cookie. We use the sql id from the members table.
   
@@ -79,7 +60,7 @@ if($_POST) {
     throw(new Exception("Can't set cookie BLP-Finger in addcookie.php " . __LINE__));
   }
 
-  header("Location: /bridgeclub/bridgeclub.php");
+  header("Location: /");
   exit();
 }
 

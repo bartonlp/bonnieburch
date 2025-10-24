@@ -49,7 +49,7 @@ if(empty($email) || !$S->sql("select team from marathon.teams where email1='$ema
 $tbl =<<<EOF
 <table id='results' border='1'>
 <thead>
-<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Total</th></tr>
+<tr><th>Team</th><th>Players</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th class='res-total'>Total</th></tr>
 </thead
 <tbody>
 EOF;
@@ -60,9 +60,10 @@ $S->sql("select distinct s.fkteam, t.name1, t.name2 from scores as s left join t
 $r = $S->getResult();
 
 while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
-  $list .= "<tr><td>$team</td><td>$name1 & $name2</td>";
+  $list .= "<tr><td class='res-team'>$team</td><td class='res-names'>$name1 & $name2</td>";
   
   $S->sql("select score from scores where fkteam=$team order by moNo");
+  
   $total = 0;
 
   // BLP 2022-08-26 - NOTE: if I do $score = $S->fetchrow('num')[0], I could get a zero back which looks like a
@@ -72,9 +73,9 @@ while([$team, $name1, $name2] = $S->fetchrow($r, 'num')) {
     
   while([$score] = $S->fetchrow('num')) {
     $total += $score;
-    $list .= "<td>$score</td>";
+    $list .= "<td class='res-score'>$score</td>";
   }
-  $list .= "<td>$total</td></tr>";
+  $list .= "<td class='res-total'>$total</td></tr>";
 }
 
 // The table fully formed
@@ -86,23 +87,16 @@ $S->banner = "<h1>$S->title</h1>";
 
 $S->css =<<<EOF
 #results th, #results td { padding: 0 5px; }
-#results th:nth-of-type(14), #results td:nth-of-type(14) { background: lightpink; }
-#results tbody td { text-align: right; }
-#results tbody td:nth-of-type(2) { text-align: left; }
+#results td { text-align: right; }
+.res-names { text-align: left; }
+.res-total { background: lightpink; }
+
 @media print {
   header, footer, hr, #printbtn, #return { display: none; }
   #teams {
     font-size: 12pt;
   }
 }
-EOF;
-
-$S->b_script = <<<EOF
-<script src="https://bartonphillips.net/tablesorter-master/dist/js/jquery.tablesorter.min.js"></script>
-<link rel="stylesheet" href="https://bartonphillips.net/css/newtblsort.css">
-<script>
-  $("#results").tablesorter({sortList: [[14, 0]]});
-</script>  
 EOF;
 
 [$top, $footer] = $S->getPageTopBottom();

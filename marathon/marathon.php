@@ -66,9 +66,8 @@ function youareok(bool $ok, string $email, ?int $team=null, ?string $name1=null,
   if(!$ok) {
     //You are NOT OK
 
-    $S->sql("insert into $S->masterdb.badplayer (ip, botAs, type, count, errno, errmsg, agent, created, lasttime) " .
-              "values('$S->ip', 'counted', '$S->self', 1, -1, 'Not Authorized', '$S->agent', now(), now()) ".
-              "on duplicate key update count=count+1, lasttime=now()");
+    $S->sql("insert into $S->masterdb.badplayer (ip, botAs, type, errno, errmsg, agent, created, lasttime) " .
+              "values('$S->ip', 'counted', 'MARATHON', -1, 'Not Authorized', '$S->agent', now(), now())");
 
     error_log("marathon.php: $S->ip, 'NOT_AUTH', $errmsg, $S->agent");
                 

@@ -94,7 +94,7 @@ function doit($info) {
 <script src="https://bartonphillips.net/js/allnatural/js/maskedinput.js"></script>
 <script>
 jQuery(document).ready(function($) {
-  $("#phone").mask("(999) 999-9999");
+  $("phone").mask("(999) 999-9999");
 });
 </script>
 EOF;

@@ -4,12 +4,12 @@
 */
 {
     "siteDomain": "bonnieburch.com",
-    "siteName": "Bonnieburch",
+    "siteName": "bonnieburch.com",
     "mainTitle": "<h1>Bonnie's Home Page</h1>", // each of the bridge pages have
     //its own banner.
     "path": "/var/www/bonnieburch.com",
     "className": "SiteClass",
-    //"defaultCss": true, // If true then NO default css.
+    //"defaultCss": false, // If false then NO default css.
     "copyright": "Barton L. Phillips",
     "author": "Barton L. Phillips, mailto:bartonphillips@gmail.com",
     "address": "New Bern, North Carolina",
@@ -26,7 +26,7 @@
                          // If development is true then noEmail will be
                          // set to true unless noEmail is set to false!
                          // Only false not null or just missing.
-      "noEmail": false, //null,   // Set it to null will not affect the true above which sets it to true also.
+      "noEmail": true, //null,   // Set it to null will not affect the true above which sets it to true also.
       "noHtml": false,
       "noOutput": false
     },

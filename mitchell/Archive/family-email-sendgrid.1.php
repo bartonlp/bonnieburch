@@ -15,39 +15,22 @@
 //  lasttime datetime not null,
 //  primary key(fname,lname);
 
+// BLP 2024-12-24 - Reworked logic to use urlencode/urldecode.
+
 // You must use composer to load the sendgrid PHP files: 'composer require sendgrid/sendgrid'
 
-use SendGrid\Mail\Mail;
+use SendGrid\Mail\Mail; // Now that you have used composer to get sendgrid you can use it.
 
 $_site = require_once(getenv("SITELOADNAME"));
 ErrorClass::setDevelopment(true);
 $S = new SiteClass($_site);
 
 $S->css =<<<EOF
-form table input {
-  width: 1000px;
-  font-size: 30px;
-}
+form table input { width: 1000px; font-size: 30px; }
 td:first-of-type { padding-right: 20px; }
-input[type="checkbox"] {
-  margin-left: 0px;
-  vertical-align: bottom;
-  width: 30px;
-  height: 30px;
-}
-#past, #returnbonnie, form button {
-  cursor: pointer;
-  padding: 5px 15px;
-  font-size: 30px;
-  border-radius: 10px;
-  background:
-  green; color: white;
-}
-form textarea {
-  font-size: var(--blpFontSize);
-  width: 800px;
-  height: 400px;
-}
+input[type="checkbox"] { margin-left: 0px; vertical-align: bottom; width: 30px; height: 30px; }
+#past, form button { cursor: pointer; padding: 5px 15px; font-size: 30px; border-radius: 10px; background: green; color: white; }
+form textarea { font-size: var(--blpFontSize); width: 800px; height: 400px; }
 /* For senditpreview */
 #wait { position: relative; }
 #wait img {
@@ -55,6 +38,117 @@ form textarea {
   top: -18px;
 }
 EOF;
+
+// Upload file errors:
+
+$fileUploadErrors = [
+                     0 => 'There is no error, the file uploaded with success',
+                     1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+                     2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+                     3 => 'The uploaded file was only partially uploaded',
+                     4 => 'No file was uploaded',
+                     6 => 'Missing a temporary folder',
+                     7 => 'Failed to write file to disk.',
+                     8 => 'A PHP extension stopped the file upload.',
+                    ];
+
+//****************
+// getheader()
+// Parses the $info and returns an array of information
+
+function getheader($info) {
+  global $S, $fileUploadErrors; // BLP 2024-11-11 - added $fileUploadErrors
+
+  /*
+    info has
+    email
+    subject
+    texttosend
+    femail[] checkbox 
+    attachment
+    sendpreview button
+  */
+
+  // Small function to check if the text has markup.
+  // It returns the urlencoded contents after fixing the txt.
+
+  function checktext(string $txt):string {
+    if(($r = preg_match("~<.*>~m", $txt)) === 0) {
+      $contents = preg_replace("~^(.*?)$~m", "$1<br>", $txt);
+    } elseif($r === 1) {
+      $ar = explode("\n", $txt);
+      foreach($ar as $a) {
+        if(preg_match("~<.*>~", $a) === 0) {
+          $contents .= "$a<br>";
+        } elseif(preg_match("~<br>$~", $a) === 0) {
+          $contents .= "$a<br>";
+        } else {
+          $contents .= $a;
+        }
+      }
+    }
+  
+    $y = file_put_contents("./data/lasttext.data", $txt); // Save original text
+    if($y === false) {
+      echo "Error writing to file<br>";
+      $err = error_get_last();
+      echo $err['message'];
+      exit();
+    }
+
+    return urlencode($contents);
+  }
+  // End function
+  
+  $errorMsg = '';
+  $from =  "MitchellFamily@bonnieburch.com";
+  $to = "barton@bartonphillips.com";
+  $subject = $info['subject'];
+  $texttosend = $info['texttosend'];
+  $femail = $info['femail'];
+  
+  $date = date("Y-m-d");
+  $msg = '';
+  
+  if(!empty($texttosend)) {
+    $contents = checktext($texttosend);
+  } else {
+    $errorMsg .= "<h2>You must supply a message.</h2>";
+  }
+  
+  if(empty($subject)) {
+    $errorMsg .= "<h2>No valid 'Subject'</h2>";
+  }
+
+  if($femail) {
+    foreach($femail as $e) {
+      if(empty($e)) continue; // If no email address skip
+      $cc[] = $e;
+    }
+  } else {
+    $errorMsg .= "<h2>You must provide a CC list</h2>";
+  }
+
+  if(!empty($errorMsg)) {
+    return ['ERROR', $errorMsg];
+  } else {
+    return ['HEADERS', 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
+            'contents'=>$contents];
+  }
+}
+
+//******************
+// Check Authorized
+
+$xemail = $_REQUEST['email']; // For either a POST or a GET. Get the xemail 
+
+
+if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email='$xemail'")) {
+  error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
+
+  echo "<h1>Not Authorized</h1><p>Go Away</p>";  
+  exit();
+}
 
 // collect_attachments
 
@@ -88,116 +182,6 @@ function collect_attachments(string $field='attachment'): array {
   return $list;
 }
 
-// A small function
-
-function checktext(string $txt):string {
-  if(($r = preg_match("~<.*>~m", $txt)) === 0) {
-    $contents = preg_replace("~^(.*?)$~m", "$1<br>", $txt);
-  } elseif($r === 1) {
-    $ar = explode("\n", $txt);
-    foreach($ar as $a) {
-      if(preg_match("~<.*>~", $a) === 0) {
-        $contents .= "$a<br>";
-      } elseif(preg_match("~<br>$~", $a) === 0) {
-        $contents .= "$a<br>";
-      } else {
-        $contents .= $a;
-      }
-    }
-  }
-
-  return urlencode($contents);
-}
-
-//****************
-// getheader()
-// Parses the $info and returns an array of information
-// Small function to check if the text has markup.
-// It returns the urlencoded contents after fixing the txt.
-
-function getheader($info) {
-  /*
-    info has
-    email
-    subject
-    texttosend
-    femail[] checkbox 
-    attachment
-    sendpreview button
-  */
-
-  $errorMsg = '';
-  $from =  "MitchellFamily@bonnieburch.com";
-  $to = "barton@bartonphillips.com";
-  $subject = $info['subject'];
-  $texttosend = $info['texttosend'];
-  $femail = $info['femail'];
-  $date = date("Y-m-d");
-  $msg = '';
-  
-  if(!empty($texttosend)) {
-    $contents = checktext($texttosend);
-  } else {
-    $errorMsg .= "<h2>You must supply a message.</h2>";
-  }
-  
-  if(empty($subject)) {
-    $errorMsg .= "<h2>No valid 'Subject'</h2>";
-  }
-
-  if($femail) {
-    foreach($femail as $e) {
-      if(empty($e)) continue; // If no email address skip
-      $cc[] = $e;
-    }
-  } else {
-    $errorMsg .= "<h2>You must provide a CC list</h2>";
-  }
-
-  $subjectTexttosend = "$subject\n$texttosend";
-  
-  if(!empty($errorMsg)) {
-    return ['ERROR', $errorMsg];
-  } else {
-    return ['HEADERS', 'from'=>$from, 'to'=>$to, 'subject'=>$subject, 'cc'=>$cc,
-            'contents'=>$contents, 'subjectTexttosend'=>$subjectTexttosend];
-  }
-}
-
-//******************
-// Check Authorized
-
-$xemail = $_REQUEST['email']; // For either a POST or a GET. Get the xemail 
-
-
-if(empty($xemail) || !$S->sql("select fname, lname from bonnie.family where email=?", [$xemail])) {
-  error_log("$S->self: $S->ip, $S->siteName, 'NOT_AUTH', 'Not Authorized', $S->agent");
-
-  echo "<h1>Not Authorized</h1><p>Go Away</p>";  
-  exit();
-}
-
-if($_GET['do'] == 1) {
-  $S->title = "Data Sent";
-  $S->banner = "<h1>$S->title</h1>";
-
-  [$top, $footer] = $S->getPageTopBottom();
-  
-  echo <<<EOF
-$top
-<hr>
-<h2>You information has been sent.</h2>
-<form method="post">
-<input type='hidden' name='email' value='$xemail'>
-<button type='submit' name="page" value="startpage">Return to Bonnie's Home Page</button>
-</form>
-<hr>
-$footer
-EOF;
-
-  exit;
-}
-
 // Sendpreview
 
 if($_POST['sendpreview']) {
@@ -221,17 +205,9 @@ if($_POST['sendpreview']) {
 $("#sendit").on("click", function(e) {
   $(this).hide();
   $("#wait").html("<h2>Please Wait&nbsp;&nbsp;<img src='https://bartonphillips.net/images/loading.gif' width=100 height=100'></h2>");
-  setTimeout(() => {
-    history.replaceState(null, "", "./family.php?page=auth&email=$xemail");
-  }, 50);
 });
-$(document).on("click", "#backarrow", function(e) {
-  e.preventDefault();
-  console.log("I have done 'back'");
-  // Give the browser time to finalize pushState before navigating
-  setTimeout(() => {
-    history.back();
-  }, 50); // 50 ms is usually enough
+$("#backarrow").on("click", function(e) {
+  history.back();
 });
 EOF;
 
@@ -245,33 +221,11 @@ EOF;
   border-radius: 10px;
 }
 EOF;
-    $subjectTexttosend = $info['subjectTexttosend'];
-
-    $S->sql("select Subject, Text from bonnie.backups order by cnt");
     
-    while([$subject, $text] = $S->fetchrow('num')) {
-      $compare1 = trim("$subject\n$text");
-      $compare2 = trim($subjectTexttosend);
+    [$top, $footer] = $S->getPageTopBottom();
 
-      if($compare1 == $compare2) {
-        $here = 1;
-        break;
-      }
-    }
-
-    if(!$here) {
-      $S->sql("select cnt from bonnie.backups order by cnt desc limit 1");
-      $count = $S->fetchrow('num')[0] + 1;
-
-      $S->sql("insert into bonnie.backups (cnt, Subject, Text) values(?, ?, ?)", ["$count", "$m[1]", "$m[2]"]);
-    }
-
-    file_put_contents("./data/lasttext.data", $subjectTexttosend); // Save original text
-
-    unset($info['subjectTexttosend']);
-    
     $contents = urldecode($info['contents']);
-
+    
     $postdata = json_encode($info);
 
     $attachStr = '';
@@ -293,8 +247,6 @@ EOF;
     $ccstr = implode(",", $info['cc']);
 
     // Wright the message.
-
-    [$top, $footer] = $S->getPageTopBottom();
     
     echo <<<EOF
 $top
@@ -302,22 +254,20 @@ $top
 <p>From: {$info['from']}<br>
 Subject: {$info['subject']}<br>
 Send To: $ccstr</p>
-<p>Message:<br>
-$contents
+<p>Message:<br>$contents
 $attachStr</p>
-<form method="post">
+<form method="POST">
 <input type="hidden" name="email" value="$xemail">
 <input type="hidden" name="post" value='$postdata'>
 <input type='hidden' name='attachments' value='$new'>
 <button id="sendit" type="submit" name="sendit" value="sendit">Send It</button>
-<div id="wait"></div>
+<div id="wait"></div>      
 </form>
-<br><a href="family-email-sendgrid.php?page=auth&email=$xemail">Return to <b>blank</b> Send Mail</a>
-<div id="backarrow"><button>Return <b>filled in</b> Send Mail</button></div>
+<br><a href="family-email-sendgrid.php?page=auth&email=$xemail">Return to Send Mail</a>
+<div id="backarrow"><button>Return to Send Mail</button></div>
 <hr>
 $footer
 EOF;
-
     exit();
   }
   // If we have if(info[0] == 'ERROR') we come to $msg and return to the Main flow.
@@ -331,7 +281,6 @@ EOF;
 if(isset($_POST['sendit'])) {
   $attachments = json_decode($_POST['attachments']);
   $info = json_decode($_POST['post'], true);
-  $xemail = $_POST['email'];
 
   $email = new \SendGrid\Mail\Mail();
   $email->setFrom($info['from']);
@@ -364,7 +313,7 @@ if(isset($_POST['sendit'])) {
     $code = $e->getCode();
     $message = $e->getMessage();
     echo "<h1>Error</h1><p>Code: $code<br>SendGrid: $message.</p>";
-    vardump("Error code=$code, message=$message. Error \$e", $e);
+    vardump("e", $e);
     exit;
   }
   
@@ -374,32 +323,15 @@ if(isset($_POST['sendit'])) {
     $sgMsg = $body->errors[0]->message ?? 'Unknown SendGrid error';
     echo "<p>Error Code: $code<br>SendGrid: ".htmlspecialchars($sgMsg).".</p>";
     exit;
-  } 
-
-  $S->title = "Data Sent";
-  $S->banner = "<h1>$S->title</h1>";
-
-  $S->b_inlineScript = <<<EOF
-$(document).on("click", "#returnbonnie", function(e) {
-  e.preventDefault();
-  console.log("returnbonnie");
-  const xemail = $("#getxemail").val();
-  location.href = "./family.php?page=auth&email=" + xemail;
-});
-EOF;
-  
-  [$top, $footer] = $S->getPageTopBottom();
-  
-  echo <<<EOF
-$top
-<hr>
+  } else {
+    $S->title = "Data Sent";
+    $S->banner = "<h1>$S->title</h1>";
+    $msg =<<<EOF
 <h2>You information has been sent.</h2>
-<input id="getxemail" type="hidden" value="$xemail">
-<button id="returnbonnie">Return to Bonnie's Home Page</button>
-<hr>
-$footer
 EOF;
+  }
 
+  header("Location: https://bonnieburch.com/mitchell/family-email-sendgrid.php?page=end&msg=$msg&email=$xemail");
   exit();
 }
 
@@ -408,11 +340,32 @@ EOF;
 // Get Last 'Text to send'
 
 if($_POST['past']) {
-  $data = file_get_contents("data/lasttext.data");
-  echo $data;
+  $text = file_get_contents("data/lasttext.data");
 
+  echo $text;
   exit();
 }
+
+// This is the FINAL message after 'sendit' above. This insures that we can not resend the message
+// by pressing F5 etc. You can use the 'back arrow' to go back to the 'Preview' page from which you
+// can choose to return to the main page or resend the information.
+// We already have #xemail from 'Check Authoried'
+
+if($_GET['page'] == 'end') {
+  $msg = $_GET['msg'];
+  
+  [$top, $footer] = $S->getPageTopBottom();
+  
+  echo <<<EOF
+$top
+<hr>
+$msg
+<a href="family.php?page=auth&email=$xemail">Return to Bonnie's Home Page</a>
+<hr>
+$footer
+EOF;
+  exit();
+};
 
 //**************
 // Start of Page
@@ -429,29 +382,14 @@ $("#all").on("click", function() {
   }
 });
 
-$(document).on("click", "#past", function(e) {
-  e.preventDefault();
-
-  $.ajax ({
+$("#past").on("click", function() {
+  $.ajax({
     url: "https://bonnieburch.com/mitchell/family-email-sendgrid.php",
-    data: { "past": true, "email": "bonnieburch2015@gmail.com" },
+    data: { "past": true, "email": "bonnieburch2015@gmail.com" }, // BLP 2023-10-07 - email needed for check auth above.
     type: 'post',
     success: function(data) {
-      const input = data.replace(/\\r\\n?/g, "\\n");
-
-      const lines = input.split("\\n");
-
-      // The first line is the subject
-
-      const sub = lines.shift().trim();
-      
-      // Everything else is the body
-      const textto = lines.join("\\n").trim();
-
       console.log("data: ", data);
-
-      $("#input").val(sub);
-      $("#textarea").val(textto);
+      $("#textarea").html(data);
     },
     error: function(err) {
       console.log(err);
@@ -488,14 +426,12 @@ echo <<<EOF
 $top
 <hr>
 $errorMsg
-<button id="past" value="true">Get Last 'Subject' and 'Text' to send</button>
+<button id="past" value="TRUE">Get Last 'Text to send'</button>
 
 <form enctype="multipart/form-data" method="POST">
 <table>
-<tr><td>Enter Subject</td>
-<td><input id="input" type="text" name="subject"></td></tr>
-<tr><td>Enter Text to send</td>
-<td><textarea id="textarea" name="texttosend" rows="5" cols="50" placeholder="Enter Text"></textarea></td></tr>
+<tr><td>Enter Subject</td><td><input type="text" name="subject" value="$subject"></td></tr>
+<tr><td>Enter Text to send</td><td><textarea id="textarea" name="texttosend" rows="5" cols="50" placeholder="Enter Text"></textarea></td></tr>
 </table>
 <p>Select to whom you want to send:</p>
 <input id="all" type="checkbox">Select All
@@ -505,12 +441,9 @@ $familyTbl
 </table>
 <br>
 <input type="hidden" name="email" value="$xemail">
-<button id="sendit" type="submit" name="sendpreview" value="true">Preview, then Send Email</button>
+<button id="send" type="submit" name="sendpreview" value="true">Preview, then Send Email</button>
 </form>
 <a href="family.php?page=auth&email=$xemail">Return to Mitchell Family</a>
 <hr>
 $footer
 EOF;
-
-
-  

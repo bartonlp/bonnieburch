@@ -1,5 +1,4 @@
 [
    {"item": "index.php", "frequency": "daily", "priority": "1"},
    {"item": "marathon/marathon.php", "frequency": "daily", "priority": "1"},
-   {"item": "bridgeclub/bridgeclub.php", "frequency": "daily", "priority": "1"}
 ]

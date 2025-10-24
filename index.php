@@ -1,8 +1,6 @@
-
 <?php
-// BLP 2023-02-24 - use new approach
-
-$_site = require_once(getenv("SITELOADNAME"));
+$_site = require_once getenv("SITELOADNAME");
+//vardump("site", $_site);
 $S = new SiteClass($_site);
 
 $S->title = "Bonnie's Home Page";
